@@ -14,8 +14,10 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "NCAC",
-      "email": "dev.ncac@gmail.com"
+      "name": "Nicolas Catrice-Auzon Cape",
+      "email": "dev.ncac@gmail.com",
+      "homepage": "https://gravatar.com/devncac",
+      "role": "Tech Lead"
     }
   ],
   "support": {

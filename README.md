@@ -1,22 +1,22 @@
 # NCAC PHPCS Standard
 
-[![Latest Stable Version](https://img.shields.io/badge/packagist-submit%20pending-orange)](https://packagist.org/packages/ncac/phpcs-standard)
-[![Total Downloads](https://img.shields.io/badge/downloads-coming%20soon-lightgrey)](https://packagist.org/packages/ncac/phpcs-standard)
-[![PHP Version](https://img.shields.io/badge/php-7.4%20|%208.0%20|%208.1%20|%208.2-blue)](https://packagist.org/packages/ncac/phpcs-standard)
+[![Latest Stable Version](https://img.shields.io/packagist/v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
+[![Total Downloads](https://img.shields.io/packagist/dt/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
+[![PHP Version](https://img.shields.io/packagist/php-v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
 
 ## Quality Assurance
 
 ### Psalm Static Analysis (PHP 7.4 - 8.2)
 
-[![Psalm Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![Psalm Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=psalm)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 
 ### PHPCS Code Standards (PHP 7.4 - 8.2)
 
-[![PHPCS Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPCS Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpcs)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 
 ### PHPUnit Tests (PHP 7.4 - 8.2)
 
-[![PHPUnit Tests](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPUnit Tests](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpunit)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 
 > **Philosophy:** The NCAC standard brings a "TypeScript-like" approach to PHP code: strict, explicit, readable, and modern. It encourages best practices, clear naming, and formatting conventions inspired by the TypeScript/ESLint ecosystem, but adapted for PHP.
 >
