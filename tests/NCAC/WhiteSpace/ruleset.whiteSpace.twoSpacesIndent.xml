@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC TwoSpacesIndent Test">
+  <description>Test only TwoSpacesIndentSniff</description>
+  <config name="installed_paths" value="../../../NCAC"/>
+  <rule ref="NCAC.WhiteSpace.TwoSpacesIndent"/>
+</ruleset>

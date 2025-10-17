@@ -31,7 +31,6 @@
     "squizlabs/php_codesniffer": "^3.13.4"
   },
   "require-dev": {
-    "drupal/coder": "^8.3",
     "phing/phing": "^3.0",
     "phpunit/phpunit": "^9.6 || ^10.0",
     "vimeo/psalm": "^5.26"
@@ -50,11 +49,6 @@
     "sort-packages": true,
     "platform": {
       "php": "7.4.33"
-    }
-  },
-  "extra": {
-    "phpcodesniffer-standard": {
-      "name": "NCAC"
     }
   },
   "scripts": {

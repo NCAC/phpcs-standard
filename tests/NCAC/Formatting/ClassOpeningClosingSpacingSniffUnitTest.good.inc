@@ -4,17 +4,15 @@ class GoodClass {
 
   /**
    * This is a sample method.
-   * @return void 
    */
-  public function methodOne() {
+  public function methodOne(): void {
     // Some code here
   }
 
   /**
    * This is another sample method.
-   * @return void 
    */
-  public function methodTwo() {
+  public function methodTwo(): void {
     // Some code here
   }
 

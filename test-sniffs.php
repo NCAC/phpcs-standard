@@ -1,12 +1,12 @@
 <?php
 /**
  * End-to-end test to verify that the NCAC standard works correctly.
- * 
+ *
  * This script tests the complete integration of the standard by verifying:
  * 1. That PHPCS recognizes the NCAC standard
  * 2. That NCAC rules are loaded and working
  * 3. That automatic fixes work
- * 
+ *
  * @author   NCAC
  * @category PHP_CodeSniffer
  * @package  NCAC
@@ -16,7 +16,7 @@
 $workingDir = __DIR__;
 $phpcsExecutable = $workingDir . '/vendor/bin/phpcs';
 $phpcbfExecutable = $workingDir . '/vendor/bin/phpcbf';
-$rulesetPath = $workingDir . '/ruleset.xml';
+$standard = 'NCAC';
 
 // Check that tools exist
 if (!file_exists($phpcsExecutable)) {
@@ -29,16 +29,11 @@ if (!file_exists($phpcbfExecutable)) {
   exit(1);
 }
 
-if (!file_exists($rulesetPath)) {
-  echo "ERROR: Ruleset not found at: $rulesetPath\n";
-  exit(1);
-}
-
 echo "🔍 Testing NCAC PHP_CodeSniffer Standard...\n\n";
 
 // Test 1: Check if PHPCS can load the standard
 echo "1. Checking if PHPCS can load the NCAC standard...\n";
-$output = shell_exec("$phpcsExecutable --standard=$rulesetPath -e 2>&1");
+$output = shell_exec("$phpcsExecutable --standard=$standard -e 2>&1");
 if (strpos($output, 'NCAC') === false) {
   echo "ERROR: PHPCS cannot load the NCAC standard\n";
   echo "Output: $output\n";
@@ -66,7 +61,7 @@ echo "✅ Test file created\n\n";
 
 // Test 3: Check that PHPCS detects violations
 echo "3. Running PHPCS to detect violations...\n";
-exec("$phpcsExecutable --standard=$rulesetPath $testFile 2>&1", $outputArray, $exitCode);
+exec("$phpcsExecutable --standard=$standard $testFile 2>&1", $outputArray, $exitCode);
 $output = implode("\n", $outputArray);
 
 if ($exitCode === 0) {
@@ -88,7 +83,7 @@ echo "\n";
 
 // Test 4: Test PHPCBF for automatic fixes
 echo "4. Testing PHPCBF for automatic fixes...\n";
-exec("$phpcbfExecutable --standard=$rulesetPath $testFile 2>&1", $outputArray2, $exitCode2);
+exec("$phpcbfExecutable --standard=$standard $testFile 2>&1", $outputArray2, $exitCode2);
 $output = implode("\n", $outputArray2);
 if (strpos($output, 'FIXED') !== false || strpos($output, 'No violations were found') !== false) {
   echo "✅ PHPCBF completed successfully\n";
@@ -99,7 +94,7 @@ echo "\n";
 
 // Test 5: Check that the standard works with NCAC files themselves
 echo "5. Testing NCAC standard on its own files...\n";
-exec("$phpcsExecutable --standard=$rulesetPath NCAC/ 2>&1", $outputArray3, $exitCode3);
+exec("$phpcsExecutable --standard=$standard NCAC/ 2>&1", $outputArray3, $exitCode3);
 $output = implode("\n", $outputArray3);
 
 if ($exitCode3 === 0) {
@@ -117,7 +112,7 @@ echo "📦 The NCAC PHP_CodeSniffer standard is ready for use.\n\n";
 
 echo "Usage:\n";
 echo "  composer install ncac/phpcs-standard\n";
-echo "  vendor/bin/phpcs --standard=vendor/ncac/phpcs-standard/ruleset.xml your-files/\n";
-echo "  vendor/bin/phpcbf --standard=vendor/ncac/phpcs-standard/ruleset.xml your-files/\n\n";
+echo "  vendor/bin/phpcs --standard=NCAC your-files/\n";
+echo "  vendor/bin/phpcbf --standard=NCAC your-files/\n\n";
 
 exit(0);

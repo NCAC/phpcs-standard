@@ -18,14 +18,14 @@
 
     <target name="cs">
         <exec executable="vendor/bin/phpcs" logoutput="true" passthru="true" checkreturn="true">
-            <arg value="--standard=ruleset.xml"/>
+            <arg value="--standard=NCAC"/>
             <arg value="NCAC/"/>
         </exec>
     </target>
 
     <target name="cs-fix">
         <exec executable="vendor/bin/phpcbf" logoutput="true" passthru="true" checkreturn="true">
-            <arg value="--standard=ruleset.xml"/>
+            <arg value="--standard=NCAC"/>
             <arg value="NCAC/"/>
         </exec>
     </target>
