@@ -50,6 +50,23 @@ scripts/release.sh --dry-run
 - Pushes to GitHub and creates release
 - Triggers Packagist update
 
+### `update-packagist-badges.sh`
+
+Updates README badges after Packagist submission.
+
+**Usage:**
+
+```bash
+scripts/update-packagist-badges.sh
+```
+
+**What it does:**
+
+- Checks if package is available on Packagist
+- Updates README badges with real Packagist URLs
+- Provides installation test commands
+- Shows submission instructions if package not found
+
 ## Requirements
 
 - Node.js and pnpm (for Husky and release-it)

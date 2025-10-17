@@ -1,7 +1,7 @@
 {
   "name": "ncac-phpcs-standard",
   "version": "1.0.0",
-  "description": "NCAC PHP CodeSniffer Standard & VSCode Extension",
+  "description": "NCAC PHP CodeSniffer Standard",
   "private": true,
   "devDependencies": {
     "@release-it/bumper": "^7.0.5",
