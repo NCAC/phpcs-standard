@@ -7,6 +7,7 @@
   "plugins": {
     "@release-it/bumper": {
       "in": [
+        "package.json",
         "composer.json"
       ]
     },
@@ -28,7 +29,9 @@
   "hooks": {
     "before:bump": "vendor/bin/phing check"
   },
-  "npm": false,
+  "npm": {
+    "publish": false
+  },
   "github": {
     "release": true
   }
