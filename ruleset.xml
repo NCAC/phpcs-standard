@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC">
+    <description>NCAC coding standard</description>
+
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName" />
+    <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+    <rule ref="Generic.PHP.LowerCaseConstant" />
+    <rule ref="SlevomatCodingStandard.Classes.ClassConstantVisibility">
+      <properties>
+        <property name="fixable" value="true"/>
+      </properties>
+    </rule>
+    <rule ref="Squiz.ControlStructures.ControlSignature">
+        <exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenParen"/>
+    </rule>
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing">
+      <exclude name="Squiz.WhiteSpace.OperatorSpacing.SpacingBefore"/>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.ClassMemberSpacing">
+      <properties>
+        <property name="linesCountBetweenMembers" value="1"/>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.MethodSpacing">
+      <properties>
+        <property name="minLinesCount" value="1"/>
+        <property name="maxLinesCount" value="1"/>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.ClassStructure">
+      <properties>
+        <property name="groups" type="array">
+          <element value="uses"/>
+          <element value="enum cases"/>
+          <element value="public constants"/>
+          <element value="protected constants"/>
+          <element value="private constants"/>
+          <element value="public static properties"/>
+          <element value="protected static properties"/>
+          <element value="private static properties"/>
+          <element value="public properties"/>
+          <element value="protected properties"/>
+          <element value="private properties"/>
+          <element value="constructor"/>
+          <element value="static constructors"/>
+          <element value="destructor"/>
+          <element value="public static final methods"/>
+          <element value="public static abstract methods"/>
+          <element value="public static methods"/>
+          <element value="protected static final methods"/>
+          <element value="protected static abstract methods"/>
+          <element value="protected static methods"/>
+          <element value="private static methods"/>
+          <element value="public final methods"/>
+          <element value="public abstract methods"/>
+          <element value="public methods"/>
+          <element value="protected final methods"/>
+          <element value="protected abstract methods"/>
+          <element value="protected methods"/>
+          <element value="private methods"/>
+          <element value="magic methods"/>
+        </property>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.PropertySpacing">
+      <properties>
+        <property name="minLinesCountBeforeWithComment" value="1"/>
+        <property name="maxLinesCountBeforeWithComment" value="1"/>
+        <property name="minLinesCountBeforeWithoutComment" value="1"/>
+        <property name="maxLinesCountBeforeWithoutComment" value="1"/>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.BackedEnumTypeSpacing">
+      <properties>
+        <property name="spacesCountBeforeColon" value="0"/>
+        <property name="spacesCountBeforeType" value="1"/>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
+      <exclude-pattern>*/Sniffs/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
+      <exclude-pattern>*/Sniffs/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint" />
+
+    <rule ref="NCAC" />
+
+</ruleset>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="3"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="true"
+    autoloader="NCAC/Sniffs/sniff-psalm-tokens.php"
+>
+    <projectFiles>
+        <directory name="NCAC" />
+        <ignoreFiles>
+          <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+    <extraFiles>
+      <directory name="vendor" />
+    </extraFiles>
+    <issueHandlers>
+        <UnusedClass errorLevel="suppress" />
+        <PossiblyUnusedParam errorLevel="suppress" />
+        <ParamNameMismatch errorLevel="suppress" />
+        <UnusedMethod errorLevel="info" />
+        <UnusedProperty errorLevel="info" />
+    </issueHandlers>
+</psalm>

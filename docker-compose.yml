@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: ./.docker/Dockerfile
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+        - APP_ROOT=${APP_ROOT}
+        - XDEBUG_PORT=${XDEBUG_PORT}
+        - WSL_IP=${WSL_IP}
+    tty: true
+    volumes:
+      - .:/workspace:cached
+      - ./.docker/php-config/php.ini:/usr/local/etc/php/conf.d/99-php.ini
+    env_file:
+      - .env

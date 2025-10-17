@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC Formatting Only - NoAlternateControlStructure">
+  <description>Test only NoAlternateControlStructureSniff</description>
+  <config name="installed_paths" value="../../../NCAC"/>
+  <rule ref="NCAC.Formatting.NoAlternateControlStructure"/>
+</ruleset>

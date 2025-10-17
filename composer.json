@@ -1,0 +1,56 @@
+{
+  "name": "ncac/phpcs-pretty-standard",
+  "description": "NCAC PHPCS Standard - TypeScript-like approach to PHP code quality with strict rules for modern, type-safe development",
+  "type": "phpcodesniffer-standard",
+  "keywords": [
+    "phpcs",
+    "code-quality",
+    "coding-standard",
+    "psr",
+    "static-analysis",
+    "typescript-style"
+  ],
+  "homepage": "https://github.com/ncac/phpcs-standard",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "NCAC",
+      "email": "dev.ncac@gmail.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/ncac/phpcs-standard/issues",
+    "source": "https://github.com/ncac/phpcs-standard",
+    "docs": "https://github.com/ncac/phpcs-standard/blob/main/README.md"
+  },
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "slevomat/coding-standard": "^8.22",
+    "squizlabs/php_codesniffer": "^3.13.4"
+  },
+  "require-dev": {
+    "drupal/coder": "^8.3",
+    "phing/phing": "^3.0",
+    "phpunit/phpunit": "^9.6 || ^10.0",
+    "vimeo/psalm": "^5.26"
+  },
+  "autoload": {
+    "psr-4": {
+      "NCAC\\": "NCAC/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NCAC\\Tests\\": "tests/NCAC/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "7.4.33"
+    }
+  },
+  "scripts": {
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage"
+  }
+}

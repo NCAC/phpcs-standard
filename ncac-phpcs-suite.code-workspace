@@ -1,0 +1,84 @@
+{
+  "folders": [
+    { "path": "." },
+    { "path": "NCAC", "name": "standard" },
+    { "path": "tests/NCAC", "name": "tests" }
+  ],
+  "settings": {
+    // # GIT integration
+    "scm.alwaysShowActions": true,
+    "git.alwaysShowStagedChangesResourceGroup": true,
+    "git.ignoreLimitWarning": true,
+    "git.openRepositoryInParentFolders": "always",
+    // Common editor and file settings for all projects in the monorepo
+    // Formatting, tabSize, insertSpaces, detectIndentation, phpsab, etc. are now centralized here
+    // PHP validation
+    "php.validate.executablePath": "/usr/local/bin/php",
+    "php.suggest.basic": false,
+    // Intelephense configuration (PHP language server)
+    "intelephense.environment.documentRoot": "/apps/cms/darty-multisite/web",
+    "intelephense.completion.maxItems": 500,
+    "intelephense.environment.phpVersion": "7.4.30",
+    // Universal exclusions for all folders
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": true
+    },
+    "search.exclude": {
+      "**/node_modules": true
+    },
+    // Editor formatting settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    // PHP-specific editor settings
+    "[php]": {
+      "editor.formatOnSave": true,
+      "editor.tabSize": 2,
+      "editor.defaultFormatter": "junstyle.php-cs-fixer"
+    },
+    // PHPSAB (PHP CS Fixer/PHPCS integration, for linting and auto-fix, not as default formatter)
+    "phpsab.fixerEnable": true,
+    "phpsab.standard": "/workspace/phpcs-standard/ruleset.xml",
+    "phpsab.executablePathCS": "/workspace/phpcs-standard/vendor/bin/phpcs",
+    "phpsab.executablePathCBF": "/workspace/phpcs-standard/vendor/bin/phpcbf"
+  },
+  "extensions": {
+    "recommendations": [
+      // PHP and code quality tools
+      "bmewburn.vscode-intelephense-client",
+      "junstyle.php-cs-fixer",
+      "esbenp.prettier-vscode",
+      // Git and workflow tools
+      "gxl.git-graph-3",
+      // PHPCS/PHPCBF integration
+      "valeryanm.vscode-phpsab",
+      // Debugging
+      "xdebug.php-debug",
+      // Batch rename utility
+      "jannisx11.batch-rename-extension",
+      // GitHub Actions integration
+      "github.vscode-github-actions"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Listen for Xdebug",
+        "type": "php",
+        "request": "launch",
+        "port": 9047,
+        "log": true,
+        // Uncomment the next line to break on entry
+        // "stopOnEntry": true,
+        "pathMappings": {
+          // Map the container or remote path to the local workspace
+          "/workspace": "${workspaceFolder}"
+        }
+      }
+    ]
+  }
+}

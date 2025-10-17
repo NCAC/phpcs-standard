@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/NCAC/phpunit-bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         beStrictAboutTestsThatDoNotTestAnything="false"
+         verbose="true">
+    <testsuites>
+        <testsuite name="NCAC Standard">
+            <directory>./tests/NCAC/</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./NCAC/</directory>
+        </include>
+    </coverage>
+</phpunit>

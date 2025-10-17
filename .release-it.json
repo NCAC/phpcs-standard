@@ -1,0 +1,32 @@
+{
+  "git": {
+    "commitMessage": "chore(release): ${name} v${version}",
+    "tagName": "${name}-v${version}",
+    "requireCleanWorkingDir": true
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": [
+        "phpcs-standard/composer.json",
+        "vscode-extension/package.json"
+      ]
+    },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  },
+  "hooks": {
+    "before:bump": "cd phpcs-standard && vendor/bin/phing check",
+    "after:bump": "cd vscode-extension && npm install"
+  },
+  "npm": false,
+  "github": {
+    "release": true
+  },
+  "prompt": {
+    "messages": {
+      "bump": "Which project do you want to release? (phpcs-standard or vscode-extension)"
+    }
+  }
+}

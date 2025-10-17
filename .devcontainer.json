@@ -1,0 +1,22 @@
+{
+  "name": "ncac-phpcs-suite-dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // # auto open .code-workspace file
+        "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true
+      },
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "junstyle.php-cs-fixer",
+        "esbenp.prettier-vscode",
+        "Gxl.git-graph-3",
+        "valeryanm.vscode-phpsab"
+      ]
+    }
+  },
+  "postCreateCommand": "sh /workspace/.docker/post-create-command.sh"
+}

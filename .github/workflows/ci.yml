@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - "*"
+    paths:
+      - "**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "**"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  phpcs-standard:
+    name: PHPCS Standard Package
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["7.4", "8.0", "8.1", "8.2"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run complete quality check (Psalm + PHPCS + Tests)
+        run: vendor/bin/phing check
+
+      - name: Test standard can be installed and detected
+        run: |
+          vendor/bin/phpcs --config-set installed_paths vendor/ncac/phpcs-standard
+          vendor/bin/phpcs -i | grep NCAC || echo "NCAC standard not detected in phpcs -i"
+
+  publish-packagist:
+    name: Publish to Packagist
+    needs: phpcs-standard
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish to Packagist
+        run: |
+          curl -X POST "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}" \
+            -d '{"repository":"https://github.com/ncac/phpcs-standard"}' \
+            -H 'Content-Type: application/json'

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="NCAC PHPCS Standard" default="check">
+
+    <target name="check" depends="composer,psalm,cs,cs-fix,tests,end2end"/>
+
+    <target name="composer">
+        <exec executable="composer" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="validate"/>
+            <arg value="--strict"/>
+        </exec>
+        <exec executable="composer" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="install"/>
+            <arg value="--prefer-dist"/>
+            <arg value="--no-progress"/>
+            <arg value="--ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="cs">
+        <exec executable="vendor/bin/phpcs" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="--standard=ruleset.xml"/>
+            <arg value="NCAC/"/>
+        </exec>
+    </target>
+
+    <target name="cs-fix">
+        <exec executable="vendor/bin/phpcbf" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="--standard=ruleset.xml"/>
+            <arg value="NCAC/"/>
+        </exec>
+    </target>
+
+    <target name="psalm">
+        <exec executable="vendor/bin/psalm" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="--output-format=console"/>
+            <arg value="--show-info=false"/>
+            <arg value="--no-cache"/>
+        </exec>
+    </target>
+
+    <target name="tests">
+        <exec executable="vendor/bin/phpunit" logoutput="true" passthru="true" checkreturn="true">
+            <env key="XDEBUG_MODE" value="coverage"/>
+        </exec>
+    </target>
+
+    <target name="end2end">
+        <exec executable="php" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="test-sniffs.php"/>
+        </exec>
+    </target>
+
+</project>

@@ -1,0 +1,10 @@
+{
+  "name": "ncac-phpcs-standard",
+  "version": "1.0.0",
+  "description": "NCAC PHP CodeSniffer Standard & VSCode Extension",
+  "private": true,
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.1",
+    "release-it": "^19.0.5"
+  }
+}
