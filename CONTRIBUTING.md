@@ -14,6 +14,60 @@ Thank you for your interest in contributing to the NCAC PHPCS Standard! We welco
    composer install
    ```
 
+## Commit Message Conventions
+
+We use Husky to enforce commit message conventions. All commit messages must follow this format:
+
+### Required Prefixes
+
+Your commit message **must** start with one of these prefixes:
+
+- `feat:` - A new feature or enhancement
+- `fix:` - A bug fix or correction
+- `chore:` - Maintenance tasks, dependencies, configuration
+- `refacto:` - Code refactoring without functional changes
+- `release:` - Release preparations, version bumps, changelogs
+
+### Format
+
+```
+<prefix>: <description>
+```
+
+### Examples
+
+✅ **Valid commit messages:**
+
+```
+feat: add new rule for enforcing typed properties
+fix: correct parsing error in switch statement sniff
+chore: update composer dependencies to latest versions
+refacto: simplify variable name validation logic
+release: bump version to 1.2.0 and update changelog
+```
+
+❌ **Invalid commit messages:**
+
+```
+added new feature          # Missing prefix
+update: fixed bug          # Invalid prefix 'update:'
+feat:added rule            # Missing space after colon
+FEAT: new rule             # Prefix must be lowercase
+```
+
+### Validation
+
+- Commit messages are automatically validated by Husky pre-commit hooks
+- Invalid messages will be rejected with helpful error messages
+- The validation runs both locally and in CI/CD
+
+### Tips
+
+- Keep descriptions concise but descriptive
+- Use imperative mood ("add" not "adds" or "added")
+- Don't end with a period
+- Focus on **what** changed, not **how** or **why** (use the commit body for details)
+
 ## Development Workflow
 
 ### Creating a New Sniff
@@ -53,7 +107,7 @@ vendor/bin/phing check
 
 ## Git and CI/CD Workflow
 
-- Use the git-flow model: work on feature/* branches, merge into develop, then release/* or hotfix/* into main.
+- Use the git-flow model: work on feature/_ branches, merge into develop, then release/_ or hotfix/\* into main.
 - The CI is triggered automatically:
   - on push/merge to develop (continuous integration)
   - on push/merge to main (production)
@@ -135,6 +189,71 @@ Releases are handled by maintainers and follow semantic versioning:
 - **Minor** (1.1.0): New features, new sniffs
 - **Major** (2.0.0): Breaking changes, major refactoring
 
+### Prerequisites
+
+Before creating a release:
+
+1. **Clean working directory**: All changes must be committed
+2. **Main branch**: Must be on the `main` branch
+3. **Quality checks**: All tests, PHPCS, and Psalm must pass
+4. **Updated documentation**: README and CHANGELOG should be current
+
+### Using the Release Script
+
+We provide a helper script `./release.sh` that automates the release process:
+
+```bash
+# Interactive release (prompts for version type)
+./release.sh
+
+# Specific release types
+./release.sh patch    # 1.0.0 -> 1.0.1
+./release.sh minor    # 1.0.0 -> 1.1.0
+./release.sh major    # 1.0.0 -> 2.0.0
+
+# Dry-run to test without making changes
+./release.sh --dry-run
+```
+
+### What the Release Process Does
+
+1. **Validation**: Checks git status and branch
+2. **Quality assurance**: Runs `vendor/bin/phing check`
+3. **Version bump**: Updates version in relevant files
+4. **Changelog**: Auto-generates from conventional commits
+5. **Git operations**: Creates commit with `release:` prefix and tags
+6. **GitHub release**: Creates GitHub release with changelog
+7. **Packagist**: Triggers automatic update via webhook
+
+### Manual Release (Advanced)
+
+If you prefer manual control, you can use `release-it` directly:
+
+```bash
+# Interactive release
+npx release-it
+
+# Specific version
+npx release-it 1.2.0
+
+# Test without changes
+npx release-it --dry-run
+```
+
+### Commit Message Impact on Changelog
+
+The changelog is automatically generated based on conventional commit prefixes:
+
+- `feat:` → ✨ **Features**
+- `fix:` → 🐛 **Bug Fixes**
+- `chore:` → 🔧 **Maintenance**
+- `refacto:` → ♻️ **Refactoring**
+- `release:` → 🚀 **Releases**
+
+### Release Checklist
+
+For maintainers, see the complete [Release Checklist](docs/release-checklist.md) for step-by-step release process.
+
 ## Publishing to Packagist
 
 Only the main maintainer (NCAC) is allowed to publish or trigger releases on Packagist. The Packagist API token and username are kept private and are never shared in the repository or with contributors.
@@ -148,11 +267,13 @@ Only the main maintainer (NCAC) is allowed to publish or trigger releases on Pac
 GitHub Actions secrets are encrypted environment variables used to store sensitive information (like API tokens) securely in your repository settings. They are never exposed in logs or to users without write/admin access.
 
 **How it works:**
+
 - The maintainer adds `PACKAGIST_API_TOKEN` and `PACKAGIST_USERNAME` as secrets in the GitHub repository settings (Settings → Secrets and variables → Actions).
 - The CI workflow uses these secrets to authenticate and publish to Packagist during a release.
 - Contributors and forks do not have access to these secrets, so only the maintainer can trigger a real publication.
 
 **Best practices:**
+
 - Never commit secrets or tokens in the repository.
 - Only maintainers with admin access can add or update secrets.
 - Document this process for transparency and security.

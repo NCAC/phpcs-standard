@@ -3,6 +3,29 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/ncac/phpcs-standard.svg?style=flat-square)](https://packagist.org/packages/ncac/phpcs-standard)
 [![Total Downloads](https://img.shields.io/packagist/dt/ncac/phpcs-standard.svg?style=flat-square)](https://packagist.org/packages/ncac/phpcs-standard)
 
+## Quality Assurance
+
+### Psalm Static Analysis
+
+[![Psalm PHP 7.4](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=psalm%20(7.4)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![Psalm PHP 8.0](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=psalm%20(8.0)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![Psalm PHP 8.1](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=psalm%20(8.1)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![Psalm PHP 8.2](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=psalm%20(8.2)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+
+### PHPCS Code Standards
+
+[![PHPCS PHP 7.4](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpcs%20(7.4)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPCS PHP 8.0](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpcs%20(8.0)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPCS PHP 8.1](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpcs%20(8.1)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPCS PHP 8.2](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpcs%20(8.2)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+
+### PHPUnit Tests
+
+[![PHPUnit PHP 7.4](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpunit%20(7.4)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPUnit PHP 8.0](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpunit%20(8.0)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPUnit PHP 8.1](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpunit%20(8.1)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+[![PHPUnit PHP 8.2](<https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&event=push&job=phpunit%20(8.2)>)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
+
 > **Philosophy:** The NCAC standard brings a "TypeScript-like" approach to PHP code: strict, explicit, readable, and modern. It encourages best practices, clear naming, and formatting conventions inspired by the TypeScript/ESLint ecosystem, but adapted for PHP.
 >
 > **Acknowledgement:** The NCAC standard is heavily inspired by the [Slevomat Coding Standard](https://github.com/slevomat/coding-standard), which provides many of the strict type, documentation, and structure rules that NCAC builds upon. We thank the Slevomat team and contributors for their high-quality open source work. Parts of this standard may directly use or adapt rules and logic from Slevomat, in accordance with its [license](https://github.com/slevomat/coding-standard/blob/master/LICENSE).

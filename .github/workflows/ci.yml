@@ -15,8 +15,8 @@ on:
       - ".github/workflows/ci.yml"
 
 jobs:
-  phpcs-standard:
-    name: PHPCS Standard Package
+  psalm:
+    name: Psalm Analysis
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,17 +35,66 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
-      - name: Run complete quality check (Psalm + PHPCS + Tests)
-        run: vendor/bin/phing check
+      - name: Run Psalm via Phing
+        run: vendor/bin/phing psalm
+
+  phpcs:
+    name: PHPCS Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["7.4", "8.0", "8.1", "8.2"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPCS via Phing
+        run: vendor/bin/phing cs
 
       - name: Test standard can be installed and detected
         run: |
           vendor/bin/phpcs --config-set installed_paths vendor/ncac/phpcs-standard
           vendor/bin/phpcs -i | grep NCAC || echo "NCAC standard not detected in phpcs -i"
 
+  phpunit:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["7.4", "8.0", "8.1", "8.2"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPUnit Tests via Phing
+        run: vendor/bin/phing tests
+
+      - name: Run End-to-End Tests via Phing
+        run: vendor/bin/phing end2end
+
   publish-packagist:
     name: Publish to Packagist
-    needs: phpcs-standard
+    needs: [psalm, phpcs, phpunit]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

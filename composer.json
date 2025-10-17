@@ -1,5 +1,5 @@
 {
-  "name": "ncac/phpcs-pretty-standard",
+  "name": "ncac/phpcs-standard",
   "description": "NCAC PHPCS Standard - TypeScript-like approach to PHP code quality with strict rules for modern, type-safe development",
   "type": "phpcodesniffer-standard",
   "keywords": [
