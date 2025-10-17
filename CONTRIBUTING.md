@@ -4,36 +4,36 @@ Thank you for your interest in contributing to the NCAC PHPCS Standard! We welco
 
 ## Getting Started
 
-1. **Fork the repository** on GitHubWe provide a helper script `scripts/release.sh` that automates the release process:
+### Development Environment Setup
 
-````bash
-# Interactive release (prompts for version type)
-scripts/release.sh
+For the best development experience, we recommend using VS Code with Dev Containers:
 
-# Specific release types
-scripts/release.sh patch    # 1.0.0 -> 1.0.1
-scripts/release.sh minor    # 1.0.0 -> 1.1.0
-scripts/release.sh major    # 1.0.0 -> 2.0.0
+1. **Development Setup**: See [Dev Container Setup Guide](docs/dev-container-setup.md) for detailed instructions
+2. **Quick Start**:
 
-# Dry-run to test without making changes
-scripts/release.sh --dry-run
-```ur fork** locally:
+   ```bash
+   # Clone in WSL2 (Windows users)
+   git clone https://github.com/your-username/phpcs-standard.git
 
-- `feat:` → ✨ **Features**
-- `fix:` → 🐛 **Bug Fixes**
-- `chore:` → 🔧 **Maintenance**
-- `refacto:` → ♻️ **Refactoring**
-- `docs:` → 📚 **Documentation**
-- `release:` → 🚀 **Releases**ash
-  git clone https://github.com/your-username/phpcs-standard.git
-````
+   # Generate environment before opening in VS Code
+   .docker/generate-env.sh
 
-````
+   # Open in VS Code - Dev Container will auto-configure
+   code .
+   ```
 
+### Manual Setup
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally:
+   ```bash
+   git clone https://github.com/your-username/phpcs-standard.git
+   ```
 3. **Install dependencies**:
- ```bash
- composer install
-````
+   ```bash
+   composer install
+   pnpm install
+   ```
 
 ## Commit Message Conventions
 
@@ -128,29 +128,6 @@ Before submitting, run the following command to ensure your code passes all test
 vendor/bin/phing check
 ```
 
-## Git and CI/CD Workflow
-
-- Use the git-flow model: work on feature/_ branches, merge into develop, then release/_ or hotfix/\* into main.
-- The CI is triggered automatically:
-  - on push/merge to develop (continuous integration)
-  - on push/merge to main (production)
-  - on tag creation (release)
-- Build and quality badges are automatically updated in the README.
-- To publish a version, create a tag on main: the CI will validate the release and update the badges.
-
-### Example badge to place in README.md:
-
-```
-![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=main)
-![Release](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?event=push&branch=main)
-```
-
-Replace `<OWNER>` and `<REPO>` with your GitHub namespace and repository name.
-
----
-
-For any contribution, follow this workflow to ensure code robustness and traceability.
-
 ## Pull Request Process
 
 1. **Create a feature branch** from `main`:
@@ -165,11 +142,7 @@ For any contribution, follow this workflow to ensure code robustness and traceab
 
 4. **Update documentation** in README.md if needed
 
-5. **Commit your changes** with clear, descriptive messages:
-
-   ```bash
-   git commit -m "Add: New sniff for detecting X pattern"
-   ```
+5. **Commit your changes** with clear, descriptive messages following our conventions
 
 6. **Push to your fork**:
 
@@ -223,19 +196,19 @@ Before creating a release:
 
 ### Using the Release Script
 
-We provide a helper script `./release.sh` that automates the release process:
+We provide a helper script `scripts/release.sh` that automates the release process:
 
 ```bash
 # Interactive release (prompts for version type)
-./release.sh
+scripts/release.sh
 
 # Specific release types
-./release.sh patch    # 1.0.0 -> 1.0.1
-./release.sh minor    # 1.0.0 -> 1.1.0
-./release.sh major    # 1.0.0 -> 2.0.0
+scripts/release.sh patch    # 1.0.0 -> 1.0.1
+scripts/release.sh minor    # 1.0.0 -> 1.1.0
+scripts/release.sh major    # 1.0.0 -> 2.0.0
 
 # Dry-run to test without making changes
-./release.sh --dry-run
+scripts/release.sh --dry-run
 ```
 
 ### What the Release Process Does
@@ -271,6 +244,7 @@ The changelog is automatically generated based on conventional commit prefixes:
 - `fix:` → 🐛 **Bug Fixes**
 - `chore:` → 🔧 **Maintenance**
 - `refacto:` → ♻️ **Refactoring**
+- `docs:` → 📚 **Documentation**
 - `release:` → 🚀 **Releases**
 
 ### Release Checklist

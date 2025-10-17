@@ -36,6 +36,46 @@
 composer require --dev ncac/phpcs-standard
 ```
 
+## Development Setup
+
+For contributors and developers working on this project:
+
+### VS Code Dev Container (Recommended)
+
+1. **Clone in WSL2** (Windows users):
+
+   ```bash
+   # Must be run in WSL2, not Windows
+   git clone https://github.com/ncac/phpcs-standard.git
+   cd phpcs-standard
+   ```
+
+2. **Generate environment** (before opening in VS Code):
+
+   ```bash
+   .docker/generate-env.sh
+   ```
+
+3. **Open in VS Code**: The Dev Container will automatically configure the development environment.
+
+For detailed setup instructions, see [Dev Container Setup Guide](docs/dev-container-setup.md).
+
+### Manual Setup
+
+If not using Dev Containers:
+
+```bash
+# Install dependencies
+composer install
+pnpm install
+
+# Run quality checks
+vendor/bin/phing check
+
+# Test commit hooks
+scripts/test-commit-hooks.sh
+```
+
 ## Usage
 
 ### Basic usage with phpcs:

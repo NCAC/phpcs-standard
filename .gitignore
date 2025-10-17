@@ -11,6 +11,7 @@
 !generate-env.sh
 !ncac-phpcs-suite.code-workspace
 !.github
+!.env.example
 !.release-it.json
 !package.json
 !CHANGELOG.md
@@ -40,6 +41,10 @@
 !.docker/php-logs
 .docker/php-logs/*
 !.docker/php-logs/.gitkeep
+!.docker/post-create-command.sh
+!.docker/generate-env.sh
+#
+
 #
 !/NCAC
 !/tests
