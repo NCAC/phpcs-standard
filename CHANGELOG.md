@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.2](https://github.com/ncac/phpcs-standard/compare/v1.0.1...v1.0.2) (2025-10-17)
+
+
+### chore
+
+* update composer.lock after adding extra section ([](https://github.com/ncac/phpcs-standard/commit/f08e223ca867dacc3b2cac28c9fab526358ee9bf))
+
+
+### feat
+
+* finalize CI badges and infrastructure documentation ([](https://github.com/ncac/phpcs-standard/commit/390441d666998136b32b321e02251208013d38d0))
+
+
+### fix
+
+* configure NCAC as standard name in composer.json extra section ([](https://github.com/ncac/phpcs-standard/commit/aee39a0fe07b5fee20f0ce6741c2cccf0031354f))
+
 ## [1.0.1](https://github.com/ncac/phpcs-standard/compare/v1.0.0...v1.0.1) (2025-10-17)
 
 
