@@ -52,6 +52,11 @@
       "php": "7.4.33"
     }
   },
+  "extra": {
+    "phpcodesniffer-standard": {
+      "name": "NCAC"
+    }
+  },
   "scripts": {
     "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage"
   }
