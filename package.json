@@ -1,6 +1,6 @@
 {
   "name": "ncac-phpcs-standard",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "NCAC PHP CodeSniffer Standard",
   "private": true,
   "devDependencies": {

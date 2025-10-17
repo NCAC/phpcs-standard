@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/ncac/phpcs-standard/compare/v1.0.2...v1.0.3) (2025-10-17)
+
+
+### feat
+
+* fix standard structure and naming ([](https://github.com/ncac/phpcs-standard/commit/56c8585fd5cde0dcf16c5c96fbee263a0eef0f3e))
+
 ## [1.0.2](https://github.com/ncac/phpcs-standard/compare/v1.0.1...v1.0.2) (2025-10-17)
 
 
