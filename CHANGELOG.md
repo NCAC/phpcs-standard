@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ncac/phpcs-standard/compare/v1.0.0...v1.0.1) (2025-10-17)
+
+
+### fix
+
+* correct package name from phpcs-pretty-standard to phpcs-standard ([](https://github.com/ncac/phpcs-standard/commit/753dc0db6163fb28126486e757c8310af59f22ee))
+
 # 1.0.0 (2025-10-17)
 
 
