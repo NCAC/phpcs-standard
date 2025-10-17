@@ -66,6 +66,7 @@ workspace/
 ## 🎯 Available Commands
 
 ### Development
+
 ```bash
 # Environment configuration (before Dev Container)
 .docker/generate-env.sh
@@ -78,6 +79,7 @@ scripts/test-commit-hooks.sh
 ```
 
 ### Release Management
+
 ```bash
 # Process test (recommended)
 scripts/release.sh --dry-run
@@ -87,17 +89,17 @@ scripts/release.sh
 
 # Specific releases
 scripts/release.sh patch    # 1.0.0 → 1.0.1
-scripts/release.sh minor    # 1.0.0 → 1.1.0  
+scripts/release.sh minor    # 1.0.0 → 1.1.0
 scripts/release.sh major    # 1.0.0 → 2.0.0
 ```
 
 ## 🏆 Quality Assurance
 
-| Tool     | PHP 7.4 | PHP 8.0 | PHP 8.1 | PHP 8.2 |
-|----------|---------|---------|---------|---------|
-| Psalm    | ✅       | ✅       | ✅       | ✅       |
-| PHPCS    | ✅       | ✅       | ✅       | ✅       |
-| PHPUnit  | ✅       | ✅       | ✅       | ✅       |
+| Tool    | PHP 7.4 | PHP 8.0 | PHP 8.1 | PHP 8.2 |
+| ------- | ------- | ------- | ------- | ------- |
+| Psalm   | ✅      | ✅      | ✅      | ✅      |
+| PHPCS   | ✅      | ✅      | ✅      | ✅      |
+| PHPUnit | ✅      | ✅      | ✅      | ✅      |
 
 **Current status**: All tests passing! ✅
 
@@ -124,7 +126,7 @@ To finalize production deployment:
 The NCAC PHPCS Standard project now has **enterprise-level** development infrastructure with:
 
 - ✅ Professional quality standards
-- ✅ Robust automated workflows  
+- ✅ Robust automated workflows
 - ✅ Comprehensive documentation
 - ✅ Multi-environment support
 - ✅ Transparent release process
