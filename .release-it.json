@@ -19,6 +19,7 @@
           "fix": "🐛 Bug Fixes",
           "chore": "🔧 Maintenance",
           "refacto": "♻️ Refactoring",
+          "docs": "📚 Documentation",
           "release": "🚀 Releases"
         }
       }

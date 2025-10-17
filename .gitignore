@@ -24,6 +24,10 @@
 !build.xml
 !phpunit.xml
 !test-sniffs.php
+!scripts
+!.husky
+!docs
+!scripts
 #
 # docker
 !.docker

@@ -4,15 +4,36 @@ Thank you for your interest in contributing to the NCAC PHPCS Standard! We welco
 
 ## Getting Started
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/your-username/phpcs-standard.git
-   ```
+1. **Fork the repository** on GitHubWe provide a helper script `scripts/release.sh` that automates the release process:
+
+````bash
+# Interactive release (prompts for version type)
+scripts/release.sh
+
+# Specific release types
+scripts/release.sh patch    # 1.0.0 -> 1.0.1
+scripts/release.sh minor    # 1.0.0 -> 1.1.0
+scripts/release.sh major    # 1.0.0 -> 2.0.0
+
+# Dry-run to test without making changes
+scripts/release.sh --dry-run
+```ur fork** locally:
+
+- `feat:` → ✨ **Features**
+- `fix:` → 🐛 **Bug Fixes**
+- `chore:` → 🔧 **Maintenance**
+- `refacto:` → ♻️ **Refactoring**
+- `docs:` → 📚 **Documentation**
+- `release:` → 🚀 **Releases**ash
+  git clone https://github.com/your-username/phpcs-standard.git
+````
+
+````
+
 3. **Install dependencies**:
-   ```bash
-   composer install
-   ```
+ ```bash
+ composer install
+````
 
 ## Commit Message Conventions
 
@@ -26,6 +47,7 @@ Your commit message **must** start with one of these prefixes:
 - `fix:` - A bug fix or correction
 - `chore:` - Maintenance tasks, dependencies, configuration
 - `refacto:` - Code refactoring without functional changes
+- `docs:` - Documentation updates, README changes, guides
 - `release:` - Release preparations, version bumps, changelogs
 
 ### Format
@@ -43,6 +65,7 @@ feat: add new rule for enforcing typed properties
 fix: correct parsing error in switch statement sniff
 chore: update composer dependencies to latest versions
 refacto: simplify variable name validation logic
+docs: update installation guide and examples
 release: bump version to 1.2.0 and update changelog
 ```
 
