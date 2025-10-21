@@ -1,7 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?x    <target name="check" depends="composer,yamllint,psalm,cs,cs-fix,tests,end2end"/>
+
+    <target name="yamllint">
+        <exec executable="yamllint" logoutput="true" passthru="true" checkreturn="true">
+            <arg value=".github/"/>
+            <arg value="docker-compose.yml"/>
+            <arg value=".yamllint.yml"/>
+        </exec>
+    </target>version="1.0" encoding="utf-8"?>
 <project name="NCAC PHPCS Standard" default="check">
 
-    <target name="check" depends="composer,psalm,cs,cs-fix,tests,end2end"/>
+    <target name="check" depends="composer,psalm,cs,cs-fix,tests,yamllint,end2end"/>
 
     <target name="composer">
         <exec executable="composer" logoutput="true" passthru="true" checkreturn="true">
@@ -47,6 +55,15 @@
     <target name="end2end">
         <exec executable="php" logoutput="true" passthru="true" checkreturn="true">
             <arg value="test-sniffs.php"/>
+        </exec>
+    </target>
+
+    <target name="yamllint">
+        <exec executable="yamllint" logoutput="true" passthru="true" checkreturn="true">
+            <arg value=".github/"/>
+            <arg value="docs/"/>
+            <arg value=".yamllint.yml"/>
+            <arg value="docker-compose.yml"/>
         </exec>
     </target>
 

@@ -1,8 +1,17 @@
 {
   "folders": [
-    { "path": "." },
-    { "path": "NCAC", "name": "standard" },
-    { "path": "tests/NCAC", "name": "tests" }
+    {
+      "name": "workspace",
+      "path": "."
+    },
+    {
+      "name": "standard",
+      "path": "NCAC"
+    },
+    {
+      "name": "tests",
+      "path": "tests/NCAC"
+    }
   ],
   "settings": {
     // # GIT integration
@@ -37,13 +46,17 @@
     "[php]": {
       "editor.formatOnSave": true,
       "editor.tabSize": 2,
-      "editor.defaultFormatter": "junstyle.php-cs-fixer"
+      "editor.defaultFormatter": "valeryanm.vscode-phpsab"
     },
-    // PHPSAB (PHP CS Fixer/PHPCS integration, for linting and auto-fix, not as default formatter)
+    // PHPSAB (PHP CS Fixer/PHPCS integration, for linting and auto-fix)
     "phpsab.fixerEnable": true,
-    "phpsab.standard": "/workspace/phpcs-standard/ruleset.xml",
-    "phpsab.executablePathCS": "/workspace/phpcs-standard/vendor/bin/phpcs",
-    "phpsab.executablePathCBF": "/workspace/phpcs-standard/vendor/bin/phpcbf"
+    "phpsab.standard": "/workspace/NCAC/ruleset.xml",
+    "phpsab.executablePathCS": "/workspace/vendor/bin/phpcs",
+    "phpsab.executablePathCBF": "/workspace/vendor/bin/phpcbf",
+    // Activation du formatage automatique via phpsab
+    "phpsab.allowedAutoRulesets": ["/workspace/NCAC/ruleset.xml"],
+    "phpsab.snifferEnable": true,
+    "phpsab.snifferMode": "onSave"
   },
   "extensions": {
     "recommendations": [
@@ -60,7 +73,8 @@
       // Batch rename utility
       "jannisx11.batch-rename-extension",
       // GitHub Actions integration
-      "github.vscode-github-actions"
+      "github.vscode-github-actions",
+      "github.vscode-pull-request-github"
     ]
   },
   "launch": {

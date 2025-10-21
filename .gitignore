@@ -19,6 +19,7 @@
 !composer.json
 !composer.lock
 !CONTRIBUTING.md
+!KNOWN-ISSUES.md
 !ruleset.xml
 !psalm.xml
 !psalm-autoload.php

@@ -39,6 +39,7 @@ RUN apt-get update \
   dnsutils iproute2 inetutils-ping netcat-traditional \
   jq \
   rsync \
+  yamllint \
   # Xdebug
   && pecl install xdebug-3.1.5 \
   && docker-php-ext-enable xdebug \

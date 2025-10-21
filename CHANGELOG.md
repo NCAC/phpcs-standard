@@ -2,53 +2,45 @@
 
 ## [1.0.3](https://github.com/ncac/phpcs-standard/compare/v1.0.2...v1.0.3) (2025-10-17)
 
-
 ### feat
 
-* fix standard structure and naming ([](https://github.com/ncac/phpcs-standard/commit/56c8585fd5cde0dcf16c5c96fbee263a0eef0f3e))
+- fix standard structure and naming ([](https://github.com/ncac/phpcs-standard/commit/56c8585fd5cde0dcf16c5c96fbee263a0eef0f3e))
 
 ## [1.0.2](https://github.com/ncac/phpcs-standard/compare/v1.0.1...v1.0.2) (2025-10-17)
 
-
 ### chore
 
-* update composer.lock after adding extra section ([](https://github.com/ncac/phpcs-standard/commit/f08e223ca867dacc3b2cac28c9fab526358ee9bf))
-
+- update composer.lock after adding extra section ([](https://github.com/ncac/phpcs-standard/commit/f08e223ca867dacc3b2cac28c9fab526358ee9bf))
 
 ### feat
 
-* finalize CI badges and infrastructure documentation ([](https://github.com/ncac/phpcs-standard/commit/390441d666998136b32b321e02251208013d38d0))
-
+- finalize CI badges and infrastructure documentation ([](https://github.com/ncac/phpcs-standard/commit/390441d666998136b32b321e02251208013d38d0))
 
 ### fix
 
-* configure NCAC as standard name in composer.json extra section ([](https://github.com/ncac/phpcs-standard/commit/aee39a0fe07b5fee20f0ce6741c2cccf0031354f))
+- configure NCAC as standard name in composer.json extra section ([](https://github.com/ncac/phpcs-standard/commit/aee39a0fe07b5fee20f0ce6741c2cccf0031354f))
 
 ## [1.0.1](https://github.com/ncac/phpcs-standard/compare/v1.0.0...v1.0.1) (2025-10-17)
 
-
 ### fix
 
-* correct package name from phpcs-pretty-standard to phpcs-standard ([](https://github.com/ncac/phpcs-standard/commit/753dc0db6163fb28126486e757c8310af59f22ee))
+- correct package name from phpcs-pretty-standard to phpcs-standard ([](https://github.com/ncac/phpcs-standard/commit/753dc0db6163fb28126486e757c8310af59f22ee))
 
-# 1.0.0 (2025-10-17)
+## 1.0.0 (2025-10-17)
 
-
-* Initial commit: NCAC PHPCS Standard ([](https://github.com/ncac/phpcs-standard/commit/cca8b50d63583be16915ee50b475762f6b6899c2))
-
+- Initial commit: NCAC PHPCS Standard ([](https://github.com/ncac/phpcs-standard/commit/cca8b50d63583be16915ee50b475762f6b6899c2))
 
 ### chore
 
-* configure Husky commit validation and release-it setup ([](https://github.com/ncac/phpcs-standard/commit/09d5d7d99ec28532e0882e04b5bb0c80726e8d66))
-* update composer.lock ([](https://github.com/ncac/phpcs-standard/commit/407aa0986140846131494b2d57e21afa2eaea39e))
-* update composer.lock after dependency resolution ([](https://github.com/ncac/phpcs-standard/commit/fe9cdabd0374540b57191cb328ac5365900268cb))
-
+- configure Husky commit validation and release-it setup ([](https://github.com/ncac/phpcs-standard/commit/09d5d7d99ec28532e0882e04b5bb0c80726e8d66))
+- update composer.lock ([](https://github.com/ncac/phpcs-standard/commit/407aa0986140846131494b2d57e21afa2eaea39e))
+- update composer.lock after dependency resolution ([](https://github.com/ncac/phpcs-standard/commit/fe9cdabd0374540b57191cb328ac5365900268cb))
 
 ### docs
 
-* improve Dev Container setup with environment generation and fix CONTRIBUTING.md ([](https://github.com/ncac/phpcs-standard/commit/6f68aa2c0eb7c6483895474bdb428c73b8e921e4))
-* reorganize scripts into scripts/ directory and add comprehensive documentation ([](https://github.com/ncac/phpcs-standard/commit/843f99d1dfa7f5f9b91f3f73622d906ce292495f))
-* translate final setup summary to English and synchronize release-it with package.json versions ([](https://github.com/ncac/phpcs-standard/commit/dbbb7959bd0eb91272766a6e0124cf611294f680))
+- improve Dev Container setup with environment generation and fix CONTRIBUTING.md ([](https://github.com/ncac/phpcs-standard/commit/6f68aa2c0eb7c6483895474bdb428c73b8e921e4))
+- reorganize scripts into scripts/ directory and add comprehensive documentation ([](https://github.com/ncac/phpcs-standard/commit/843f99d1dfa7f5f9b91f3f73622d906ce292495f))
+- translate final setup summary to English and synchronize release-it with package.json versions ([](https://github.com/ncac/phpcs-standard/commit/dbbb7959bd0eb91272766a6e0124cf611294f680))
 
 All notable changes to this project will be documented in this file.
 

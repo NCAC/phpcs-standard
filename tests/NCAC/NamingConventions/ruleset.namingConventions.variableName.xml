@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC NamingConventions VariableName Test">
+  <description>Test ruleset for NCAC VariableNameSniff testing</description>
+  <rule ref="NCAC.NamingConventions.VariableName" />
+</ruleset>

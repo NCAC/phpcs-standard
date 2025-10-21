@@ -92,15 +92,63 @@ jobs:
       - name: Run End-to-End Tests via Phing
         run: vendor/bin/phing end2end
 
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          coverage: xdebug
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Generate coverage report
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  yamllint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint
+        run: yamllint .github/ docs/ .yamllint.yml docker-compose.yml
+
   publish-packagist:
     name: Publish to Packagist
-    needs: [psalm, phpcs, phpunit]
+    needs: [psalm, phpcs, phpunit, coverage, yamllint]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Publish to Packagist
         run: |
-          curl -X POST "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}" \
+          curl -X POST \
+            "https://packagist.org/api/update-package" \
+            -d "username=${{ secrets.PACKAGIST_USERNAME }}" \
+            -d "apiToken=${{ secrets.PACKAGIST_API_TOKEN }}" \
             -d '{"repository":"https://github.com/ncac/phpcs-standard"}' \
             -H 'Content-Type: application/json'

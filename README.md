@@ -1,8 +1,11 @@
 # NCAC PHPCS Standard
 
+[![Build Status](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
 [![Total Downloads](https://img.shields.io/packagist/dt/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
 [![PHP Version](https://img.shields.io/packagist/php-v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
+[![Code Coverage](https://codecov.io/gh/ncac/phpcs-standard/branch/main/graph/badge.svg)](https://codecov.io/gh/ncac/phpcs-standard)
+[![License](https://img.shields.io/github/license/ncac/phpcs-standard)](https://github.com/ncac/phpcs-standard/blob/main/LICENSE)
 
 ## Quality Assurance
 
