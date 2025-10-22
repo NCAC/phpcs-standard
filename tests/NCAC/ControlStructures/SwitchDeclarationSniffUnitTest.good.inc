@@ -65,3 +65,42 @@ switch ($type) {
     // Intentionally empty - no processing needed
     break;
 }
+
+// Valid switch with return statements
+function get_status_with_return(int $code): string {
+  switch ($code) {
+    case 200:
+      return "OK";
+    case 404:
+      return "Not Found";
+    default:
+      return "Unknown Status";
+  }
+}
+
+// Valid switch with throw statements
+function get_status_or_throw(int $code): string {
+  switch ($code) {
+    case 200:
+      return "OK";
+    case 404:
+      throw new Exception("Not Found");
+    default:
+      throw new Exception("Unknown Status");
+  }
+}
+
+// Valid switch with exit statements
+function get_status_or_exit(int $code): void {
+  switch ($code) {
+    case 200:
+      echo "OK";
+      exit;
+    case 404:
+      echo "Not Found";
+      exit;
+    default:
+      echo "Unknown Status";
+      exit;
+  }
+}

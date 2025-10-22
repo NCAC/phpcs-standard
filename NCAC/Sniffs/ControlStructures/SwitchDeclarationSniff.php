@@ -124,7 +124,7 @@ class SwitchDeclarationSniff implements Sniff {
             isset(Tokens::$empty_tokens[$tokens[$i]['code']]) === false
             || $tokens[$i]['code'] === T_COMMENT
             || $tokens[$i]['code'] === T_DOC_COMMENT
-            || in_array($tokens[$i]['code'], [T_BREAK, T_EXIT, T_RETURN, T_THROW, T_GOTO], true)
+            || in_array($tokens[$i]['code'], [T_BREAK, T_EXIT, T_RETURN, T_THROW], true)
           ) {
             $found_content = true;
             break;
@@ -153,12 +153,12 @@ class SwitchDeclarationSniff implements Sniff {
         }
       }
 
-      // Rule 5: Mandatory break statement at the end of each CASE and DEFAULT block.
+      // Rule 5: Mandatory break/return/throw/exit/goto statement at the end of each CASE and DEFAULT block.
       // Every case and default must terminate with a break (no fall-through allowed).
       if (isset($tokens[$next_case]['scope_closer'])) {
         $closer = $tokens[$next_case]['scope_closer'];
-        if ($tokens[$closer]['code'] !== T_BREAK) {
-          $phpcs_file->addError('Each CASE and DEFAULT must end with a break statement', $closer, 'MissingBreak');
+        if (in_array($tokens[$closer]['code'], [T_BREAK, T_EXIT, T_RETURN, T_THROW], true) === false) {
+          $phpcs_file->addError('Each CASE and DEFAULT must end with a break/exit/return/throw statement', $closer, 'MissingBreak');
         }
       }
     }
