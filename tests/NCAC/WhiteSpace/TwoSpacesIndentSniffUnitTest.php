@@ -132,36 +132,36 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
       default:
         return [];
 
-        }
-
-    }
-
-    /**
-     * Returns the lines where warnings should occur for each fixture file.
-     *
-     * @param string $test_file The name of the file being tested.
-     * @return array<int, int>
-     */
-    public function getWarningList(string $test_file): array {
-      return [];
-    }
-
-    /**
-     * Override the standard to use a specific ruleset.
-     *
-     */
-    public function getStandard(): string {
-      return __DIR__ . '/ruleset.whiteSpace.twoSpacesIndent.xml';
-    }
-
-    /**
-     * @dataProvider fixtureProvider
-     * @testdox Fixture with $fixture_file
-     * Runs each fixture individually using the parent implementation.
-     *
-     */
-    public function testFixture(string $fixture_file): void {
-      parent::testFixture($fixture_file);
     }
 
   }
+
+  /**
+   * Returns the lines where warnings should occur for each fixture file.
+   *
+   * @param string $test_file The name of the file being tested.
+   * @return array<int, int>
+   */
+  public function getWarningList(string $test_file): array {
+    return [];
+  }
+
+  /**
+   * Override the standard to use a specific ruleset.
+   *
+   */
+  public function getStandard(): string {
+    return __DIR__ . '/ruleset.whiteSpace.twoSpacesIndent.xml';
+  }
+
+  /**
+   * @dataProvider fixtureProvider
+   * @testdox Fixture with $fixture_file
+   * Runs each fixture individually using the parent implementation.
+   *
+   */
+  public function testFixture(string $fixture_file): void {
+    parent::testFixture($fixture_file);
+  }
+
+}

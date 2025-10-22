@@ -44,7 +44,6 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
       default:
         return [];
     }
-
   } 
 
   /**

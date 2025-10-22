@@ -100,7 +100,6 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
 
       default:
         return [];
-        break;
     }
   }
 
