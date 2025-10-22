@@ -33,6 +33,7 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
     switch ($test_file) {
       case 'MethodNameSniffUnitTest.good.inc':
         return [];
+
       case 'MethodNameSniffUnitTest.bad.inc':
         return [
           13 => 1,  // Method name 'get_instance' must be in camelCase.
@@ -48,7 +49,6 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
 
       default:
         return [];
-        break;
     }
 
   }

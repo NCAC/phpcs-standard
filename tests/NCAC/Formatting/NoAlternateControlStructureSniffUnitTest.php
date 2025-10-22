@@ -13,10 +13,6 @@ use NCAC\Tests\SniffUnitTest;
  */
 class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
 
-  protected function getStandard(): string {
-    return __DIR__ . '/ruleset.formatting.noAlternateControlStructure.xml';
-  }
-
   /**
    * Returns the lines where errors should occur for each fixture file.
    *
@@ -28,7 +24,7 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
 
       case 'NoAlternateControlStructureSniffUnitTest.good.inc':
         return [];
-        break;
+
       case 'NoAlternateControlStructureSniffUnitTest.bad.inc':
         return [
           3 => 1,
@@ -44,12 +40,11 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
           23 => 1,
           29 => 1
         ];
-        break;
+
       default:
-        // No errors expected.
-        break;
+        return [];
     }
-    return [];
+
   } 
 
   /**
@@ -67,10 +62,13 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
    * @testdox Fixture with $fixture_file
    * Runs each fixture individually using the parent implementation.
    *
-   * @param string $fixture_file
    */
-  public function testFixture(string $fixture_file) {
+  public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
+  }
+
+  protected function getStandard(): string {
+    return __DIR__ . '/ruleset.formatting.noAlternateControlStructure.xml';
   }
 
 }
