@@ -34,7 +34,7 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
       case 'VariableNameSniffUnitTest.bad.inc':
-        $result = [
+        return [
           // Function parameters - should be snake_case
           4 => 1,   // function test_function($CamelCaseParam, $PascalCaseParam)
           5 => 1,   // return $CamelCaseParam + $PascalCaseParam;
@@ -94,18 +94,13 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
           89 => 1,  // global $WrongGlobal;
           90 => 1   // $WrongGlobal = 'global';
         ];
-        return $result;
-      break;
 
       case 'VariableNameSniffUnitTest.good.inc':
-        $result = [];
-        return $result;
-      break;
+        return [];
 
       default:
-        $result = [];
-        return $result;
-      break;
+        return [];
+        break;
     }
   }
 

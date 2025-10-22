@@ -268,6 +268,14 @@ class TwoSpacesIndentSniff implements Sniff {
         array_pop($blocks_stack);
         $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
         $start_index = 1;
+      } else if ($first_token_code === T_CLOSE_CURLY_BRACKET && end($blocks_stack) === 'SWITCH_CASE') {
+        // Handle switch closing brace - remove SWITCH_CASE marker first
+        array_pop($blocks_stack); // Remove SWITCH_CASE
+        if (end($blocks_stack) === T_OPEN_CURLY_BRACKET) {
+          array_pop($blocks_stack); // Remove the switch opening brace
+        }
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
+        $start_index = 1;
 
         // Handle ternary operators
       } else if ($first_token_code === T_INLINE_THEN) {
@@ -282,14 +290,14 @@ class TwoSpacesIndentSniff implements Sniff {
         // Consecutive case/default statements maintain same indentation level
         $case_level = $this->getActualLevel($blocks_stack);
         if (end($blocks_stack) === 'SWITCH_CASE') {
-          $case_level = $this->getActualLevel($blocks_stack) - 1;
+          // Remove previous SWITCH_CASE marker before adding new one
+          array_pop($blocks_stack);
+          $case_level = $this->getActualLevel($blocks_stack);
         }
         $line_levels_stack[$index_line] = $case_level;
         
-        // Track switch case block only if not already present
-        if (end($blocks_stack) !== 'SWITCH_CASE') {
-          $blocks_stack[] = 'SWITCH_CASE';
-        }
+        // Track switch case block 
+        $blocks_stack[] = 'SWITCH_CASE';
         $start_index = 1;
 
         // Handle case/default block terminators
@@ -297,8 +305,6 @@ class TwoSpacesIndentSniff implements Sniff {
         end($blocks_stack) === 'SWITCH_CASE'
         && (
           $first_token_code === T_BREAK
-          || $first_token_code === T_RETURN
-          || $first_token_code === T_THROW
           || $first_token_code === T_CONTINUE
           || $first_token_code === T_EXIT
           || $first_token_code === T_GOTO

@@ -11,6 +11,7 @@ use NCAC\Tests\SniffUnitTest;
  * @package NCAC\Tests\Formatting
  */
 class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
+
   /**
    * Returns the lines where errors should occur for each fixture file.
    *
@@ -22,18 +23,15 @@ class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
 
       case 'ClassOpeningClosingSpacingSniffUnitTest.good.inc':
         return [];
-        break;
       case 'ClassOpeningClosingSpacingSniffUnitTest.bad.inc':
         return [
           5 => 1,
           19 => 1
         ];
-        break;
       default:
         // No errors expected.
-        break;
+        return [];
     }
-    return [];
   }
 
   /**
@@ -51,9 +49,9 @@ class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
    * @testdox Fixture with $fixture_file
    * Runs each fixture individually using the parent implementation.
    *
-   * @param string $fixture_file
    */
-  public function testFixture(string $fixture_file) {
+  public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
+
 }

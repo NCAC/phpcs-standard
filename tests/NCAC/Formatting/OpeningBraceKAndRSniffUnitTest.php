@@ -13,14 +13,6 @@ use NCAC\Tests\SniffUnitTest;
 class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
 
   /**
-   * Returns the path to the ruleset XML file for this test.
-   * @return string 
-   */
-  protected function getStandard(): string {
-    return __DIR__ . '/ruleset.formatting.openingBraceKAndR.xml';
-  }
-
-  /**
    * Returns the lines where errors should occur for each fixture file.
    *
    * @param string $test_file The name of the file being tested.
@@ -38,10 +30,9 @@ class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
         ];
         break;
       default:
-        // No errors expected.
-        break;
+        return [];
     }
-    return [];
+    
   } 
 
   /**
@@ -52,6 +43,13 @@ class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
    */
   public function getWarningList(string $test_file): array {
     return [];
+  }
+
+  /**
+   * Returns the path to the ruleset XML file for this test.
+   */
+  protected function getStandard(): string {
+    return __DIR__ . '/ruleset.formatting.openingBraceKAndR.xml';
   }
 
 }
