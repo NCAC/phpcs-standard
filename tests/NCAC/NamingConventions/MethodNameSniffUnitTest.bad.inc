@@ -1,14 +1,11 @@
 <?php
 
-use Psalm\Progress\VoidProgress;
-
 /**
  * Bad examples of method naming conventions.
  * Methods in classes and traits should be camelCase, but these are not.
  */
-
 class BadMethodNamingExample {
-
+  
   // Invalid snake_case method names
   public function my_method(): void {
     // Method content
@@ -51,7 +48,7 @@ class BadMethodNamingExample {
   }
 
   // Magic methods - excluded from camelCase rules, so these are valid
-  public function __construct(): void {
+  public function __construct() {
     // Constructor
   }
 
