@@ -6,52 +6,56 @@
 
 class GoodMethodNamingExample {
 
-  // Valid camelCase method names
-  public function myMethod() {
-    // Method content
-  }
-  
-  public function calculateTotal() {
-    return 0;
-  }
-  
-  private function parseData() {
-    // Method content
-  }
-  
-  protected function handleSpecialCase() {
-    // Method content
-  }
-  
-  // Static methods - also camelCase
-  public static function getInstance() {
-    return new self();
-  }
-  
-  // Magic methods - excluded from camelCase rules
   public function __construct() {
     // Constructor
   }
-  
-  public function __toString() {
-    return 'GoodMethodNamingExample';
+
+  public static function getInstance(): self {
+    return new self();
   }
-  
-  public function __call($name, $arguments) {
-    // Magic method handler
-  }
-  
-  // Method with parameters - still camelCase
-  public function processItems($items, $options = []) {
+
+  /**
+   * A properly named method in camelCase.
+   */
+  public function myMethod(): void {
     // Method content
   }
   
-  // Method calls to other methods should be camelCase
-  public function callOtherMethods() {
+  /**
+   * Another properly named method.
+   */
+  public function calculateTotal(): int {
+    return 0;
+  }
+  
+  /**
+   * Calls other methods within the class.
+   */
+  public function callOtherMethods(): void {
     $this->myMethod();
     $this->calculateTotal();
     self::getInstance();
     static::handleSpecialCase();
+  }
+
+  protected function handleSpecialCase(): void {
+    // Method content
+  }
+
+  private function parseData(): void {
+    // Method content
+  }
+  
+  public function __toString(): string {
+    return 'GoodMethodNamingExample';
+  }
+  
+  /**
+   * Magic method with proper naming.
+   * @param array<string, mixed> $arguments 
+   */
+  public function __call(string $name, array $arguments): void {
+    // Magic method handler
   }
 
 }
@@ -59,34 +63,33 @@ class GoodMethodNamingExample {
 // Trait with properly named methods
 trait GoodMethodNamingTrait {
 
-  public function traitMethod() {
+  public function traitMethod(): void {
     // Method content
   }
   
-  private function helperFunction() {
-    // Method content
-  }
-  
-  // Protected method that calls other methods
-  protected function doComplexOperation() {
+  protected function doComplexOperation(): void {
     $this->traitMethod();
     $this->helperFunction();
+  }
+
+  private function helperFunction(): void {
   }
 
 }
 
 // Global functions are ignored by this sniff (handled by FunctionNameSniff)
-function global_snake_case_function() {
+function global_snake_case_function(): void {
   // Function content
+  
 }
 
 // Anonymous class with proper method naming
 $anonymous = new class {
-  public function validMethod() {
+  public function validMethod(): void {
     // Method content
   }
   
-  private function internalHelper() {
+  private function internalHelper(): void {
     // Method content
   }
 };

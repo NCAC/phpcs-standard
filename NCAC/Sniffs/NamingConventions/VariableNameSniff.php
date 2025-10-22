@@ -224,6 +224,13 @@ class VariableNameSniff implements Sniff {
       $previous_pointer !== false
       && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line']
     ) {
+      // if $previous_pointer matches a static modifier and the stack_pointer is inside a function, skip because it's likely a static variable inside a method
+      if ($tokens[$previous_pointer]['code'] === T_STATIC) {
+        $function_pointer = $phpcs_file->getCondition($stack_pointer, T_FUNCTION);
+        if ($function_pointer !== false) {
+          return false;
+        }
+      }
       // Ensure we are inside a class or trait
       $class_pointer = $phpcs_file->getCondition($stack_pointer, T_CLASS);
       $trait_pointer = $phpcs_file->getCondition($stack_pointer, T_TRAIT);

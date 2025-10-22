@@ -29,14 +29,12 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
    * @return array<int, int> Expected errors per line
    */
   public function getErrorList(string $test_file): array {
-    $error_list = [];
     
     switch ($test_file) {
       case 'MethodNameSniffUnitTest.good.inc':
-        $error_list = [];
-        break;
+        return [];
       case 'MethodNameSniffUnitTest.bad.inc':
-        $error_list = [
+        return [
           
           // Invalid snake_case method names
           10 => 1,  // public function my_method() - should be camelCase
@@ -69,14 +67,12 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
           97 => 1,   // Method name 'invalid_method' must be in camelCase.
           101 => 2  // Method name 'internal_helper' must be in camelCase.
         ];
-        break;
 
       default:
-        $error_list = [];
+        return [];
         break;
     }
-          
-    return $error_list;
+
   }
 
   /**

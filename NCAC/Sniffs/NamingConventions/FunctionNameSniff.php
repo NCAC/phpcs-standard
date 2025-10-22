@@ -72,8 +72,10 @@ class FunctionNameSniff implements Sniff {
 
     // Step 2: Determine if this function is global or a class/trait method.
     // We only apply snake_case rules to global functions, not methods.
-    $in_class_or_trait = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false
-    || $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
+    $in_class = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false;
+    $in_anon_class = $phpcs_file->getCondition($stack_pointer, T_ANON_CLASS) !== false;
+    $in_trait = $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
+    $in_class_or_trait = $in_class || $in_anon_class || $in_trait;
     
     if ($in_class_or_trait) {
       // Skip methods and trait functions - they have different naming rules
