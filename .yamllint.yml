@@ -3,6 +3,13 @@
 
 extends: default
 
+ignore: |
+  pnpm-lock.yaml
+  ./pnpm-lock.yaml
+  vendor/**
+  node_modules/**
+  .pnpm/**
+
 rules:
   # Allow longer lines for GitHub Actions
   line-length:
@@ -30,3 +37,6 @@ rules:
   empty-values:
     forbid-in-block-mappings: false
     forbid-in-flow-mappings: false
+
+  # Disable comments indentation
+  comments-indentation: disable
