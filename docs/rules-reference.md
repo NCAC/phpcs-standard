@@ -641,14 +641,7 @@ class MyClass {
     <description>Your project coding standard</description>
     <rule ref="NCAC"/>
 
-    <!-- Configure class spacing -->
-    <rule ref="NCAC.Formatting.ClassClosingSpacing">
-        <properties>
-            <property name="linesCount" value="2"/>
-        </properties>
-    </rule>
-
-    <!-- Configure method spacing -->
+    <!-- Configure Slevomat spacing rules -->
     <rule ref="SlevomatCodingStandard.Classes.MethodSpacing">
         <properties>
             <property name="minLinesCountBeforeWithComment" value="1"/>
@@ -662,6 +655,8 @@ class MyClass {
     </rule>
 </ruleset>
 ```
+
+> **Note:** NCAC custom sniffs (like `NCAC.Formatting.*`, `NCAC.WhiteSpace.*`, etc.) do not yet support property-based configuration. This is planned for future releases. Currently, only Slevomat and Generic rules support customization.
 
 ---
 
