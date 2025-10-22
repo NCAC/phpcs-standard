@@ -112,21 +112,21 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
 
       case 'TwoSpacesIndentSniff.badArrayInArguments.inc':
         return [
-        15 => 1,  // Error 1: 'key1' => 'value1' - 4 spaces instead of 2
-        16 => 1,  // Error 1: 'key2' => 42 - 4 spaces instead of 2  
-        17 => 1,  // Error 1: 'key3' => [1, 2, 3] - 4 spaces instead of 2
-        22 => 1,  // Error 2: 'key1' => 'value1' - 1 space instead of 2
-        23 => 1,  // Error 2: 'key2' => 42 - 1 space instead of 2
-        29 => 1,  // Error 3: 'key2' => 42 - 4 spaces instead of 2
-        30 => 1,  // Error 3: 'key3' => [ - 3 spaces instead of 2
-        31 => 1,  // Error 3: 'nested1' => 'value' - 5 spaces instead of 4
-        32 => 1,  // Error 3: 'nested2' => 'value' - 6 spaces instead of 4
-        33 => 1,  // Error 3: ], - 3 spaces instead of 2
-        38 => 1,  // Error 4: 'key1' => 'value1' - 0 spaces instead of 2
-        39 => 1,  // Error 4: 'key2' => 42 - 0 spaces instead of 2
-        40 => 1,  // Error 4: 'key3' => [ - 0 spaces instead of 2
-        41 => 1,  // Error 4: 'nested' => 'value' - 0 spaces instead of 4
-        42 => 1,  // Error 4: ], - 0 spaces instead of 2
+        16 => 1,  // Error 1: 'key1' => 'value1' - 4 spaces instead of 2
+        17 => 1,  // Error 1: 'key2' => 42 - 4 spaces instead of 2  
+        18 => 1,  // Error 1: 'key3' => [1, 2, 3] - 4 spaces instead of 2
+        23 => 1,  // Error 2: 'key1' => 'value1' - 1 space instead of 2
+        24 => 1,  // Error 2: 'key2' => 42 - 1 space instead of 2
+        30 => 1,  // Error 3: 'key1' => 'value1' - 4 spaces instead of 2
+        31 => 1,  // Error 3: 'key2' => 42 - 3 spaces instead of 2
+        32 => 1,  // Error 3: 'nested1' => 'value' - 5 spaces instead of 4
+        33 => 1,  // Error 3: 'nested2' => 'value' - 6 spaces instead of 4
+        34 => 1,  // Error 3: ], - 3 spaces instead of 2
+        39 => 1,  // Error 4: 'key1' => 'value1' - 0 spaces instead of 2
+        40 => 1,  // Error 4: 'key2' => 42 - 0 spaces instead of 2
+        41 => 1,  // Error 4: 'key3' => [ - 0 spaces instead of 2
+        42 => 1,  // Error 4: 'nested' => 'value' - 0 spaces instead of 4
+        43 => 1,  // Error 4: ], - 0 spaces instead of 2
       ];
       
       default:

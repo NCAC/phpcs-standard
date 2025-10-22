@@ -1,6 +1,4 @@
 <?php
-// phpcs:disable
-// @codingStandardsIgnoreFile
 /**
  * Function with array argument - BAD indentation examples.
  * This file contains intentionally bad indentation for testing purposes.
