@@ -4,43 +4,285 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
 [![Total Downloads](https://img.shields.io/packagist/dt/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
 [![PHP Version](https://img.shields.io/packagist/php-v/ncac/phpcs-standard)](https://packagist.org/packages/ncac/phpcs-standard)
-[![Code Coverage](https://codecov.io/gh/ncac/phpcs-standard/branch/main/graph/badge.svg)](https://codecov.io/gh/ncac/phpcs-standard)
+[![codecov](https://codecov.io/gh/ncac/phpcs-standard/branch/main/graph/badge.svg)](https://codecov.io/gh/ncac/phpcs-standard)
 [![License](https://img.shields.io/github/license/ncac/phpcs-standard)](https://github.com/ncac/phpcs-standard/blob/main/LICENSE)
 
-## Quality Assurance
+> **Modern PHP, TypeScript Philosophy, Maximum Confidence**
+>
+> Transform your PHP development with a coding standard that brings the best of TypeScript/ESLint ecosystem to PHP. NCAC enforces strict typing, explicit patterns, and consistent formatting for code that reads like poetry and runs with confidence.
 
-### Psalm Static Analysis (PHP 7.4 - 8.2)
+## 🎯 Why NCAC?
+
+### **Type-First Development**
+
+Every parameter, return value, and property must be explicitly typed. No more guessing, no more runtime surprises.
+
+```php
+// ❌ Old way: ambiguous and error-prone
+function process($data) {
+    return $data->value;
+}
+
+// ✅ NCAC way: crystal clear intent
+function process(DataObject $data): string {
+  return $data->value;
+}
+```
+
+### **Intelligent Indentation**
+
+Revolutionary 2-space indentation with TypeScript-inspired array handling. Function arguments get special treatment for maximum readability.
+
+```php
+// ✅ TypeScript-style function arguments
+$result = my_function([
+  'clean' => 'readable',
+  'consistent' => 'beautiful'
+]);
+
+// ✅ Regular arrays maintain full indentation hierarchy
+$config = [
+  'database' => [
+    'host' => 'localhost',
+    'port' => 3306
+  ]
+];
+```
+
+### **Context-Aware Naming**
+
+Smart naming conventions that adapt to context: `snake_case` for variables and functions, `camelCase` for class properties and methods, `PascalCase` for classes.
+
+```php
+// ✅ Context-aware naming in action
+class UserRepository {
+
+  private string $connectionString;  // camelCase property
+
+  public function findUser(int $user_id): User {  // snake_case parameter
+    $query_result = $this->executeQuery($user_id);  // snake_case variable
+    return $this->mapToUser($query_result);  // camelCase method
+  }
+
+}
+```
+
+## 🚀 Philosophy: The TypeScript of PHP
+
+The NCAC standard reimagines PHP development through the lens of modern TypeScript practices:
+
+### **1. Explicit is Better Than Implicit**
+
+- **Mandatory type hints** for parameters, returns, and properties
+- **Explicit visibility** for all class constants and members
+- **Clear intent** through naming conventions that tell a story
+
+### **2. Consistency Breeds Confidence**
+
+- **21 carefully curated rules** that work together harmoniously
+- **Auto-fixable formatting** means your code always looks professional
+- **IDE-first design** for seamless development experience
+
+### **3. Modern PHP, Maximum Leverage**
+
+- **PHP 7.4+ features** like typed properties and arrow functions
+- **Enum support** for PHP 8.1+ with proper spacing
+- **Performance optimized** sniffs that don't slow you down
+
+### **4. Developer Experience First**
+
+- **Fail fast** with immediate feedback on type and style issues
+- **Smart defaults** that rarely need customization
+- **Comprehensive documentation** with real-world examples
+
+## 📊 Quality Assurance
+
+### Continuous Integration (PHP 7.4 - 8.2)
 
 [![Psalm Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=psalm)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
-
-### PHPCS Code Standards (PHP 7.4 - 8.2)
-
 [![PHPCS Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpcs)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
-
-### PHPUnit Tests (PHP 7.4 - 8.2)
-
 [![PHPUnit Tests](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpunit)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 
-> **Philosophy:** The NCAC standard brings a "TypeScript-like" approach to PHP code: strict, explicit, readable, and modern. It encourages best practices, clear naming, and formatting conventions inspired by the TypeScript/ESLint ecosystem, but adapted for PHP.
->
-> **Acknowledgement:** The NCAC standard is heavily inspired by the [Slevomat Coding Standard](https://github.com/slevomat/coding-standard), which provides many of the strict type, documentation, and structure rules that NCAC builds upon. We thank the Slevomat team and contributors for their high-quality open source work. Parts of this standard may directly use or adapt rules and logic from Slevomat, in accordance with its [license](https://github.com/slevomat/coding-standard/blob/master/LICENSE).
+## ⚡ Quick Start
 
-## Installation
+### Installation
 
 ```bash
 composer require --dev ncac/phpcs-standard
 ```
 
-## Development Setup
+### Basic Usage
 
-For contributors and developers working on this project:
+```bash
+# Check your code
+vendor/bin/phpcs --standard=NCAC src/
 
-### VS Code Dev Container (Recommended)
+# Auto-fix issues
+vendor/bin/phpcbf --standard=NCAC src/
+```
 
-1. **Clone in WSL2** (Windows users):
+### Project Configuration
+
+Create a `phpcs.xml` in your project root:
+
+```xml
+<?xml version="1.0"?>
+<ruleset name="YourProject">
+    <description>Your project coding standard</description>
+    <rule ref="NCAC"/>
+
+    <!-- Your source directories -->
+    <file>src</file>
+    <file>tests</file>
+
+    <!-- Optional: Exclude specific rules if needed -->
+    <rule ref="NCAC">
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
+    </rule>
+</ruleset>
+```
+
+## 📚 Documentation
+
+- **📖 [Complete Rules Reference](docs/rules-reference.md)** - Detailed examples for all 21 rules
+- **🛠️ [Development Setup Guide](docs/dev-container-setup.md)** - VS Code Dev Container setup
+- **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+- **📋 [Known Issues](KNOWN-ISSUES.md)** - Current limitations and workarounds
+
+## 🏗️ What Makes NCAC Different?
+
+### **Built for Modern PHP**
+
+- **PHP 7.4+ typed properties** fully supported
+- **PHP 8.0+ enums** with proper spacing rules
+- **Auto-fixable rules** for seamless workflow integration
+- **Performance optimized** for large codebases
+
+### **Developer Experience Focus**
+
+- **IDE-first design** works seamlessly with VS Code, PhpStorm
+- **Comprehensive test coverage** ensures reliability
+- **Rich error messages** guide you to the solution
+- **Minimal configuration** required
+
+### **TypeScript-Inspired Intelligence**
+
+- **Smart indentation** adapts to context (function args vs. standalone arrays)
+- **Consistent naming** that scales across teams and projects
+- **Explicit typing** catches errors before they reach production
+- **Modern formatting** that's easy to read and maintain
+
+## 🎨 Code Examples
+
+### Before NCAC (Inconsistent, Unclear)
+
+```php
+class userRepository
+{
+
+    function findUser($userId)
+    {
+        $queryResult = $this->executeQuery($userId);
+        if ($queryResult) {
+            return $queryResult;
+        }
+        return null;
+    }
+
+    private $connectionString;
+    const CACHE_TTL = 3600;
+
+
+}
+```
+
+### After NCAC (Crystal Clear, Type-Safe)
+
+```php
+class UserRepository {
+
+    private string $connectionString;
+
+    public const CACHE_TTL = 3600;
+
+    public function findUser(int $user_id): ?User {
+      $query_result = $this->executeQuery($user_id);
+      if ($query_result !== null) {
+        return $this->mapToUser($query_result);
+      }
+      return null;
+    }
+
+}
+```
+
+## 🌐 Philosophy: Technology Convergence
+
+### **The Future is Typed and Unified**
+
+Modern software development is converging towards **explicit typing**, **consistent patterns**, and **predictable behavior** across all languages and platforms:
+
+- **TypeScript** transformed JavaScript from chaos to confidence
+- **Swift** brought type safety to mobile development
+- **Rust** proved that safety and performance can coexist
+- **PHP 7.4+** embraced typed properties, union types, and strict typing
+
+NCAC recognizes this **historical trend** and positions PHP as a first-class citizen in the modern development ecosystem. We're not just writing PHP code—we're writing **future-proof**, **maintainable**, and **trustworthy** software that scales with your business.
+
+### **Why This Matters**
+
+- **Team Velocity:** Developers familiar with TypeScript/ESLint can instantly read NCAC-compliant PHP
+- **Career Growth:** Skills transfer seamlessly between languages
+- **Code Quality:** Consistent patterns reduce cognitive load and bugs
+- **Tooling Integration:** Modern IDEs and static analyzers work better with explicit types
+
+> _"The languages that survive and thrive are those that embrace clarity over cleverness, explicitness over magic, and safety over shortcuts."_
+
+## 🔧 Advanced Configuration
+
+### Custom Rulesets
+
+Disable specific rules for legacy codebases:
+
+```xml
+<!-- Gradually adopt NCAC -->
+<rule ref="NCAC">
+    <!-- Disable strict typing for migration period -->
+    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
+    <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
+</rule>
+```
+
+Customize Slevomat spacing rules (built-in configurability):
+
+```xml
+<!-- Adjust Slevomat spacing to your team preferences -->
+<rule ref="SlevomatCodingStandard.Classes.MethodSpacing">
+    <properties>
+        <property name="minLinesCountBeforeWithComment" value="1"/>
+        <property name="maxLinesCountBeforeWithComment" value="1"/>
+    </properties>
+</rule>
+
+<rule ref="SlevomatCodingStandard.Classes.PropertySpacing">
+    <properties>
+        <property name="minLinesCountBeforeWithComment" value="1"/>
+        <property name="maxLinesCountBeforeWithComment" value="1"/>
+    </properties>
+</rule>
+```
+
+> **Note:** NCAC custom sniffs (like `NCAC.Formatting.ClassClosingSpacing`, `NCAC.WhiteSpace.TwoSpacesIndent`) are not yet configurable. This is planned for future releases.
+
+## 🛠️ Development & Contributing
+
+### Development Setup
+
+#### VS Code Dev Container (Recommended)
+
+1. **Clone the repository**:
 
    ```bash
-   # Must be run in WSL2, not Windows
    git clone https://github.com/ncac/phpcs-standard.git
    cd phpcs-standard
    ```
@@ -51,702 +293,93 @@ For contributors and developers working on this project:
    .docker/generate-env.sh
    ```
 
-3. **Open in VS Code**: The Dev Container will automatically configure the development environment.
+3. **Open in VS Code**: The Dev Container will automatically configure everything.
 
-For detailed setup instructions, see [Dev Container Setup Guide](docs/dev-container-setup.md).
-
-### Manual Setup
-
-If not using Dev Containers:
+#### Manual Setup
 
 ```bash
 # Install dependencies
 composer install
 pnpm install
 
-# Run quality checks
+# Run full quality checks
 vendor/bin/phing check
 
-# Test commit hooks
-scripts/test-commit-hooks.sh
+# Run specific checks
+vendor/bin/psalm              # Static analysis
+vendor/bin/phpunit            # Unit tests
+vendor/bin/phpcs --standard=NCAC NCAC/  # Self-check
 ```
 
-## Usage
+### Contributing
 
-### Basic usage with phpcs:
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for:
 
-```bash
-vendor/bin/phpcs --standard=NCAC /path/to/your/code
-```
+- 🐛 **Bug reports** with reproducible examples
+- ✨ **Feature requests** with clear use cases
+- 🔧 **Pull requests** with comprehensive tests
+- 📖 **Documentation** improvements
 
-### Basic usage with phpcbf (auto-fix):
+## 🏆 Recognition & Acknowledgments
 
-```bash
-vendor/bin/phpcbf --standard=NCAC /path/to/your/code
-```
+### **Standing on the Shoulders of Giants**
 
-### Configuration in phpcs.xml:
+The NCAC standard is built upon and deeply grateful to two foundational projects:
 
-```xml
-<?xml version="1.0"?>
-<ruleset name="YourProject">
-    <description>Your project coding standard</description>
-    <rule ref="NCAC"/>
+#### **PHP_CodeSniffer Foundation**
 
-    <!-- Optional: Configure specific rules -->
-    <rule ref="NCAC.Formatting.ClassClosingSpacing">
-        <properties>
-            <property name="linesCount" value="2"/>
-        </properties>
-    </rule>
-</ruleset>
-```
+This project would not exist without [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) by Squiz Labs. PHP_CodeSniffer provides the robust tokenization engine, extensible architecture, and auto-fixing capabilities that make NCAC possible. We extend our heartfelt thanks to the maintainers and contributors of this essential PHP tool.
 
-## Rules Overview
+#### **Slevomat Coding Standard Excellence**
 
-Below is a detailed description of each rule in the `ruleset.xml` with its purpose and BAD/GOOD code examples.
+The NCAC standard incorporates and builds upon the excellent [Slevomat Coding Standard](https://github.com/slevomat/coding-standard), which provides many of the strict typing, documentation, and structural rules that define modern PHP development. The quality and comprehensiveness of Slevomat's work has been instrumental in shaping NCAC's approach to type safety and code organization.
 
----
+### **NCAC's Custom Contribution**
 
-## Generic.NamingConventions.UpperCaseConstantName
+While leveraging these proven foundations, NCAC adds **7 custom sniffs** that implement:
 
-**What it does:**
-Enforces that all constants are named in uppercase with underscores (UPPER_CASE).
+- **Revolutionary 2-space indentation** with TypeScript-style array handling
+- **Context-aware naming conventions** (snake_case variables, camelCase properties, PascalCase classes)
+- **Strict formatting rules** for class structure and control flow
+- **Modern PHP patterns** aligned with contemporary development practices
 
-**BAD:**
+All custom rules are designed to complement (not replace) the existing ecosystem, ensuring maximum compatibility and adoption.
 
-```php
-const myConstant = 1;
-const My_Constant = 2;
-```
+> **License Compliance:** NCAC respects and operates under the licenses of all incorporated projects. See our [LICENSE](LICENSE) file for complete details.
 
-**GOOD:**
+## 🚀 Requirements & Compatibility
 
-```php
-const MY_CONSTANT = 1;
-```
+- **PHP:** 7.4, 8.0, 8.1, 8.2, 8.3
+- **PHP_CodeSniffer:** 3.7.0 or higher
+- **Composer:** 2.0 or higher
 
----
+## ✨ Features At a Glance
 
-## SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses
+- ✅ **21 comprehensive rules** covering all aspects of PHP code quality
+- ✅ **Auto-fixable formatting** for seamless workflow integration
+- ✅ **Type safety enforcement** with mandatory type hints
+- ✅ **Modern PHP support** including enums and typed properties
+- ✅ **IDE integration** for VS Code, PhpStorm, and others
+- ✅ **Performance optimized** for large codebases
+- ✅ **Extensive test coverage** ensuring reliability
+- ✅ **Rich documentation** with practical examples
 
-**What it does:**
-Requires that all `use` statements in a namespace are sorted alphabetically.
+## 📞 Support & Community
 
-**BAD:**
+- 📚 **[Documentation Hub](docs/)** - Comprehensive guides and references
+- 🐛 **[Issue Tracker](https://github.com/ncac/phpcs-standard/issues)** - Bug reports and feature requests
+- 💬 **[Discussions](https://github.com/ncac/phpcs-standard/discussions)** - Community Q&A and ideas
+- 📊 **[Releases](https://github.com/ncac/phpcs-standard/releases)** - Version history and changelogs
 
-```php
-use B\ClassB;
-use A\ClassA;
-```
-
-**GOOD:**
-
-```php
-use A\ClassA;
-use B\ClassB;
-```
-
----
-
-## Generic.PHP.LowerCaseConstant
-
-**What it does:**
-Ensures that PHP magic constants (like `true`, `false`, `null`) are written in lowercase.
-
-**BAD:**
-
-```php
-$bool = TRUE;
-$value = NULL;
-$check = FALSE;
-```
-
-**GOOD:**
-
-```php
-$bool = true;
-$value = null;
-$check = false;
-```
-
----
-
-## SlevomatCodingStandard.Classes.ClassConstantVisibility
-
-**What it does:**
-Requires that all class constants have an explicit visibility (public, protected, private).
-
-**BAD:**
-
-```php
-class MyClass {
-  const FOO = 1;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public const FOO = 1;
-}
-```
-
----
-
-## Squiz.ControlStructures.ControlSignature
-
-**What it does:**
-Enforces correct spacing and formatting for control structures (if, for, while, etc.).
-
-**BAD:**
-
-```php
-if($a==1){
-    // ...
-}
-```
-
-**GOOD:**
-
-```php
-if ($a == 1) {
-    // ...
-}
-```
-
----
-
-## Squiz.WhiteSpace.OperatorSpacing
-
-**What it does:**
-Requires a single space around operators (e.g., `=`, `+`, `-`, etc.).
-
-**BAD:**
-
-```php
-$a=1+2;
-```
-
-**GOOD:**
-
-```php
-$a = 1 + 2;
-```
-
----
-
-## SlevomatCodingStandard.Classes.ClassMemberSpacing
-
-**What it does:**
-Enforces a specific number of blank lines between class members (properties, methods).
-
-**BAD:**
-
-```php
-class MyClass {
-  public $a;
-  public $b;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public $a;
-
-  public $b;
-}
-```
-
----
-
-## SlevomatCodingStandard.Classes.MethodSpacing
-
-**What it does:**
-Enforces a specific number of blank lines before and after methods.
-
-**BAD:**
-
-```php
-class MyClass {
-  public function foo() {}
-  public function bar() {}
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public function foo() {}
-
-  public function bar() {}
-}
-```
-
----
-
-## SlevomatCodingStandard.Classes.ClassStructure
-
-**What it does:**
-Enforces a specific order for class elements (constants, properties, methods, etc.).
-
-**BAD:**
-
-```php
-class MyClass {
-  private $b;
-  public function foo() {}
-  public $a;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public $a;
-  private $b;
-
-  public function foo() {}
-}
-```
-
----
-
-## SlevomatCodingStandard.Classes.PropertySpacing
-
-**What it does:**
-Enforces blank lines before properties, with or without comments.
-
-**BAD:**
-
-```php
-class MyClass {
-  /**
-   * @var int
-   */
-  public $a;
-  public $b;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  /**
-   * @var int
-   */
-  public $a;
-
-  public $b;
-}
-```
-
----
-
-## SlevomatCodingStandard.Classes.BackedEnumTypeSpacing
-
-**What it does:**
-Enforces spacing rules for backed enum types (PHP 8.1+).
-
-**BAD:**
-
-```php
-enum Status: int{OK = 1;}
-```
-
-**GOOD:**
-
-```php
-enum Status : int { OK = 1; }
-```
-
----
-
-## NCAC.Formatting.ClassClosingSpacing
-
-**What it does:**
-Enforces blank lines before the closing brace of a class (NCAC standard).
-
-**BAD:**
-
-```php
-class MyClass {
-  public $a;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public $a;
-
-}
-```
-
----
-
-## NCAC.Formatting.ClassOpeningSpacing
-
-**What it does:**
-Enforces blank lines after the opening brace of a class (NCAC standard).
-
-**BAD:**
-
-```php
-class MyClass {
-  public $a;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-
-  public $a;
-}
-```
-
----
-
-## NCAC.ControlStructures.SwitchDeclaration
-
-**What it does:**
-Enforces strict formatting and structure for SWITCH statements, including mandatory `break` statements.
-
-**BAD:**
-
-```php
-switch ($a) {
-  case 1:
-    echo 'one';
-  case 2:
-    echo 'two';
-    break;
-}
-```
-
-**GOOD:**
-
-```php
-switch ($a) {
-  case 1:
-    echo 'one';
-    break;
-  case 2:
-    echo 'two';
-    break;
-  default:
-    break;
-}
-```
-
----
-
-## NCAC.Formatting.NoAlternateControlStructure
-
-**What it does:**
-Forbids alternate control structure syntax (e.g., `if: ... endif;`). Only curly braces `{}` are allowed.
-
-**BAD:**
-
-```php
-if ($a):
-    echo $a;
-endif;
-```
-
-**GOOD:**
-
-```php
-if ($a) {
-    echo $a;
-}
-```
-
----
-
-## NCAC.Formatting.OpeningBraceKAndR
-
-**What it does:**
-Enforces K&R style for opening braces: the opening brace must be on the same line as the declaration.
-
-**BAD:**
-
-```php
-class MyClass
-{
-  // ...
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  // ...
-}
-```
-
----
-
-## NCAC.NamingConventions.PascalCaseClassName
-
-**What it does:**
-Enforces PascalCase for class, interface, and trait names.
-
-**BAD:**
-
-```php
-class my_class {}
-class myClass {}
-```
-
-**GOOD:**
-
-```php
-class MyClass {}
-```
-
----
-
-## NCAC.NamingConventions.MethodName
-
-**What it does:**
-Enforces camelCase for method names (except magic methods).
-
-**BAD:**
-
-```php
-class MyClass {
-  public function my_method() {}
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public function myMethod() {}
-}
-```
-
----
-
-## NCAC.NamingConventions.VariableName
-
-**What it does:**
-Enforces snake_case for variable names and function parameters ; and camelCase for class properties.
-
-**BAD:**
-
-```php
-$myVariable = 1;
-$My_variable = 2;
-
-class MyClass {
-  public $my_property;
-}
-
-function ($myParam) {}
-```
-
-**GOOD:**
-
-```php
-$my_variable = 1;
-
-class MyClass {
-  public $myProperty;
-}
-
-function ($my_param) {}
-
-```
-
----
-
-## NCAC.NamingConventions.FunctionName
-
-**What it does:**
-Enforces snake_case for function names (outside classes/traits).
-
-**BAD:**
-
-```php
-function myFunction() {}
-```
-
-**GOOD:**
-
-```php
-function my_function() {}
-```
-
----
-
-## NCAC.WhiteSpace.TwoSpacesIndent
-
-**What it does:**
-Enforces exactly two spaces for indentation (no tabs, no 4-spaces).
-
-**BAD:**
-
-```php
-function foo() {
-    echo 'bar'; // 4 spaces
-}
-```
-
-**GOOD:**
-
-```php
-function foo() {
-  echo 'bar'; // 2 spaces
-}
-```
-
----
-
-## SlevomatCodingStandard.TypeHints.ParameterTypeHint
-
-**What it does:**
-Requires all function and method parameters to have a type hint (except for cases where it's not possible, e.g. variadic or mixed).
-
-**BAD:**
-
-```php
-function foo($bar) {}
-```
-
-**GOOD:**
-
-```php
-function foo(string $bar) {}
-```
-
----
-
-## SlevomatCodingStandard.TypeHints.ReturnTypeHint
-
-**What it does:**
-Requires all functions and methods to declare a return type hint (except for constructors, destructors, etc.).
-
-**BAD:**
-
-```php
-function foo($bar) {
-  return (string)$bar;
-}
-```
-
-**GOOD:**
-
-```php
-function foo($bar): string {
-  return (string)$bar;
-}
-```
-
----
-
-## SlevomatCodingStandard.TypeHints.PropertyTypeHint
-
-**What it does:**
-Requires all class properties to have a type hint (PHP 7.4+ typed properties).
-
-**BAD:**
-
-```php
-class MyClass {
-  public $foo;
-}
-```
-
-**GOOD:**
-
-```php
-class MyClass {
-  public string $foo;
-}
-```
-
----
-
-## Rule Summary
-
-This NCAC standard includes:
-
-### **Generic/Core PHP Rules:**
-
-- `Generic.NamingConventions.UpperCaseConstantName` - UPPER_CASE constants
-- `Generic.PHP.LowerCaseConstant` - lowercase PHP magic constants
-
-### **Slevomat Rules (Type Safety & Structure):**
-
-- `SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses` - sorted imports
-- `SlevomatCodingStandard.Classes.ClassConstantVisibility` - explicit constant visibility
-- `SlevomatCodingStandard.Classes.ClassMemberSpacing` - member spacing
-- `SlevomatCodingStandard.Classes.MethodSpacing` - method spacing
-- `SlevomatCodingStandard.Classes.ClassStructure` - class element ordering
-- `SlevomatCodingStandard.Classes.PropertySpacing` - property spacing
-- `SlevomatCodingStandard.Classes.BackedEnumTypeSpacing` - enum spacing
-- `SlevomatCodingStandard.TypeHints.ParameterTypeHint` - parameter types
-- `SlevomatCodingStandard.TypeHints.ReturnTypeHint` - return types
-- `SlevomatCodingStandard.TypeHints.PropertyTypeHint` - property types
-
-### **Squiz Rules (Control Flow & Formatting):**
-
-- `Squiz.ControlStructures.ControlSignature` - control structure formatting
-- `Squiz.WhiteSpace.OperatorSpacing` - operator spacing
-
-### **NCAC Custom Rules:**
-
-- `NCAC.ControlStructures.SwitchDeclaration` - strict switch statement rules
-- `NCAC.Formatting.ClassClosingSpacing` - class closing brace spacing
-- `NCAC.Formatting.ClassOpeningSpacing` - class opening brace spacing
-- `NCAC.Formatting.NoAlternateControlStructure` - forbid alternate syntax
-- `NCAC.Formatting.OpeningBraceKAndR` - K&R brace style
-- `NCAC.NamingConventions.PascalCaseClassName` - PascalCase classes
-- `NCAC.NamingConventions.MethodName` - camelCase methods
-- `NCAC.NamingConventions.VariableName` - context-aware variable naming
-- `NCAC.NamingConventions.FunctionName` - snake_case functions
-- `NCAC.WhiteSpace.TwoSpacesIndent` - 2-space indentation
-
-**Total: 21 rules** combining industry standards with NCAC-specific conventions for modern, type-safe PHP development.
-
-## Requirements
-
-- PHP 7.4 or higher
-- PHP_CodeSniffer 3.7.0 or higher
-- Composer
-
-## Features
-
-- ✅ **Auto-fixable rules:** Most rules support automatic fixing with `phpcbf`
-- ✅ **Type safety:** Enforces type hints for parameters, returns, and properties
-- ✅ **Modern PHP:** Supports PHP 8.0+ features including enums and typed properties
-- ✅ **Configurable:** Many rules can be customized via properties
-- ✅ **Performance:** Optimized sniffs with minimal performance impact
-- ✅ **IDE Integration:** Works seamlessly with VS Code, PhpStorm, and other IDEs
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+---
 
-- 📚 [Documentation](README.md)
-- 🐛 [Issue Tracker](https://github.com/ncac/phpcs-standard/issues)
-- 💬 [Discussions](https://github.com/ncac/phpcs-standard/discussions)
+**Ready to transform your PHP code?** 🚀
+
+```bash
+composer require --dev ncac/phpcs-standard
+vendor/bin/phpcs --standard=NCAC src/
+```
