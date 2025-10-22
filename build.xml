@@ -1,14 +1,5 @@
-<?x    <target name="check" depends="composer,yamllint,psalm,cs,cs-fix,tests,end2end"/>
-
-    <target name="yamllint">
-        <exec executable="yamllint" logoutput="true" passthru="true" checkreturn="true">
-            <arg value=".github/"/>
-            <arg value="docker-compose.yml"/>
-            <arg value=".yamllint.yml"/>
-        </exec>
-    </target>version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <project name="NCAC PHPCS Standard" default="check">
-
     <target name="check" depends="composer,psalm,cs,cs-fix,tests,yamllint,end2end"/>
 
     <target name="composer">
@@ -66,5 +57,4 @@
             <arg value="docker-compose.yml"/>
         </exec>
     </target>
-
 </project>

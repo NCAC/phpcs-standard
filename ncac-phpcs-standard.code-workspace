@@ -62,7 +62,6 @@
     "recommendations": [
       // PHP and code quality tools
       "bmewburn.vscode-intelephense-client",
-      "junstyle.php-cs-fixer",
       "esbenp.prettier-vscode",
       // Git and workflow tools
       "gxl.git-graph-3",
@@ -86,13 +85,37 @@
         "request": "launch",
         "port": 9047,
         "log": true,
-        // Uncomment the next line to break on entry
         // "stopOnEntry": true,
         "pathMappings": {
-          // Map the container or remote path to the local workspace
-          "/workspace": "${workspaceFolder}"
+          "/workspace": "${workspaceFolder:workspace}",
+          "/workspace/NCAC": "${workspaceFolder:standard}",
+          "/workspace/tests/NCAC": "${workspaceFolder:tests}"
         }
       }
+      // },
+      // {
+      //   "name": "Debug PHPCS with Xdebug",
+      //   "type": "php",
+      //   "request": "launch",
+      //   "program": "${workspaceFolder:workspace}/vendor/bin/phing",
+      //   "args": [
+      //     "tests"
+      //     // "--standard=/workspace/NCAC/ruleset.xml",
+      //     // "--extensions=php",
+      //     // "/workspace/tests/NCAC"
+      //   ],
+      //   "cwd": "${workspaceFolder:workspace}",
+      //   "port": 9047,
+      //   "log": true,
+      //   "pathMappings": {
+      //     "/workspace": "${workspaceFolder:workspace}",
+      //     "/workspace/NCAC": "${workspaceFolder:standard}",
+      //     "/workspace/tests/NCAC": "${workspaceFolder:tests}"
+      //   },
+      //   "env": {
+      //     "XDEBUG_CONFIG": "idekey=VSCODE"
+      //   }
+      // }
     ]
   }
 }
