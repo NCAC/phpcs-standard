@@ -1,5 +1,32 @@
 # Changelog
 
+# [1.1.0](https://github.com/ncac/phpcs-standard/compare/v1.0.3...v1.1.0) (2025-10-22)
+
+
+### chore
+
+* add codecov + test + yamlint ([](https://github.com/ncac/phpcs-standard/commit/be008e7fdc99d0516bed31d33ff7402f9cd2eb60))
+* ci ([](https://github.com/ncac/phpcs-standard/commit/77ca9f923fae4075450bec4f2a8f78dc5a5e9f76))
+* clean .yamllint conf ([](https://github.com/ncac/phpcs-standard/commit/2a915a1f6c7de80c866f565fcc3654d35f328f64))
+* enhance doc ([](https://github.com/ncac/phpcs-standard/commit/0b01030625e857d2a91624980353096bd37ae8ec))
+* enhance documentation and codecov ([](https://github.com/ncac/phpcs-standard/commit/9716cc6d1562504b8c2e3dae59aec918d370645a))
+* enhance format ([](https://github.com/ncac/phpcs-standard/commit/7af00558f72638d4eca13bddf053b087af5e8759))
+* fix conf ([](https://github.com/ncac/phpcs-standard/commit/389ced240b1ef4054d21c66b5521b0cba4d2f36b))
+* fix generate-env command ([](https://github.com/ncac/phpcs-standard/commit/9a74e0e6b873c12377da0c151cde8203e2cf3064))
+* fix xdebug conf ([](https://github.com/ncac/phpcs-standard/commit/17578ba28218a9e8ea86922024e7d1b7317f7ba2))
+
+
+### fix
+
+* accept return, throw, exit, as valid case/default terminators in SwitchDeclarationSniff ([](https://github.com/ncac/phpcs-standard/commit/23f7a381b53332a0c8a2f9e2b4ce39fc1e722552))
+* add missing .yamlint ([](https://github.com/ncac/phpcs-standard/commit/0aa7aa41f78411d792d07030da10cc48b0823e63))
+* anonymous classes methodname ([](https://github.com/ncac/phpcs-standard/commit/d6f500b422577f0dba6481fb209addd800fbc79b))
+* correct indentation of returned array inside a `case:` ([](https://github.com/ncac/phpcs-standard/commit/220559d8a800ba327ea99a64ad7aafa10b3526c3))
+* indent arrays as arguments ([](https://github.com/ncac/phpcs-standard/commit/a820e172abcd3b66bd22dacbced49bc065c3792b))
+* Indentation Bug in NCAC.WhiteSpace.TwoSpacesIndent for consecutive `case` instructions ([](https://github.com/ncac/phpcs-standard/commit/9ea5355b6d95c817007ce21b52e952f8eb1dd558))
+* Static variables are treated as variables and not method ([](https://github.com/ncac/phpcs-standard/commit/02c6955c59c6a11c0519b6aef1172c18e946ad6b))
+* too far in my tests ([](https://github.com/ncac/phpcs-standard/commit/f011998441b42a75ccabb9074653306da5a9a767))
+
 ## [1.0.3](https://github.com/ncac/phpcs-standard/compare/v1.0.2...v1.0.3) (2025-10-17)
 
 ### feat
