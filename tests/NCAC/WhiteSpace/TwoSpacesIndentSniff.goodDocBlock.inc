@@ -3,6 +3,6 @@
  * GOOD docblock
  * description.
  */
-function bar() {
+function bar(): int {
   return 2;
 }

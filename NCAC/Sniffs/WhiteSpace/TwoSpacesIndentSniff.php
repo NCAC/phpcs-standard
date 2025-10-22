@@ -195,6 +195,22 @@ class TwoSpacesIndentSniff implements Sniff {
     return $line_token_codes;
   }
 
+  private function getActualLevel(array $stack): int {
+    $level = 0;
+    foreach ($stack as $block) {
+      if (is_string($block) && strpos($block, 'MERGED:') === 0) {
+        // MERGED tokens count as 1 level (not 2)
+        $level++;
+      } else if ($block === 'SWITCH_CASE') {
+        // SWITCH_CASE is a special marker that adds indentation for case content
+        $level++;
+      } else {
+        $level++;
+      }
+    }
+    return $level;
+  }
+
   /**
    * Computes the expected indentation level for each line based on nesting structure.
    *
@@ -205,6 +221,7 @@ class TwoSpacesIndentSniff implements Sniff {
    * - Ternary operators (?:)
    * - Multiline assignments
    * - Nested blocks (braces, brackets, parentheses)
+   * - Arrays passed as function arguments (special handling)
    *
    * @param array<int, array<int|string>> $line_token_codes Token codes per line.
    *
@@ -224,8 +241,8 @@ class TwoSpacesIndentSniff implements Sniff {
 
       // === DocBlock Processing ===
       if ($first_token_code === T_DOC_COMMENT_OPEN_TAG) {
-        $line_levels_stack[$index_line] = count($blocks_stack);
-        $docblock_indentation_level = count($blocks_stack) + 0.5;
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
+        $docblock_indentation_level = $this->getActualLevel($blocks_stack) + 0.5;
         continue;
       }
 
@@ -237,32 +254,35 @@ class TwoSpacesIndentSniff implements Sniff {
       // === Block Structure Processing ===
       
       // Handle closing tokens - pop stack before calculating indentation
+      $last_block = end($blocks_stack);
       if (
-        ($first_token_code === T_CLOSE_CURLY_BRACKET && end($blocks_stack) === T_OPEN_CURLY_BRACKET)
-        || ($first_token_code === T_CLOSE_PARENTHESIS && end($blocks_stack) === T_OPEN_PARENTHESIS)
-        || ($first_token_code === T_CLOSE_SQUARE_BRACKET && end($blocks_stack) === T_OPEN_SQUARE_BRACKET)
-        || ($first_token_code === T_CLOSE_SHORT_ARRAY && end($blocks_stack) === T_OPEN_SHORT_ARRAY)
+        ($first_token_code === T_CLOSE_CURLY_BRACKET && $last_block === T_OPEN_CURLY_BRACKET)
+        || ($first_token_code === T_CLOSE_PARENTHESIS && $last_block === T_OPEN_PARENTHESIS)
+        || ($first_token_code === T_CLOSE_SQUARE_BRACKET && $last_block === T_OPEN_SQUARE_BRACKET)
+        || ($first_token_code === T_CLOSE_SHORT_ARRAY && $last_block === T_OPEN_SHORT_ARRAY)
+        // Handle merged token closures  
+        || ($first_token_code === T_CLOSE_SQUARE_BRACKET && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_SQUARE_BRACKET) !== false)
+        || ($first_token_code === T_CLOSE_SHORT_ARRAY && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_SHORT_ARRAY) !== false)
+        || ($first_token_code === T_CLOSE_PARENTHESIS && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_PARENTHESIS) !== false)
       ) {
         array_pop($blocks_stack);
-        $line_levels_stack[$index_line] = count($blocks_stack);
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
         $start_index = 1;
 
         // Handle ternary operators
       } else if ($first_token_code === T_INLINE_THEN) {
         $blocks_stack[] = T_INLINE_THEN;
-        $line_levels_stack[$index_line] = count($blocks_stack);
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
         $start_index = 1;
       } else if ($first_token_code === T_INLINE_ELSE && end($blocks_stack) === T_INLINE_THEN) {
-        $line_levels_stack[$index_line] = count($blocks_stack);
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
         array_pop($blocks_stack);
-        $start_index = 1;
-
-        // Handle switch/case statements with consecutive case support
+        $start_index = 1;      // Handle switch/case statements with consecutive case support
       } else if ($first_token_code === T_CASE || $first_token_code === T_DEFAULT) {
         // Consecutive case/default statements maintain same indentation level
-        $case_level = count($blocks_stack);
+        $case_level = $this->getActualLevel($blocks_stack);
         if (end($blocks_stack) === 'SWITCH_CASE') {
-          $case_level = count($blocks_stack) - 1;
+          $case_level = $this->getActualLevel($blocks_stack) - 1;
         }
         $line_levels_stack[$index_line] = $case_level;
         
@@ -285,13 +305,13 @@ class TwoSpacesIndentSniff implements Sniff {
           || $first_token_code === T_CLOSE_CURLY_BRACKET
         )
       ) {
-        $line_levels_stack[$index_line] = count($blocks_stack);
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
         array_pop($blocks_stack);
         $start_index = 1;
 
         // Default indentation level
       } else {
-        $line_levels_stack[$index_line] = count($blocks_stack);
+        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
       }
 
       // === Multiline Assignment Handling ===
@@ -302,12 +322,34 @@ class TwoSpacesIndentSniff implements Sniff {
         $line_levels_stack[$index_line] = count($blocks_stack);
         array_pop($blocks_stack);
       }
-
       // === Process remaining tokens on the line ===
       while ($start_index < count($line_tokens)) {
         $token_code = $line_tokens[$start_index];
         if (in_array($token_code, $opening_closure_tokens)) {
-          $blocks_stack[] = $token_code;
+          // Special handling for arrays as function arguments
+          // Check if this array token immediately follows a parenthesis in the same line
+          // BUT exclude switch/case contexts where normal indentation is preferred
+          $in_switch_case = in_array('SWITCH_CASE', $blocks_stack, true);
+          
+          if (($token_code === T_OPEN_SQUARE_BRACKET || $token_code === T_OPEN_SHORT_ARRAY) 
+            && !empty($blocks_stack) 
+            && end($blocks_stack) === T_OPEN_PARENTHESIS
+            && !$in_switch_case) {
+            // Check if the parenthesis was added on this same line (meaning func([ pattern)
+            $prev_token_index = $start_index - 1;
+            if ($prev_token_index >= 0 && 
+              ($line_tokens[$prev_token_index] === T_OPEN_PARENTHESIS)) {
+              // This is an array directly after opening parentheses: func([
+              // Mark this as a merged opening - store both tokens but count as one level
+              array_pop($blocks_stack); // Remove the parenthesis
+              $blocks_stack[] = 'MERGED:' . T_OPEN_PARENTHESIS . ':' . $token_code;
+            } else {
+              $blocks_stack[] = $token_code;
+            }
+          } else {
+            // Regular opening token (parentheses, braces, arrays not in function calls)
+            $blocks_stack[] = $token_code;
+          }
         } else if (
           ($token_code === T_CLOSE_CURLY_BRACKET && end($blocks_stack) === T_OPEN_CURLY_BRACKET)
           || ($token_code === T_CLOSE_PARENTHESIS && end($blocks_stack) === T_OPEN_PARENTHESIS)
@@ -315,6 +357,15 @@ class TwoSpacesIndentSniff implements Sniff {
           || ($token_code === T_CLOSE_SHORT_ARRAY && end($blocks_stack) === T_OPEN_SHORT_ARRAY)
         ) {
           array_pop($blocks_stack);
+        } else {
+          // Handle merged token closures - only specific array-in-function cases
+          $last_block = end($blocks_stack);
+          if (
+            ($token_code === T_CLOSE_SQUARE_BRACKET && is_string($last_block) && strpos($last_block, 'MERGED:' . T_OPEN_PARENTHESIS . ':' . T_OPEN_SQUARE_BRACKET) === 0)
+            || ($token_code === T_CLOSE_SHORT_ARRAY && is_string($last_block) && strpos($last_block, 'MERGED:' . T_OPEN_PARENTHESIS . ':' . T_OPEN_SHORT_ARRAY) === 0)
+          ) {
+            array_pop($blocks_stack);
+          }
         }
         $start_index += 1;
       }

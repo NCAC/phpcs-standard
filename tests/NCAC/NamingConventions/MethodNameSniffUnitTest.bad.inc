@@ -6,63 +6,59 @@
  */
 class BadMethodNamingExample {
   
-  // Invalid snake_case method names
-  public function my_method(): void {
-    // Method content
+  public function __construct() {
+    // Constructor
   }
 
-  public function calculate_total(): int {
-    return 0;
-  }
-
-  private function parse_data(): void {
-    // Method content
-  }
-
-  protected function handle_special_case(): void {
-    // Method content
-  }
-
-  // Static methods - incorrectly in snake_case
   public static function get_instance(): self {
     return new self();
   }
 
-  // PascalCase methods - also invalid (should be camelCase)
+  /**
+   * Improperly named method in snake_case.
+   */
+  public function my_method(): void {
+    // Method content
+  }
+
   public function ParseXml(): void {
     // Method content
   }
 
-  protected function HandleEvent(): void {
+  public function convertXmlFile(): void {
     // Method content
   }
+
+  public function callOtherMethods(): void {
+    $this->my_method();
+    $test = self::get_instance();
+    $test->ParseXml();
+  }
+
+
+
+  protected function handle_event(): void {
+    // Method content
+  }
+
+  private function parseData(): void {
+    // Method content
+  }// Static methods - incorrectly in snake_case
+  // PascalCase methods - also invalid (should be camelCase)
+
 
   // ALL_CAPS method - invalid
   private function GET_DATA(): void {
     // Method content
   }
+  
 
-  // Mixed case method - invalid
-  public function convertXML_file(): void {
-    // Method content
-  }
-
-  // Magic methods - excluded from camelCase rules, so these are valid
-  public function __construct() {
-    // Constructor
-  }
-
+  /**
+   * Magic methods - excluded from camelCase rules, so these are valid
+   * @return string 
+   */
   public function __toString(): string {
     return 'BadMethodNamingExample';
-  }
-
-  // Method calls to other methods - also incorrectly named in calls
-  public function call_other_methods(): void {
-    $this->my_method();
-    $this->calculate_total();
-    self::get_instance();
-    static::handle_special_case();
-    $this->ParseXml();
   }
 
 }
@@ -74,14 +70,8 @@ trait BadMethodNamingTrait {
     // Method content
   }
 
-  private function helper_function(): void {
-    // Method content
-  }
-
-  // Protected method with PascalCase (invalid)
-  protected function DoComplexOperation(): void {
+  protected function do_complex_operation(): void {
     $this->trait_method();
-    $this->helper_function();
   }
 
 }

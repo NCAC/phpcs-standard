@@ -2,25 +2,16 @@
 
 class GoodExampleClass {
 
-  /**
-   * @var int
-   */
-  private $counter = 0;
+  /** @var array<string, mixed> $items */
+  public array $items = [];
 
-  /**
-   * @var string
-   */
-  protected $label;
+  protected string $label;
 
-  /**
-   * @var array
-   */
-  public $items = [];
+  private int $counter = 0;
 
   /**
    * Constructor.
    *
-   * @param string $label
    */
   public function __construct(string $label = 'default') {
     $this->label = $label;
@@ -29,8 +20,6 @@ class GoodExampleClass {
   /**
    * Increments the counter.
    *
-   * @param int $step
-   * @return int
    */
   public function increment(int $step = 1): int {
     $this->counter += $step;
@@ -41,7 +30,6 @@ class GoodExampleClass {
    * Adds an item to the list.
    *
    * @param mixed $item
-   * @return void
    */
   public function addItem($item): void {
     $this->items[] = $item;
@@ -50,7 +38,6 @@ class GoodExampleClass {
   /**
    * Gets the label.
    *
-   * @return string
    */
   public function getLabel(): string {
     return $this->label;
@@ -59,7 +46,6 @@ class GoodExampleClass {
   /**
    * Returns a summary string.
    *
-   * @return string
    */
   public function summary(): string {
     return "Label: {$this->label}, Count: {$this->counter}, Items: " . count($this->items);
