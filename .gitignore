@@ -26,7 +26,7 @@
 !build.xml
 !phpunit.xml
 !test-sniffs.php
-!scripts
+!.yamllint
 !.husky
 !docs
 !scripts
