@@ -156,6 +156,41 @@ vendor/bin/phing check
    - References to any related issues
    - Screenshots or examples if applicable
 
+## 📝 Pull Request Template
+
+When opening a pull request, please use the following template:
+
+```markdown
+# 🚀 Fix: <Short Description>
+
+## Summary
+
+- <What was changed>
+- <Why it was changed>
+- <Tests and coverage>
+
+## Details
+
+- <Technical details, if needed>
+
+## Results
+
+- <Impact, coverage, tests passing>
+
+## Closing
+
+Closes #<issue-number>
+Branch: `<branch-name>`
+
+---
+
+### Checklist
+
+- [x] All unit tests passing
+- [x] Coverage > 75%
+- [x] Review requested
+```
+
 ## Issue Reporting
 
 When reporting issues, please include:
