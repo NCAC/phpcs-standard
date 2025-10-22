@@ -1,31 +1,40 @@
 <?php
 
-// Valid function parameters in snake_case
-function valid_function($snake_case_param, $another_param)
-{
-    return $snake_case_param + $another_param;
+/**
+ * Good examples of variable naming conventions.
+ * @param mixed $snake_case_param 
+ * @param mixed $another_param 
+ */
+function valid_function($snake_case_param, $another_param): mixed {
+  return $snake_case_param + $another_param;
 }
 
 // Valid closure parameters
 $valid_closure = function ($closure_param, $another_closure_param) {
-    return $closure_param . $another_closure_param;
+  return $closure_param . $another_closure_param;
 };
 
 // Valid class with camelCase properties
-class ValidClass
-{
-    public $camelCaseProperty;
-    private $anotherCamelCase;
-    protected $validProperty;
-    public static $staticCamelCase;
-    public $oldStyleCamelCase;
+class ValidClass {
+
+  public static mixed $staticCamelCase;
+
+  public mixed $camelCaseProperty;
+
+  public mixed $oldStyleCamelCase;
+
+  protected mixed $validProperty;
+
+  private mixed $anotherCamelCase;
+
 }
 
 // Valid trait with camelCase properties
-trait ValidTrait
-{
-    public $traitProperty;
-    private $anotherTraitProperty;
+trait ValidTrait {
+
+  public string $traitProperty;
+  private mixed $anotherTraitProperty;
+
 }
 
 // Valid dynamic properties in snake_case
@@ -36,13 +45,14 @@ $obj->$snake_case_var = 1;
 $obj->$another_snake_var = 2;
 
 // Valid local variables in snake_case
-function test_local_vars()
-{
-    $local_var = 'local';
-    $snake_case_local = 'test';
-    $another_local = 'another';
+function test_local_vars(): string {
+  // no errors should be reported here, as these are local variables
+  static $static_var = 'static';
+  $local_var = 'local';
+  $snake_case_local = 'test';
+  $another_local = 'another';
 
-    return $local_var . $snake_case_local . $another_local;
+  return $local_var . $snake_case_local . $another_local . $static_var;
 }
 
 // Valid global variables in snake_case
@@ -62,16 +72,16 @@ $_REQUEST['param'] = 'value';
 $GLOBALS['config'] = [];
 
 // Valid mixed contexts
-class MixedValidExample
-{
-    public $validProperty;
+class MixedValidExample {
 
-    public function validMethod($valid_param)
-    {
-        $local_variable = $valid_param;
-        $dynamic_var = 'property';
-        $this->$dynamic_var = $local_variable;
+  public mixed $validProperty;
 
-        return $this->validProperty;
-    }
+  public function validMethod(int $valid_param): mixed {
+    $local_variable = $valid_param;
+    $dynamic_var = 'property';
+    $this->$dynamic_var = $local_variable;
+
+    return $this->validProperty;
+  }
+
 }

@@ -95,7 +95,6 @@ class MethodNameSniff implements Sniff {
     // Apply comprehensive fixes to both declaration and all method calls.
     if (!$string_case_helper->isCamelCase($function_name)) {
       $camel = $string_case_helper->toCamelCase($function_name);
-      error_log('Breakpoint reached: ' . $function_name);
       $fix = $phpcs_file->addFixableError(
         "Method name '$function_name' must be in camelCase.",
         $function_name_pointer,
