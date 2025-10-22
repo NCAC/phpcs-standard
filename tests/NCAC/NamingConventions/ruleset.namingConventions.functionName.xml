@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="NCAC NamingConventions MethodName Test">
-  <description>Test ruleset for MethodNameSniff</description>
-  <!-- Include only the MethodNameSniff for testing -->
-  <rule ref="NCAC.NamingConventions.MethodName"/>
+  <description>Test ruleset for FunctionNameSniff</description>
+  <!-- Include only the FunctionNameSniff for testing -->
+  <rule ref="NCAC.NamingConventions.FunctionName"/>
 </ruleset>

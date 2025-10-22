@@ -16,10 +16,16 @@
 
 set -e  # Exit on any error
 
-echo "🔧 Generating .env file for Dev Container..."
+# Change to the script's directory to ensure relative paths work correctly
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
 
-# Define the .env file path
-ENV_FILE="/workspace/.env"
+echo "🔧 Generating .env file for Dev Container..."
+echo "📁 Working from project root: $(pwd)"
+
+# Define the .env file path (relative to project root)
+ENV_FILE=".env"
 
 # Remove existing .env file if it exists
 if [ -f "$ENV_FILE" ]; then
@@ -40,7 +46,7 @@ if [ -z "$WSL_IP" ]; then
 fi
 
 # Validate IP format (basic check)
-if [[ ! $WSL_IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+if ! echo "$WSL_IP" | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' > /dev/null; then
     echo "❌ Error: Invalid IP address format: $WSL_IP"
     exit 1
 fi

@@ -10,13 +10,23 @@
         "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true
       },
       "extensions": [
+        // PHP and code quality tools
         "bmewburn.vscode-intelephense-client",
-        "junstyle.php-cs-fixer",
         "esbenp.prettier-vscode",
-        "Gxl.git-graph-3",
-        "valeryanm.vscode-phpsab"
+        // Git and workflow tools
+        "gxl.git-graph-3",
+        // PHPCS/PHPCBF integration
+        "valeryanm.vscode-phpsab",
+        // Debugging
+        "xdebug.php-debug",
+        // Batch rename utility
+        "jannisx11.batch-rename-extension",
+        // GitHub Actions integration
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github"
       ]
     }
   },
-  "postCreateCommand": "sh /workspace/.docker/post-create-command.sh"
+  "postCreateCommand": "sh /workspace/.docker/post-create-command.sh",
+  "forwardPorts": [9047]
 }

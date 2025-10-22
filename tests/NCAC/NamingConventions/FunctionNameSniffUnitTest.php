@@ -28,12 +28,14 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
    * @return array<int, int> Expected errors per line
    */
   public function getErrorList(string $test_file): array {
+    $error_list = [];
     switch ($test_file) {
       case 'FunctionNameSniffUnitTest.good.inc':
-        return [];
+        $error_list = [];
+        break;
 
       case 'FunctionNameSniffUnitTest.bad.inc':
-        return [
+        $error_list = [
           // Global functions with incorrect naming
           8   => 1, // camelCase function
           13   => 1, // PascalCase function
@@ -43,10 +45,13 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
           // Class methods should be ignored (no errors)
           // Lines 20-25 contain class methods - should not trigger errors
         ];
+        break;
 
       default:
-        return [];
+        $error_list = [];
+        break;
     }
+    return $error_list;
   }
 
   /**

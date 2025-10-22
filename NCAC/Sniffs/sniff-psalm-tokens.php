@@ -108,3 +108,6 @@ if (!defined('T_INLINE_ELSE')) {
 if (!defined('T_EQUAL')) {
   define('T_EQUAL', 1035);
 }
+if (!defined('T_ANON_CLASS')) {
+  define('T_ANON_CLASS', 1036);
+}

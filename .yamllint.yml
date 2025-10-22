@@ -1,0 +1,42 @@
+# YAMLLINT Configuration for NCAC PHPCS Standard
+# https://yamllint.readthedocs.io/en/stable/configuration.html
+
+extends: default
+
+ignore: |
+  pnpm-lock.yaml
+  ./pnpm-lock.yaml
+  vendor/**
+  node_modules/**
+  .pnpm/**
+
+rules:
+  # Allow longer lines for GitHub Actions
+  line-length:
+    max: 120
+    level: warning
+
+  # Allow multiple spaces for alignment in YAML
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # Allow comments without space after #
+  comments:
+    min-spaces-from-content: 1
+
+  # Allow multiple documents in one file (useful for GitHub Actions)
+  document-start: disable
+
+  # Allow truthy values (on/off in GitHub Actions)
+  truthy:
+    allowed-values: ["true", "false", "on", "off"]
+
+  # Allow empty values (useful for optional fields)
+  empty-values:
+    forbid-in-block-mappings: false
+    forbid-in-flow-mappings: false
+
+  # Disable comments indentation
+  comments-indentation: disable

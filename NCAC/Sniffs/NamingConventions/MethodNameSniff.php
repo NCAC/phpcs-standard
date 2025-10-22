@@ -60,23 +60,26 @@ class MethodNameSniff implements Sniff {
    */
   public function process(File $phpcs_file, $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
-    
+
     // Step 1: Locate the method name token following the T_FUNCTION keyword.
     $function_name_pointer = $phpcs_file->findNext(T_STRING, $stack_pointer);
     $string_case_helper = StringCaseHelper::me();
-    
+
     if ($function_name_pointer === false) {
       // Defensive programming: malformed function declaration
       return;
     }
-    
+
     $function_name = $tokens[$function_name_pointer]['content'];
 
     // Step 2: Verify this is a method within a class or trait context.
     // Global functions are handled by a separate sniff with different rules.
-    $in_class_or_trait = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false
-    || $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
-      
+    $in_class = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false;
+    $in_trait = $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
+    $in_anon_class = $phpcs_file->getCondition($stack_pointer, T_ANON_CLASS) !== false;
+
+    $in_class_or_trait = $in_class || $in_trait || $in_anon_class;
+
     if (!$in_class_or_trait) {
       // Not a method - skip global functions
       return;
@@ -92,6 +95,7 @@ class MethodNameSniff implements Sniff {
     // Apply comprehensive fixes to both declaration and all method calls.
     if (!$string_case_helper->isCamelCase($function_name)) {
       $camel = $string_case_helper->toCamelCase($function_name);
+      error_log('Breakpoint reached: ' . $function_name);
       $fix = $phpcs_file->addFixableError(
         "Method name '$function_name' must be in camelCase.",
         $function_name_pointer,
@@ -123,28 +127,28 @@ class MethodNameSniff implements Sniff {
    */
   private function fixMethodCalls(File $phpcs_file, string $old_name, string $new_name): void {
     $tokens = $phpcs_file->getTokens();
-    
+
     foreach ($tokens as $ptr => $token) {
       // Ensure pointer is an integer for safe array access
       if (!is_int($ptr)) {
         continue;
       }
-      
+
       // Handle instance method calls: $this->oldMethodName()
       if (
-        $token['code'] === T_OBJECT_OPERATOR 
-        && isset($tokens[$ptr + 1]) 
-        && $tokens[$ptr + 1]['code'] === T_STRING 
+        $token['code'] === T_OBJECT_OPERATOR
+        && isset($tokens[$ptr + 1])
+        && $tokens[$ptr + 1]['code'] === T_STRING
         && $tokens[$ptr + 1]['content'] === $old_name
       ) {
         $phpcs_file->fixer->replaceToken($ptr + 1, $new_name);
       }
-      
+
       // Handle static method calls: self::oldMethodName() or static::oldMethodName()
       if (
-        $token['code'] === T_DOUBLE_COLON 
-        && isset($tokens[$ptr + 1]) 
-        && $tokens[$ptr + 1]['code'] === T_STRING 
+        $token['code'] === T_DOUBLE_COLON
+        && isset($tokens[$ptr + 1])
+        && $tokens[$ptr + 1]['code'] === T_STRING
         && $tokens[$ptr + 1]['content'] === $old_name
       ) {
         $phpcs_file->fixer->replaceToken($ptr + 1, $new_name);

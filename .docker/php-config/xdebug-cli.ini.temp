@@ -1,5 +1,5 @@
 xdebug.mode=debug
-xdebug.start_with_request=yes
+xdebug.start_with_request=trigger
 xdebug.client_host=${WSL_IP}
 xdebug.client_port=${XDEBUG_PORT}
-xdebug.log=/php-logs/xdebug.log
+xdebug.log=/workspace/.docker/php-logs/xdebug.log

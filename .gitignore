@@ -9,7 +9,7 @@
 !.gitignore
 !.devcontainer.json
 !generate-env.sh
-!ncac-phpcs-suite.code-workspace
+!ncac-phpcs-standard.code-workspace
 !.github
 !.env.example
 !.release-it.json
@@ -26,7 +26,7 @@
 !build.xml
 !phpunit.xml
 !test-sniffs.php
-!scripts
+!.yamllint.yml
 !.husky
 !docs
 !scripts

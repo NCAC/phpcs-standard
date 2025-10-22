@@ -29,43 +29,54 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
    * @return array<int, int> Expected errors per line
    */
   public function getErrorList(string $test_file): array {
+    $error_list = [];
+    
     switch ($test_file) {
       case 'MethodNameSniffUnitTest.good.inc':
-        return [];
+        $error_list = [];
+        break;
       case 'MethodNameSniffUnitTest.bad.inc':
-        return [
+        $error_list = [
           
-        // Invalid snake_case method names
-        10 => 1,  // public function my_method() - should be camelCase
-        15 => 1,  // public function calculate_total() - should be camelCase
-        20 => 1,  // private function parse_data() - should be camelCase
-        25 => 1,  // protected function handle_special_case() - should be camelCase
+          // Invalid snake_case method names
+          10 => 1,  // public function my_method() - should be camelCase
+          14 => 1,  // public function calculate_total() - should be camelCase
+          18 => 1,  // private function parse_data() - should be camelCase
+          22 => 1,  // protected function handle_special_case() - should be camelCase
 
-        // Static methods - incorrectly in snake_case
-        31 => 1,  // public static function get_instance() - should be camelCase
+          // Static methods - incorrectly in snake_case
+          27 => 1,  // public static function get_instance() - should be camelCase
 
-        // PascalCase methods - also invalid (should be camelCase)
-        37 => 1,  // public function ParseXml() - should be camelCase
-        42 => 1,  // protected function HandleEvent() - should be camelCase
+          // PascalCase methods - also invalid (should be camelCase)
+          32 => 1,  // public function ParseXml() - should be camelCase
+          36 => 1,  // protected function HandleEvent() - should be camelCase
 
-        // ALL_CAPS method - invalid
-        48 => 1,  // private function GET_DATA() - should be camelCase
+          // ALL_CAPS method - invalid
+          41 => 1,  // private function GET_DATA() - should be camelCase
 
-        // Mixed case method - invalid
-        54 => 1,  // public function convertXML_file() - should be camelCase
+          // Mixed case method - invalid
+          46 => 1,  // public function convertXML_file() - should be camelCase
 
-        // Method calls with snake_case - invalid
-        71 => 1,  // public function call_other_methods() - should be camelCase
+          // Method calls with snake_case - invalid
+          60 => 1,  // public function call_other_methods() - should be camelCase
 
-        // Trait with improperly named methods
-        84 => 1,  // public function trait_method() - should be camelCase
-        89 => 1,  // private function helper_function() - should be camelCase
-        95 => 1,  // protected function DoComplexOperation() - should be camelCase
-      ];
+          // Trait with improperly named methods
+          73 => 1,  // public function trait_method() - should be camelCase
+          77 => 1,  // private function helper_function() - should be camelCase
+          82 => 1,  // protected function DoComplexOperation() - should be camelCase
+
+          // anonymous class
+          97 => 1,   // Method name 'invalid_method' must be in camelCase.
+          101 => 2  // Method name 'internal_helper' must be in camelCase.
+        ];
+        break;
 
       default:
-        return [];
+        $error_list = [];
+        break;
     }
+          
+    return $error_list;
   }
 
   /**
