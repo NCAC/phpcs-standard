@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="Test ClassOpeningSpacing Only">
+    <description>Test ruleset for ClassOpeningSpacingSniff only</description>
+    <rule ref="NCAC.Formatting.ClassOpeningSpacing"/>
+</ruleset>

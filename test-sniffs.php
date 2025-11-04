@@ -1,4 +1,5 @@
 <?php
+
 /**
  * End-to-end test to verify that the NCAC standard works correctly.
  *

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace NCAC\Sniffs\Formatting;
 
@@ -75,7 +77,9 @@ class ClassOpeningSpacingSniff implements Sniff {
         T_COMMENT,
         T_DOC_COMMENT
       ],
-      $next_token, null, true
+      $next_token,
+      null,
+      true
     );
 
     // Step 2: Calculate the number of blank lines between opening brace and content.
@@ -87,16 +91,15 @@ class ClassOpeningSpacingSniff implements Sniff {
       $lines_between = 0;
     }
 
-    // Step 3: Find the last whitespace token for potential replacement.
-    // This helps us target the correct token for modification during auto-fixing.
-    $whitespace_token = null;
+    // Step 3: Collect all whitespace tokens between opening brace and first content.
+    // This helps us target all tokens that need to be modified during auto-fixing.
+    $whitespace_tokens = [];
     for ($i = $open_class_token + 1; $i < $first_content_token; $i++) {
       if ($tokens[$i]['code'] === T_WHITESPACE) {
-        $whitespace_token = $i;
-        // Continue to find the last whitespace token before content
+        $whitespace_tokens[] = $i;
       }
     }
-    
+
     // Step 4: Use opening brace as error reporting location (always modifiable)
     $error_token = $open_class_token;
 
@@ -112,16 +115,29 @@ class ClassOpeningSpacingSniff implements Sniff {
         return;
       }
       $phpcs_file->fixer->beginChangeset();
-      $newlines = str_repeat("\n", $this->linesCount);
-      if ($whitespace_token !== null) {
-        // Replace existing whitespace with the correct number of newlines
-        $phpcs_file->fixer->replaceToken($whitespace_token, $newlines);
+
+      // Create the correct whitespace: newlines only (preserve existing indentation)
+      $correct_newlines = str_repeat("\n", $this->linesCount + 1);
+
+      if (!empty($whitespace_tokens)) {
+        // Find indentation of the first content line to preserve it
+        $first_whitespace_content = $tokens[$whitespace_tokens[0]]['content'];
+        $lines = explode("\n", $first_whitespace_content);
+        $last_line_indentation = end($lines); // Get indentation of the last line
+
+        // Replace the first whitespace token with correct content and preserve indentation
+        $replacement = $correct_newlines . $last_line_indentation;
+        $phpcs_file->fixer->replaceToken($whitespace_tokens[0], $replacement);
+
+        // Remove all other whitespace tokens
+        for ($i = 1; $i < count($whitespace_tokens); $i++) {
+          $phpcs_file->fixer->replaceToken($whitespace_tokens[$i], '');
+        }
       } else {
         // Insert newlines when no whitespace exists after opening brace
-        $phpcs_file->fixer->addContent($open_class_token, $newlines);
+        $phpcs_file->fixer->addContent($open_class_token, $correct_newlines);
       }
       $phpcs_file->fixer->endChangeset();
     }
   }
-
 }

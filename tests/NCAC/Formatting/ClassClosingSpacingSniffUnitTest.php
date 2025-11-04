@@ -35,6 +35,16 @@ class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
   }
 
   /**
+   * Returns the PHPCS standard (ruleset) to use for this test.
+   * Uses a minimal ruleset that only enables ClassClosingSpacing.
+   *
+   * @return string
+   */
+  protected function getStandard(): string {
+    return __DIR__ . '/ruleset.formatting.classClosingSpacing.xml';
+  }
+
+  /**
    * Returns the lines where warnings should occur for each fixture file.
    *
    * @param string $test_file The name of the file being tested.
@@ -53,5 +63,4 @@ class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
-
 }

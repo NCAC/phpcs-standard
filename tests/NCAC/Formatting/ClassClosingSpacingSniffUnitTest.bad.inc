@@ -3,6 +3,7 @@
 
 
 class BadClassSpacing {
+
   /**
    * This is a sample method.
    */
@@ -16,4 +17,17 @@ class BadClassSpacing {
   public function methodTwo(): void {
     // Some code here 
   }
+}
+
+
+class TooMuchClassSpacing {
+
+  /**
+   * This is a sample method.
+   */
+  public function methodThree(): void {
+    // Some code here
+  }
+
+
 }
