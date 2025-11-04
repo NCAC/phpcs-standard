@@ -140,4 +140,5 @@ class ClassOpeningSpacingSniff implements Sniff {
       $phpcs_file->fixer->endChangeset();
     }
   }
+
 }
