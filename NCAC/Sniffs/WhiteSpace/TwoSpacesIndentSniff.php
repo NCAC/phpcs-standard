@@ -190,9 +190,55 @@ class TwoSpacesIndentSniff implements Sniff {
       if (!empty($line_tokens) && ($line_tokens[count($line_tokens) - 1] === T_WHITESPACE || $line_tokens[count($line_tokens) - 1] === T_DOC_COMMENT_WHITESPACE)) {
         array_pop($line_tokens);
       }
+      
+      // === METHOD CHAINING DETECTION ===
+      // Check if this line starts with T_OBJECT_OPERATOR (->)
+      if (!empty($line_tokens) && $line_tokens[0] === T_OBJECT_OPERATOR) {
+        $is_method_call = $this->isMethodChain($line_tokens);
+        if ($is_method_call) {
+          // Mark this line as method chaining
+          $line_tokens[] = 'METHOD_CHAIN_MARKER';
+        }
+      }
+      
       $line_token_codes[$line] = $line_tokens;
     }
     return $line_token_codes;
+  }
+
+  /**
+   * Determines if a line starting with T_OBJECT_OPERATOR is a method call.
+   * 
+   * @param array $line_tokens Array of token codes for the line
+   * @return bool True if this is a method call, false if it's property access
+   */
+  private function isMethodChain(array $line_tokens): bool {
+    if (empty($line_tokens) || $line_tokens[0] !== T_OBJECT_OPERATOR) {
+      return false;
+    }
+    
+    // Must have: -> + STRING + (
+    for ($i = 1; $i < count($line_tokens); $i++) {
+      $token = $line_tokens[$i];
+      
+      if ($token === T_STRING) {
+        // Found method name, look for opening parenthesis
+        for ($j = $i + 1; $j < count($line_tokens); $j++) {
+          if ($line_tokens[$j] === T_OPEN_PARENTHESIS) {
+            return true; // This is a method call
+          }
+          if (!in_array($line_tokens[$j], [T_WHITESPACE])) {
+            return false; // Hit something else, not a method
+          }
+        }
+      }
+      
+      if (!in_array($token, [T_STRING, T_WHITESPACE])) {
+        return false; // Invalid sequence
+      }
+    }
+    
+    return false;
   }
 
   private function getActualLevel(array $stack): int {
@@ -248,6 +294,14 @@ class TwoSpacesIndentSniff implements Sniff {
 
       if ($first_token_code === T_DOC_COMMENT_STAR || $first_token_code === T_DOC_COMMENT_CLOSE_TAG) {
         $line_levels_stack[$index_line] = $docblock_indentation_level;
+        continue;
+      }
+
+      // === METHOD CHAINING Processing ===
+      if (in_array('METHOD_CHAIN_MARKER', $line_tokens)) {
+        // For method chains: current scope + 1 level (which adds 2 spaces)
+        $base_level = $this->getActualLevel($blocks_stack);
+        $line_levels_stack[$index_line] = $base_level + 1;
         continue;
       }
 

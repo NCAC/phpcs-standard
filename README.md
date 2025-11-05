@@ -7,40 +7,40 @@
 [![codecov](https://codecov.io/gh/ncac/phpcs-standard/branch/main/graph/badge.svg)](https://codecov.io/gh/ncac/phpcs-standard)
 [![License](https://img.shields.io/github/license/ncac/phpcs-standard)](https://github.com/ncac/phpcs-standard/blob/main/LICENSE)
 
-> **Modern PHP, TypeScript Philosophy, Maximum Confidence**
+> **An opinionated PHP coding standard focused on type safety and consistency**
 >
-> Transform your PHP development with a coding standard that brings the best of TypeScript/ESLint ecosystem to PHP. NCAC enforces strict typing, explicit patterns, and consistent formatting for code that reads like poetry and runs with confidence.
+> NCAC is a comprehensive PHP_CodeSniffer standard that enforces strict typing, consistent naming conventions, and 2-space indentation. Built on top of proven standards like Slevomat, it adds custom rules designed for modern PHP development practices.
 
-## 🎯 Why NCAC?
+## 🎯 Key Features
 
-### **Type-First Development**
+### **Strict Type Safety**
 
-Every parameter, return value, and property must be explicitly typed. No more guessing, no more runtime surprises.
+Enforces explicit type declarations for all parameters, return values, and properties to catch errors early and improve code clarity.
 
 ```php
-// ❌ Old way: ambiguous and error-prone
+// ❌ Avoided: ambiguous types
 function process($data) {
     return $data->value;
 }
 
-// ✅ NCAC way: crystal clear intent
+// ✅ Required: explicit types
 function process(DataObject $data): string {
   return $data->value;
 }
 ```
 
-### **Intelligent Indentation**
+### **2-Space Indentation with Smart Array Handling**
 
-Revolutionary 2-space indentation with TypeScript-inspired array handling. Function arguments get special treatment for maximum readability.
+Uses 2-space indentation with context-aware formatting for arrays and function arguments.
 
 ```php
-// ✅ TypeScript-style function arguments
+// ✅ Function arguments formatting
 $result = my_function([
   'clean' => 'readable',
-  'consistent' => 'beautiful'
+  'consistent' => 'maintainable'
 ]);
 
-// ✅ Regular arrays maintain full indentation hierarchy
+// ✅ Nested arrays maintain hierarchy
 $config = [
   'database' => [
     'host' => 'localhost',
@@ -49,12 +49,12 @@ $config = [
 ];
 ```
 
-### **Context-Aware Naming**
+### **Consistent Naming Conventions**
 
-Smart naming conventions that adapt to context: `snake_case` for variables and functions, `camelCase` for class properties and methods, `PascalCase` for classes.
+Enforces context-appropriate naming: `snake_case` for variables and functions, `camelCase` for class properties and methods, `PascalCase` for classes.
 
 ```php
-// ✅ Context-aware naming in action
+// ✅ Consistent naming across contexts
 class UserRepository {
 
   private string $connectionString;  // camelCase property
@@ -67,33 +67,39 @@ class UserRepository {
 }
 ```
 
-## 🚀 Philosophy: The TypeScript of PHP
+## 🏗️ What Makes NCAC Different?
 
-The NCAC standard reimagines PHP development through the lens of modern TypeScript practices:
+This is an **opinionated** standard that makes specific choices about code formatting and structure. While these choices work well for many teams, they may not suit every project or preference.
 
-### **1. Explicit is Better Than Implicit**
+### **Built on Proven Foundations**
 
-- **Mandatory type hints** for parameters, returns, and properties
-- **Explicit visibility** for all class constants and members
-- **Clear intent** through naming conventions that tell a story
+- Extends **Slevomat Coding Standard** for type safety and structural rules
+- Adds **7 custom sniffs** for specific formatting requirements
+- Compatible with **PHP 7.4+ features** including typed properties and enums
+- Designed for **auto-fixing** to minimize manual formatting work
 
-### **2. Consistency Breeds Confidence**
+### **Opinionated Choices**
 
-- **21 carefully curated rules** that work together harmoniously
-- **Auto-fixable formatting** means your code always looks professional
-- **IDE-first design** for seamless development experience
+- **2-space indentation** instead of the more common 4-space
+- **Strict type hints** required everywhere (may be challenging for legacy code)
+- **Specific naming conventions** that mix snake_case and camelCase based on context
+- **Minimal class spacing** for compact, readable code structure
 
-### **3. Modern PHP, Maximum Leverage**
+### **When to Consider NCAC**
 
-- **PHP 7.4+ features** like typed properties and arrow functions
-- **Enum support** for PHP 8.1+ with proper spacing
-- **Performance optimized** sniffs that don't slow you down
+✅ **Good fit for:**
 
-### **4. Developer Experience First**
+- New projects starting fresh
+- Teams that prefer strict typing and consistent formatting
+- Projects that can adopt 2-space indentation
+- Codebases that can enforce type hints everywhere
 
-- **Fail fast** with immediate feedback on type and style issues
-- **Smart defaults** that rarely need customization
-- **Comprehensive documentation** with real-world examples
+⚠️ **Consider carefully for:**
+
+- Large legacy codebases (strict typing requirements)
+- Teams strongly preferring 4-space indentation
+- Projects with existing PSR-12 compliance requirements
+- Mixed coding style preferences within the team
 
 ## 📊 Quality Assurance
 
@@ -149,32 +155,9 @@ Create a `phpcs.xml` in your project root:
 - **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
 - **📋 [Known Issues](KNOWN-ISSUES.md)** - Current limitations and workarounds
 
-## 🏗️ What Makes NCAC Different?
-
-### **Built for Modern PHP**
-
-- **PHP 7.4+ typed properties** fully supported
-- **PHP 8.0+ enums** with proper spacing rules
-- **Auto-fixable rules** for seamless workflow integration
-- **Performance optimized** for large codebases
-
-### **Developer Experience Focus**
-
-- **IDE-first design** works seamlessly with VS Code, PhpStorm
-- **Comprehensive test coverage** ensures reliability
-- **Rich error messages** guide you to the solution
-- **Minimal configuration** required
-
-### **TypeScript-Inspired Intelligence**
-
-- **Smart indentation** adapts to context (function args vs. standalone arrays)
-- **Consistent naming** that scales across teams and projects
-- **Explicit typing** catches errors before they reach production
-- **Modern formatting** that's easy to read and maintain
-
 ## 🎨 Code Examples
 
-### Before NCAC (Inconsistent, Unclear)
+### Before (Inconsistent formatting)
 
 ```php
 class userRepository
@@ -196,7 +179,7 @@ class userRepository
 }
 ```
 
-### After NCAC (Crystal Clear, Type-Safe)
+### After (NCAC compliant)
 
 ```php
 class UserRepository {
@@ -215,28 +198,6 @@ class UserRepository {
 
 }
 ```
-
-## 🌐 Philosophy: Technology Convergence
-
-### **The Future is Typed and Unified**
-
-Modern software development is converging towards **explicit typing**, **consistent patterns**, and **predictable behavior** across all languages and platforms:
-
-- **TypeScript** transformed JavaScript from chaos to confidence
-- **Swift** brought type safety to mobile development
-- **Rust** proved that safety and performance can coexist
-- **PHP 7.4+** embraced typed properties, union types, and strict typing
-
-NCAC recognizes this **historical trend** and positions PHP as a first-class citizen in the modern development ecosystem. We're not just writing PHP code—we're writing **future-proof**, **maintainable**, and **trustworthy** software that scales with your business.
-
-### **Why This Matters**
-
-- **Team Velocity:** Developers familiar with TypeScript/ESLint can instantly read NCAC-compliant PHP
-- **Career Growth:** Skills transfer seamlessly between languages
-- **Code Quality:** Consistent patterns reduce cognitive load and bugs
-- **Tooling Integration:** Modern IDEs and static analyzers work better with explicit types
-
-> _"The languages that survive and thrive are those that embrace clarity over cleverness, explicitness over magic, and safety over shortcuts."_
 
 ## 🔧 Advanced Configuration
 
@@ -320,32 +281,21 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - 🔧 **Pull requests** with comprehensive tests
 - 📖 **Documentation** improvements
 
-## 🏆 Recognition & Acknowledgments
+## 🏆 Acknowledgments
 
-### **Standing on the Shoulders of Giants**
+NCAC is built upon two excellent foundational projects:
 
-The NCAC standard is built upon and deeply grateful to two foundational projects:
+- **[PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)** by Squiz Labs - provides the tokenization engine and auto-fixing capabilities
+- **[Slevomat Coding Standard](https://github.com/slevomat/coding-standard)** - provides many of the type safety and structural rules
 
-#### **PHP_CodeSniffer Foundation**
+NCAC adds **7 custom sniffs** for specific formatting and naming requirements:
 
-This project would not exist without [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) by Squiz Labs. PHP_CodeSniffer provides the robust tokenization engine, extensible architecture, and auto-fixing capabilities that make NCAC possible. We extend our heartfelt thanks to the maintainers and contributors of this essential PHP tool.
+- 2-space indentation with context-aware array handling
+- Mixed naming conventions (snake_case variables, camelCase properties, PascalCase classes)
+- Minimal class spacing and structure rules
+- Modern PHP pattern enforcement
 
-#### **Slevomat Coding Standard Excellence**
-
-The NCAC standard incorporates and builds upon the excellent [Slevomat Coding Standard](https://github.com/slevomat/coding-standard), which provides many of the strict typing, documentation, and structural rules that define modern PHP development. The quality and comprehensiveness of Slevomat's work has been instrumental in shaping NCAC's approach to type safety and code organization.
-
-### **NCAC's Custom Contribution**
-
-While leveraging these proven foundations, NCAC adds **7 custom sniffs** that implement:
-
-- **Revolutionary 2-space indentation** with TypeScript-style array handling
-- **Context-aware naming conventions** (snake_case variables, camelCase properties, PascalCase classes)
-- **Strict formatting rules** for class structure and control flow
-- **Modern PHP patterns** aligned with contemporary development practices
-
-All custom rules are designed to complement (not replace) the existing ecosystem, ensuring maximum compatibility and adoption.
-
-> **License Compliance:** NCAC respects and operates under the licenses of all incorporated projects. See our [LICENSE](LICENSE) file for complete details.
+> **License Compliance:** NCAC operates under the MIT license and respects all incorporated project licenses. See [LICENSE](LICENSE) for details.
 
 ## 🚀 Requirements & Compatibility
 
@@ -377,7 +327,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to transform your PHP code?** 🚀
+**Get started:**
 
 ```bash
 composer require --dev ncac/phpcs-standard
