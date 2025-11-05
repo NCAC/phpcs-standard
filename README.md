@@ -153,7 +153,6 @@ Create a `phpcs.xml` in your project root:
 - **📖 [Complete Rules Reference](docs/rules-reference.md)** - Detailed examples for all 21 rules
 - **🛠️ [Development Setup Guide](docs/dev-container-setup.md)** - VS Code Dev Container setup
 - **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
-- **📋 [Known Issues](KNOWN-ISSUES.md)** - Current limitations and workarounds
 
 ## 🎨 Code Examples
 
