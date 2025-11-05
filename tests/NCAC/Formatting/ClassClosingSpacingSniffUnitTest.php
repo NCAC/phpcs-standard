@@ -10,7 +10,7 @@ use NCAC\Tests\SniffUnitTest;
  *
  * @package NCAC\Tests\Formatting
  */
-class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
+class ClassClosingSpacingSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the lines where errors should occur for each fixture file.
@@ -21,12 +21,12 @@ class ClassOpeningClosingSpacingSniffUnitTest extends SniffUnitTest {
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
 
-      case 'ClassOpeningClosingSpacingSniffUnitTest.good.inc':
+      case 'ClassClosingSpacingSniffUnitTest.good.inc':
         return [];
-      case 'ClassOpeningClosingSpacingSniffUnitTest.bad.inc':
+      case 'ClassClosingSpacingSniffUnitTest.bad.inc':
         return [
-          5 => 1,
-          19 => 1
+          20 => 1, // BadClassSpacing - missing blank line before closing brace
+          33 => 1  // TooMuchClassSpacing - missing blank line before closing brace
         ];
       default:
         // No errors expected.
