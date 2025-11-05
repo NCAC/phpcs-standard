@@ -1,5 +1,23 @@
 # Changelog
 
+# [1.2.0](https://github.com/ncac/phpcs-standard/compare/v1.1.1...v1.2.0) (2025-11-05)
+
+
+### docs
+
+* improve README.md tone and clarity ([](https://github.com/ncac/phpcs-standard/commit/9aa2331c8355bf5ea9d9f71abfca9d903cafaa29))
+
+
+### feat
+
+* add method chaining indentation ([](https://github.com/ncac/phpcs-standard/commit/361ae8e542e846ca96f4ab275fb0f7a4de78939f))
+* add method chaining indentation support to TwoSpacesIndentSniff ([](https://github.com/ncac/phpcs-standard/commit/c61a7f7fe1e1352cd7e76f5e3550f4ece65612b8)), closes [#16](https://github.com/ncac/phpcs-standard/issues/16)
+
+
+### fix
+
+* There was 1 skipped test ([](https://github.com/ncac/phpcs-standard/commit/dd92ecfd35bedd1e23b3e848f094b92d4061e255))
+
 ## [1.1.1](https://github.com/ncac/phpcs-standard/compare/v1.1.0...v1.1.1) (2025-11-04)
 
 
