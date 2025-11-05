@@ -2,16 +2,16 @@
 
 class BadMethodChaining {
 
-  public function wrongIndentationSimple() {
+  public function wrongIndentationSimple(): mixed {
     $result = $this->object
-    ->method1()             // Should be 4 spaces (2+2), found 0
-    ->method2()         // Should be 4 spaces (2+2), found 6  
-    ->method3();      // Should be 4 spaces (2+2), found 8
+    ->method1()   // Should be 6 spaces, found 4
+    ->method2()   // Should be 6 spaces, found 4
+    ->method3();  // Should be 6 spaces, found 4
     return $result;
   }
 
-  public function wrongIndentationNested() {
-    if ($condition) {
+  public function wrongIndentationNested(): mixed {
+    if (true) {
       $result = $this->repository
       ->createQueryBuilder('u')    // Should be 6 spaces (4+2), found 0
       ->where('u.status = :status')  // Should be 6 spaces (4+2), found 12

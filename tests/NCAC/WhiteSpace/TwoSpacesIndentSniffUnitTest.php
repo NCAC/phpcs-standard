@@ -133,16 +133,16 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
         return [];
 
       case 'TwoSpacesIndentSniff.badMethodChaining.inc':
-        // TODO: After implementing method chaining feature, restore these expected errors:
-        // 7 => 1,   // ->method1() wrong indentation (0 spaces instead of 4)
-        // 8 => 1,   // ->method2() wrong indentation (6 spaces instead of 4)
-        // 9 => 1,   // ->method3() wrong indentation (8 spaces instead of 4)
-        // 16 => 1,  // ->createQueryBuilder() wrong indentation (0 spaces instead of 6)
-        // 17 => 1,  // ->where() wrong indentation (12 spaces instead of 6)
-        // 18 => 1,  // ->setParameter() wrong indentation (4 spaces instead of 6)
-        // 19 => 1,  // ->getQuery() wrong indentation (14 spaces instead of 6)
-        // 20 => 1   // ->getResult() wrong indentation (10 spaces instead of 6)
-        return [];
+        return [
+          7 => 1,   // ->method1() wrong indentation (0 spaces instead of 4)
+          8 => 1,   // ->method2() wrong indentation (6 spaces instead of 4)
+          9 => 1,   // ->method3() wrong indentation (8 spaces instead of 4)
+          16 => 1,  // ->createQueryBuilder() wrong indentation (0 spaces instead of 6)
+          17 => 1,  // ->where() wrong indentation (12 spaces instead of 6)
+          18 => 1,  // ->setParameter() wrong indentation (4 spaces instead of 6)
+          19 => 1,  // ->getQuery() wrong indentation (14 spaces instead of 6)
+          20 => 1   // ->getResult() wrong indentation (10 spaces instead of 6)
+        ];
 
       default:
         return [];
