@@ -7,6 +7,7 @@
     <testsuites>
         <testsuite name="NCAC Standard">
             <directory>./tests/NCAC/</directory>
+            <exclude>./tests/NCAC/SniffUnitTest.php</exclude>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">

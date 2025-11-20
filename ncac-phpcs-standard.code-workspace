@@ -27,7 +27,7 @@
     // Intelephense configuration (PHP language server)
     "intelephense.environment.documentRoot": "/apps/cms/darty-multisite/web",
     "intelephense.completion.maxItems": 500,
-    "intelephense.environment.phpVersion": "7.4.30",
+    "intelephense.environment.phpVersion": "^8",
     // Universal exclusions for all folders
     "files.exclude": {
       "**/.git": true,
@@ -73,7 +73,8 @@
       "jannisx11.batch-rename-extension",
       // GitHub Actions integration
       "github.vscode-github-actions",
-      "github.vscode-pull-request-github"
+      "github.vscode-pull-request-github",
+      "maptz.regionfolder"
     ]
   },
   "launch": {

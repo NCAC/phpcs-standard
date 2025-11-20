@@ -1,4 +1,4 @@
-ARG PHP_VERSION=7.4.33
+ARG PHP_VERSION=8.2.18
 #
 FROM php:${PHP_VERSION}-cli
 #
@@ -41,7 +41,7 @@ RUN apt-get update \
   rsync \
   yamllint \
   # Xdebug
-  && pecl install xdebug-3.1.5 \
+  && pecl install xdebug-3.3.2 \
   && docker-php-ext-enable xdebug \
   # php-xml & zip
   && docker-php-ext-install xml zip \
