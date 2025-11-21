@@ -126,83 +126,83 @@ class StringCaseHelper {
     $camel_case_string = preg_replace_callback(
       '/_([a-z])/',
       function ($matches) {
-        return strtoupper($matches[1]);
-      }, $camel_case_string
-    );
-    return $camel_case_string;
-  }
+    return strtoupper($matches[1]);
+  }, $camel_case_string
+);
+return $camel_case_string;
+}
 
-  /**
-   * Converts a string to snake_case (e.g. MyVariable → my_variable).
-   *
-   */
-  public function toSnakeCase(string $string): string {
-    // Insert underscore before each uppercase (except at the start)
-    $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string);
-    // Convert to lowercase
-    $string = strtolower($string);
-    // Replace double underscores with single
-    $string = preg_replace('/_+/', '_', $string);
-    // Remove leading/trailing underscores
-    $string = trim($string, '_');
-    return $string;
-  }
+/**
+ * Converts a string to snake_case (e.g. MyVariable → my_variable).
+ *
+ */
+public function toSnakeCase(string $string): string {
+  // Insert underscore before each uppercase (except at the start)
+  $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string);
+  // Convert to lowercase
+  $string = strtolower($string);
+  // Replace double underscores with single
+  $string = preg_replace('/_+/', '_', $string);
+  // Remove leading/trailing underscores
+  $string = trim($string, '_');
+  return $string;
+}
 
-  /**
-   * Converts a string to PascalCase (e.g. my_variable → MyVariable).
-   *
-   */
-  public function toPascalCase(string $string): string {
-    // Convert to snake_case first
-    $pascal_case_string = $this->toSnakeCase($string);
-    // Capitalize the first letter of each word and remove underscores
-    $pascal_case_string = str_replace('_', '', ucwords($pascal_case_string, '_'));
-    return $pascal_case_string;
-  }
+/**
+ * Converts a string to PascalCase (e.g. my_variable → MyVariable).
+ *
+ */
+public function toPascalCase(string $string): string {
+  // Convert to snake_case first
+  $pascal_case_string = $this->toSnakeCase($string);
+  // Capitalize the first letter of each word and remove underscores
+  $pascal_case_string = str_replace('_', '', ucwords($pascal_case_string, '_'));
+  return $pascal_case_string;
+}
 
-  /**
-   * Converts a string to SNAKE_UPPER_CASE (e.g. my_variable → MY_VARIABLE).
-   *
-   */
-  public function toSnakeUpperCase(string $string): string {
-    // Convert to snake_case then uppercase
-    $snake_case_string = $this->toSnakeCase($string);
-    return strtoupper($snake_case_string);
-  }
+/**
+ * Converts a string to SNAKE_UPPER_CASE (e.g. my_variable → MY_VARIABLE).
+ *
+ */
+public function toSnakeUpperCase(string $string): string {
+  // Convert to snake_case then uppercase
+  $snake_case_string = $this->toSnakeCase($string);
+  return strtoupper($snake_case_string);
+}
 
-  /**
-   * Detects the presence of two consecutive uppercase letters in the string.
-   *
-   */
-  private function repeatsUppercaseChars(string $string): bool {
-    $found_uppercase_last = false;
-    foreach (str_split($string) as $character) {
-      if (ctype_upper($character)) {
-        if ($found_uppercase_last) {
-          return true;
-        }
-        $found_uppercase_last = true;
-      } else {
-        $found_uppercase_last = false;
+/**
+ * Detects the presence of two consecutive uppercase letters in the string.
+ *
+ */
+private function repeatsUppercaseChars(string $string): bool {
+  $found_uppercase_last = false;
+  foreach (str_split($string) as $character) {
+    if (ctype_upper($character)) {
+      if ($found_uppercase_last) {
+        return true;
       }
+      $found_uppercase_last = true;
+    } else {
+      $found_uppercase_last = false;
     }
-    return false;
   }
+  return false;
+}
 
-  /**
-   * Checks for at least one uppercase letter in the string.
-   *
-   */
-  private function hasUpperChars(string $string): bool {
-    return preg_match('/[A-Z]/', $string) === 1;
-  }
+/**
+ * Checks for at least one uppercase letter in the string.
+ *
+ */
+private function hasUpperChars(string $string): bool {
+  return preg_match('/[A-Z]/', $string) === 1;
+}
 
-  /**
-   * Checks for at least one lowercase letter in the string.
-   *
-   */
-  private function hasLowerChars(string $string): bool {
-    return preg_match('/[a-z]/', $string) === 1;
-  }
+/**
+ * Checks for at least one lowercase letter in the string.
+ *
+ */
+private function hasLowerChars(string $string): bool {
+  return preg_match('/[a-z]/', $string) === 1;
+}
 
 }

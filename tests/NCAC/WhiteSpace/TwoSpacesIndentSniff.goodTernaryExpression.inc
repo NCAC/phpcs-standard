@@ -11,3 +11,18 @@ $result = (
     ? 'x'
     : 'y'
 );
+
+// GOOD: Nested ternary expressions, all branches properly indented
+$value = $a
+  ? ($b
+    ? 'first'
+    : 'second')
+  : 'third';
+$other_assignment = null;
+
+$other_value = $x
+  ? 'yes'
+  : ($y
+    ? 'maybe'
+    : 'no');
+$final = null;

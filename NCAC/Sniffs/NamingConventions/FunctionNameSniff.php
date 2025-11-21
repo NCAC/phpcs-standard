@@ -58,16 +58,16 @@ class FunctionNameSniff implements Sniff {
    */
   public function process(File $phpcs_file, $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
-    
+
     // Step 1: Locate the function name token following the T_FUNCTION keyword.
     $function_name_pointer = $phpcs_file->findNext(T_STRING, $stack_pointer);
     $string_case_helper = StringCaseHelper::me();
-    
+
     if ($function_name_pointer === false) {
       // Defensive programming: malformed function declaration
       return;
     }
-    
+
     $function_name = $tokens[$function_name_pointer]['content'];
 
     // Step 2: Determine if this function is global or a class/trait method.
@@ -76,7 +76,7 @@ class FunctionNameSniff implements Sniff {
     $in_anon_class = $phpcs_file->getCondition($stack_pointer, T_ANON_CLASS) !== false;
     $in_trait = $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
     $in_class_or_trait = $in_class || $in_anon_class || $in_trait;
-    
+
     if ($in_class_or_trait) {
       // Skip methods and trait functions - they have different naming rules
       return;

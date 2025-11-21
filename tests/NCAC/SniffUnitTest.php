@@ -14,43 +14,40 @@
 namespace NCAC\Tests;
 
 use PHP_CodeSniffer\Config;
-use PHP_CodeSniffer\Ruleset;
-use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
+use PHP_CodeSniffer\Files\LocalFile;
+use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Util\Common;
 use PHP_CodeSniffer\Util\Tokens;
 use PHPUnit\Framework\TestCase;
 
 abstract class SniffUnitTest extends TestCase {
+
+  /**
+   * Path to the standard's main directory.
+   *
+   */
+  public ?string $standardsDir = null;
+
+  /**
+   * Path to the standard's test directory.
+   *
+   */
+  public ?string $testsDir = null;
+
   /**
    * Enable or disable the backup and restoration of the $GLOBALS array.
    * Overwrite this attribute in a child class of TestCase.
    * Setting this attribute in setUp() has no effect.
    *
-   * @var bool
    */
-  protected $backupGlobals = false;
+  protected bool $backupGlobals = false;
 
   /**
    * Path to the root folder of the standard.
    *
-   * @var string|null
    */
-  private $rootDir = null;
-
-  /**
-   * Path to the standard's main directory.
-   *
-   * @var string|null
-   */
-  public $standardsDir = null;
-
-  /**
-   * Path to the standard's test directory.
-   *
-   * @var string|null
-   */
-  public $testsDir = null;
+  private ?string $rootDir = null;
 
   /**
    * PHPUnit setUp. Initializes paths and required constants.
@@ -66,37 +63,6 @@ abstract class SniffUnitTest extends TestCase {
     if (!defined('PHP_CODESNIFFER_CBF')) {
       define('PHP_CODESNIFFER_CBF', 0);
     }
-  }
-
-  /**
-   * Returns a list of all test files to check for a given sniff.
-   *
-   * @param string $test_file_base The base path for the unit test files.
-   * @return string[]
-   */
-  protected function getTestFiles($test_file_base): array {
-    $test_files = [];
-    $dir = substr($test_file_base, 0, strrpos($test_file_base, DIRECTORY_SEPARATOR));
-    $di  = new \DirectoryIterator($dir);
-    foreach ($di as $file) {
-      $path = $file->getPathname();
-      if (substr($path, 0, strlen($test_file_base)) === $test_file_base) {
-        if ($path !== $test_file_base . 'php' && substr($path, -5) !== 'fixed') {
-          $test_files[] = $path;
-        }
-      }
-    }
-    sort($test_files);
-    return $test_files;
-  }
-
-  /**
-   * Returns true if this test should be skipped.
-   *
-   * @return bool
-   */
-  protected function shouldSkipTest() {
-    return false;
   }
 
   /**
@@ -116,8 +82,8 @@ abstract class SniffUnitTest extends TestCase {
     $failure_messages = [];
     $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES']   = [];
     $GLOBALS['PHP_CODESNIFFER_FIXABLE_CODES'] = [];
-    foreach ($found_errors as $line => $lineErrors) {
-      foreach ($lineErrors as $column => $errors) {
+    foreach ($found_errors as $line => $line_errors) {
+      foreach ($line_errors as $column => $errors) {
         if (!isset($all_problems[$line])) {
           $all_problems[$line] = [
             'expected_errors'   => 0,
@@ -150,7 +116,7 @@ abstract class SniffUnitTest extends TestCase {
       }
       unset($expected_errors[$line]);
     }
-    foreach ($expected_errors as $line => $numErrors) {
+    foreach ($expected_errors as $line => $num_errors) {
       if (!isset($all_problems[$line])) {
         $all_problems[$line] = [
           'expected_errors'   => 0,
@@ -159,7 +125,7 @@ abstract class SniffUnitTest extends TestCase {
           'found_warnings'    => [],
         ];
       }
-      $all_problems[$line]['expected_errors'] = $numErrors;
+      $all_problems[$line]['expected_errors'] = $num_errors;
     }
     foreach ($found_warnings as $line => $line_warnings) {
       foreach ($line_warnings as $column => $warnings) {
@@ -171,15 +137,15 @@ abstract class SniffUnitTest extends TestCase {
             'found_warnings'    => [],
           ];
         }
-        $found_warningsTemp = [];
+        $found_warnings_temp = [];
         foreach ($all_problems[$line]['found_warnings'] as $found_warning) {
-          $found_warningsTemp[] = $found_warning;
+          $found_warnings_temp[] = $found_warning;
         }
         $warnings_temp = [];
         foreach ($warnings as $warning) {
           $warnings_temp[] = $warning['message'] . ' (' . $warning['source'] . ')';
         }
-        $all_problems[$line]['found_warnings'] = array_merge($found_warningsTemp, $warnings_temp);
+        $all_problems[$line]['found_warnings'] = array_merge($found_warnings_temp, $warnings_temp);
       }
       if (isset($expected_warnings[$line])) {
         $all_problems[$line]['expected_warnings'] = $expected_warnings[$line];
@@ -201,20 +167,20 @@ abstract class SniffUnitTest extends TestCase {
     }
     ksort($all_problems);
     foreach ($all_problems as $line => $problems) {
-      $numErrors        = count($problems['found_errors']);
+      $num_errors        = count($problems['found_errors']);
       $num_warnings      = count($problems['found_warnings']);
       $expected_errors   = $problems['expected_errors'];
       $expected_warnings = $problems['expected_warnings'];
       $errors      = '';
       $found_string = '';
-      if ($expected_errors !== $numErrors || $expected_warnings !== $num_warnings) {
+      if ($expected_errors !== $num_errors || $expected_warnings !== $num_warnings) {
         $line_message     = "[LINE $line]";
         $expected_message = 'Expected ';
         $found_message    = 'in ' . basename($test_file) . ' but found ';
-        if ($expected_errors !== $numErrors) {
+        if ($expected_errors !== $num_errors) {
           $expected_message .= "$expected_errors error(s)";
-          $found_message    .= "$numErrors error(s)";
-          if ($numErrors !== 0) {
+          $found_message    .= "$num_errors error(s)";
+          if ($num_errors !== 0) {
             $found_string .= 'error(s)';
             $errors      .= implode(PHP_EOL . ' -> ', $problems['found_errors']);
           }
@@ -253,63 +219,8 @@ abstract class SniffUnitTest extends TestCase {
    * @param string $filename The name of the file being tested.
    * @param Config $config   The config data for the run.
    */
-  public function setCliValues($filename, $config) {
+  public function setCliValues(string $filename, Config $config): void {
     return;
-  }
-
-  /**
-   * Returns the lines where errors should occur.
-   *
-   * The key of the array should represent the line number and the value
-   * should represent the number of errors that should occur on that line.
-   *
-   * @param string $test_file The name of the file being tested.
-   * @return array<int, int>
-   */
-  abstract protected function getErrorList(string $test_file): array;
-
-  /**
-   * Returns the lines where warnings should occur.
-   *
-   * The key of the array should represent the line number and the value
-   * should represent the number of warnings that should occur on that line.
-   *
-   * @param string $test_file The name of the file being tested.
-   * @return array<int, int>
-   */
-  abstract protected function getWarningList(string $test_file): array;
-
-  /**
-   * Returns true if all sniffs should be checked, false for only the current sniff.
-   *
-   * @return bool
-   */
-  protected function checkAllSniffCodes(): bool {
-    return false;
-  }
-
-  /**
-   * Returns the PHPCS standard (ruleset) to use for this test.
-   * Can be overridden in child classes to isolate a specific sniff.
-   *
-   * By default, returns 'NCAC' (the global standard ruleset).
-   *
-   * To isolate a sniff (for example, when unit testing a single sniff),
-   * it is recommended to override this method in the child test class:
-   *
-   *   protected function getStandard(): string {
-   *     // Use a minimal XML ruleset that only enables the targeted sniff.
-   *     // Example of a relative path for an isolated ruleset:
-   *     //   tests/NCAC/Formatting/ruleset.formatting.noAlternateControlStructure.xml
-   *     return __DIR__ . '/ruleset.formatting.noAlternateControlStructure.xml';
-   *   }
-   *
-   * This ensures that only the sniff under test is executed, without interference from other rules.
-   *
-   * @return string
-   */
-  protected function getStandard(): string {
-    return 'NCAC';
   }
 
   /**
@@ -336,7 +247,7 @@ abstract class SniffUnitTest extends TestCase {
    *
    * @param string $fixture_file The name of the fixture file to test.
    */
-  public function testFixture(string $fixture_file) {
+  public function testFixture(string $fixture_file): void {
     $class = new \ReflectionClass($this);
     $dir = dirname($class->getFileName());
     $test_file = $dir . '/' . $fixture_file;
@@ -346,13 +257,95 @@ abstract class SniffUnitTest extends TestCase {
   }
 
   /**
+   * Returns the lines where errors should occur.
+   *
+   * The key of the array should represent the line number and the value
+   * should represent the number of errors that should occur on that line.
+   *
+   * @param string $test_file The name of the file being tested.
+   * @return array<int, int>
+   */
+  abstract protected function getErrorList(string $test_file): array;
+
+  /**
+   * Returns the lines where warnings should occur.
+   *
+   * The key of the array should represent the line number and the value
+   * should represent the number of warnings that should occur on that line.
+   *
+   * @param string $test_file The name of the file being tested.
+   * @return array<int, int>
+   */
+  abstract protected function getWarningList(string $test_file): array;
+
+  /**
+   * Returns a list of all test files to check for a given sniff.
+   *
+   * @param string $test_file_base The base path for the unit test files.
+   * @return string[]
+   */
+  protected function getTestFiles(string $test_file_base): array {
+    $test_files = [];
+    $dir = substr($test_file_base, 0, strrpos($test_file_base, DIRECTORY_SEPARATOR));
+    $di  = new \DirectoryIterator($dir);
+    foreach ($di as $file) {
+      $path = $file->getPathname();
+      if (substr($path, 0, strlen($test_file_base)) === $test_file_base) {
+        if ($path !== $test_file_base . 'php' && substr($path, -5) !== 'fixed') {
+          $test_files[] = $path;
+        }
+      }
+    }
+    sort($test_files);
+    return $test_files;
+  }
+
+  /**
+   * Returns true if this test should be skipped.
+   *
+   */
+  protected function shouldSkipTest(): bool {
+    return false;
+  }
+
+  /**
+   * Returns true if all sniffs should be checked, false for only the current sniff.
+   *
+   */
+  protected function checkAllSniffCodes(): bool {
+    return false;
+  }
+
+  /**
+   * Returns the PHPCS standard (ruleset) to use for this test.
+   * Can be overridden in child classes to isolate a specific sniff.
+   *
+   * By default, returns 'NCAC' (the global standard ruleset).
+   *
+   * To isolate a sniff (for example, when unit testing a single sniff),
+   * it is recommended to override this method in the child test class:
+   *
+   *   protected function getStandard(): string {
+   *     // Use a minimal XML ruleset that only enables the targeted sniff.
+   *     // Example of a relative path for an isolated ruleset:
+   *     //   tests/NCAC/Formatting/ruleset.formatting.noAlternateControlStructure.xml
+   *     return __DIR__ . '/ruleset.formatting.noAlternateControlStructure.xml';
+   *   }
+   *
+   * This ensures that only the sniff under test is executed, without interference from other rules.
+   *
+   */
+  protected function getStandard(): string {
+    return 'NCAC';
+  }
+
+  /**
    * Runs the sniff on a given file and checks for expected errors/warnings.
    *
-   * @param string $test_file
    * @param array<int, int> $expected_errors
    * @param array<int, int> $expected_warnings
    */
-  protected function runSniffOnFile($test_file, $expected_errors, $expected_warnings) {
+  protected function runSniffOnFile(string $test_file, array $expected_errors, array $expected_warnings): void {
     $config = new Config(['--standard=' . $this->getStandard()]);
     $ruleset = new Ruleset($config);
     $phpcs_file = new LocalFile($test_file, $ruleset, $config);
