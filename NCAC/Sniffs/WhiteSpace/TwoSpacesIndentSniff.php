@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace NCAC\Sniffs\WhiteSpace;
 
@@ -73,7 +75,7 @@ class TwoSpacesIndentSniff implements Sniff {
   /**
    * Chained method: method chaining with -> or ?->
    */
-  public const CHAINED_BLOCK = 'CHAINED_BLOCK'; 
+  public const CHAINED_BLOCK = 'CHAINED_BLOCK';
 
 
   /**
@@ -155,8 +157,6 @@ class TwoSpacesIndentSniff implements Sniff {
         $this->reportIndentationError($phpcs_file, $line_info, $expected_indent, $actual_indent, $line_number);
       }
     }
-
-
   }
 
   /**
@@ -254,7 +254,7 @@ class TwoSpacesIndentSniff implements Sniff {
         }
       }
       // Filter out all whitespace tokens and end-of-line comments for analysis
-      $line_tokens = array_filter($line_tokens, function($code) {
+      $line_tokens = array_filter($line_tokens, function ($code) {
         return $code !== T_WHITESPACE && $code !== T_DOC_COMMENT_WHITESPACE && $code !== T_COMMENT;
       });
 
@@ -383,30 +383,33 @@ class TwoSpacesIndentSniff implements Sniff {
    * @return void 
    */
   private function processLine(int $line_number, array &$line_info, File $phpcs_file): void {
-    if ($this->handleTrivialCases($line_info)) {
-      return;
-    }
-
     $line_tokens = $line_info['tokens'];
-
-    $first_token = $line_tokens[0];
+    $first_token = $line_tokens[0] ?? null;
     $last_token = $line_tokens[count($line_tokens) - 1] ?? null;
-    
-    // Skip if we don't have valid tokens
-    if ($last_token === null) {
-      return;
-    }
 
     // ==========================================
     // CHAINED_BLOCK AUTO-POP LOGIC
     // ==========================================
+    // CRITICAL: This MUST execute BEFORE handleTrivialCases()
+    // Otherwise, comments after method chains inherit wrong indentation
     // If line does NOT start with -> or ?->, and CHAINED_BLOCK is on top,
     // then we've reached the end of the chain - pop it
     if (
-      !in_array($first_token, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])
+      $first_token !== null
+      && !in_array($first_token, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])
       && $this->getStackTop() === self::CHAINED_BLOCK
     ) {
       array_pop($this->blockStack);
+    }
+
+    // Handle trivial cases (comments, blank lines, etc.) AFTER auto-pop
+    if ($this->handleTrivialCases($line_info)) {
+      return;
+    }
+
+    // Skip if we don't have valid tokens
+    if ($first_token === null || $last_token === null) {
+      return;
     }
 
     $event = $this->detectEvent($line_tokens, $first_token, $last_token);
@@ -441,7 +444,6 @@ class TwoSpacesIndentSniff implements Sniff {
 
     // Default case: set expected indentation based on current stack depth
     $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
-
   }
 
   /**
@@ -459,7 +461,7 @@ class TwoSpacesIndentSniff implements Sniff {
       $token = $tokens_list[$i];
       // If we find a Heredoc/Nowdoc start on a previous line
       if (
-        ($token['code'] === T_START_HEREDOC || $token['code'] === T_START_NOWDOC) 
+        ($token['code'] === T_START_HEREDOC || $token['code'] === T_START_NOWDOC)
         && $token['line'] < $line
       ) {
         // Look forward to find the corresponding end marker
@@ -782,7 +784,7 @@ class TwoSpacesIndentSniff implements Sniff {
         $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
         return true;
 
-      default: 
+      default:
         return false;
     }
   }
@@ -829,7 +831,6 @@ class TwoSpacesIndentSniff implements Sniff {
 
       default:
         return false;
-
     }
   }
 
@@ -945,9 +946,8 @@ class TwoSpacesIndentSniff implements Sniff {
 
         return false;
 
-      default:  
+      default:
         return false;
-
     }
   }
 
@@ -964,7 +964,7 @@ class TwoSpacesIndentSniff implements Sniff {
   private function detectEvent(array $line_tokens, $first_token, $last_token): array {
     // Block closure with immediate block opening (e.g., "} else {")
     if (
-      $first_token === T_CLOSE_CURLY_BRACKET 
+      $first_token === T_CLOSE_CURLY_BRACKET
       && $last_token === T_OPEN_CURLY_BRACKET
       && $this->getStackTop() === self::BLOCK
     ) {
@@ -1070,7 +1070,7 @@ class TwoSpacesIndentSniff implements Sniff {
 
     // Case/default block - detect when SWITCH_BLOCK is in stack (may have CASE_BLOCK on top)
     if (
-      in_array($first_token, [T_CASE, T_DEFAULT]) 
+      in_array($first_token, [T_CASE, T_DEFAULT])
       && in_array(self::SWITCH_BLOCK, $this->blockStack, true)
     ) {
       return ['type' => 'CASE_START', 'data' => []];

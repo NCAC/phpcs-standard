@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace NCAC\Sniffs\Formatting;
 
@@ -11,7 +13,6 @@ use NCAC\Tests\SniffUnitTest;
  * @license MIT
  */
 class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
-
   /**
    * @dataProvider fixtureProvider
    * @testdox Fixture with $fixture_file
@@ -30,20 +31,18 @@ class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'OpeningBraceKAndRSniffUnitTest.good.inc':
         return [];
-        break;
       case 'OpeningBraceKAndRSniffUnitTest.bad.inc':
         return [
-          5 => 1
+          26 => 1,  // Interface TestInterface - brace on wrong line
+          34 => 1,  // Trait TestTrait - brace on wrong line
+          44 => 1   // Function bad_function - brace on wrong line
         ];
-        break;
       default:
         return [];
     }
-    
-  } 
+  }
 
   /**
    * Returns the lines where warnings should occur for each fixture file.

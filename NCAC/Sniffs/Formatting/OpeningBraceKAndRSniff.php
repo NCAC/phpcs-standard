@@ -57,17 +57,13 @@ class OpeningBraceKAndRSniff implements Sniff {
    */
   public function process(File $phpcs_file, $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
-    
     // Step 1: Validate that the declaration has a proper opening brace.
-    // Some malformed code might be missing braces entirely.
+    // Interface methods and abstract methods don't have braces, which is normal.
+    // We silently skip these cases instead of issuing a warning.
     if (!isset($tokens[$stack_pointer]['scope_opener'])) {
-      $error = "Class/interface/trait/function declaration without opening brace.";
-      $phpcs_file->addWarning($error, $stack_pointer, 'MissingBrace');
       return;
     }
-    
     $curly_brace = $tokens[$stack_pointer]['scope_opener'];
-    
     // Step 2: Find the last meaningful content before the opening brace.
     // This helps us determine where the declaration actually ends.
     $last_content = $phpcs_file->findPrevious(T_WHITESPACE, ($curly_brace - 1), $stack_pointer, true);
@@ -75,7 +71,6 @@ class OpeningBraceKAndRSniff implements Sniff {
       // Defensive programming: no content found before brace
       return;
     }
-    
     // Step 3: Compare line positions to detect K&R violations.
     // K&R style requires the brace to be on the same line as the declaration.
     $declaration_line = $tokens[$last_content]['line'];

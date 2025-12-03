@@ -97,7 +97,6 @@ class VariableNameSniff implements Sniff {
           $stack_pointer,
           'PropertyNotCamelCase'
         );
-        
         if ($fix) {
           $fixed = $string_case_utils->toCamelCase($var_name);
           $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);

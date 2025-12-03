@@ -76,9 +76,18 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
         return [];
 
       case 'TwoSpacesIndentSniff.badClosureInFunctionCall.inc':
-        // TODO: Fix closure indentation detection - currently not working
-        // The sniff doesn't detect closures inside LIST_MULTILINE properly
-        return [];
+        return [
+          7 => 1,   // return strtoupper - wrong indentation (0 spaces instead of 4)
+          8 => 1,   // }, $input - wrong indentation (0 spaces instead of 2)
+          17 => 1,  // }, $input - wrong indentation (2 spaces instead of 0)
+          23 => 1,  // $value = $matches[1]; - wrong indentation (0 spaces instead of 4)
+          24 => 1,  // return strtoupper - wrong indentation (0 spaces instead of 4)
+          32 => 1,  // return strtoupper - wrong indentation (6 spaces instead of 4)
+          41 => 1,  // if (isset - wrong indentation (0 spaces instead of 4)
+          42 => 1,  // return strtoupper - wrong indentation (0 spaces instead of 6)
+          43 => 1,  // } - wrong indentation (0 spaces instead of 4)
+          44 => 1,  // return ''; - wrong indentation (0 spaces instead of 4)
+        ];
 
       case 'TwoSpacesIndentSniff.badTernaryExpression.inc':
         return [
@@ -242,5 +251,4 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
-
 }

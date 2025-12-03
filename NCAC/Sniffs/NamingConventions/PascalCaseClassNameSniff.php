@@ -55,19 +55,16 @@ class PascalCaseClassNameSniff implements Sniff {
    */
   public function process(File $phpcs_file, $stack_ptr): void {
     $tokens = $phpcs_file->getTokens();
-    
     // Step 1: Locate the name token following the declaration keyword.
     $name_ptr = $phpcs_file->findNext(T_STRING, $stack_ptr);
     if ($name_ptr === false) {
       // Defensive programming: malformed declaration without name
       return;
     }
-    
     /**
      * @var string $name 
      */
     $name = $tokens[$name_ptr]['content'];
-    
     // Step 2: Validate PascalCase format using regex pattern.
     // PascalCase requires: starts with uppercase, followed by alphanumeric only.
     if (!preg_match('/^[A-Z][A-Za-z0-9]*$/', $name)) {
