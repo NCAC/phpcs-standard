@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.2.1](https://github.com/ncac/phpcs-standard/compare/v1.2.0...v1.2.1) (2025-12-03)
+
+
+### chore
+
+* add codecov configuration and exclude dev tools ([](https://github.com/ncac/phpcs-standard/commit/ff12537f1b02f4ab83c47ac5ed8cb1604b338bdb))
+* clean readme.md ([](https://github.com/ncac/phpcs-standard/commit/60f06126f796c19a1bd9b8506c7866dc30741f34))
+* upgrade PHP 8.2 ([](https://github.com/ncac/phpcs-standard/commit/e66ce4322608cca531eb620a419f99e3a03eb490))
+
+
+### feat
+
+* add comprehensive e2e test suite ([](https://github.com/ncac/phpcs-standard/commit/9da024901823e65e11c7a3e84c904031818c4083))
+
+
+### fix
+
+* Correct closure indentation detection in TwoSpacesIndentSniff ([](https://github.com/ncac/phpcs-standard/commit/5cca95f9ce2560b19fd81d9fe945f21d5714a2c8))
+
+
+### refacto
+
+* clean up and optimize NCAC sniffs ([](https://github.com/ncac/phpcs-standard/commit/9c4dfb3df33887fbbc92798321f4be80fb78f1db))
+
 # [1.2.0](https://github.com/ncac/phpcs-standard/compare/v1.1.1...v1.2.0) (2025-11-05)
 
 
