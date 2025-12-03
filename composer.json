@@ -53,6 +53,14 @@
     }
   },
   "scripts": {
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage"
+    "test": "phpunit",
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage",
+    "e2e-test": "php e2e-tests/run.php",
+    "test-all": [
+      "@test",
+      "@e2e-test"
+    ],
+    "check": "phing check",
+    "phing": "phing"
   }
 }
