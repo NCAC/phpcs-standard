@@ -26,12 +26,13 @@
     "docs": "https://github.com/ncac/phpcs-standard/blob/main/README.md"
   },
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.2",
     "slevomat/coding-standard": "^8.22",
-    "squizlabs/php_codesniffer": "^3.13.4"
+    "squizlabs/php_codesniffer": "^4"
   },
   "require-dev": {
     "phing/phing": "^3.0",
+    "phpcsstandards/phpcsdevtools": "^1.2",
     "phpunit/phpunit": "^9.6 || ^10.0",
     "vimeo/psalm": "^5.26"
   },
@@ -48,10 +49,18 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php": "7.4.33"
+      "php": "8.2.18"
     }
   },
   "scripts": {
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage"
+    "test": "phpunit",
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage",
+    "e2e-test": "php e2e-tests/run.php",
+    "test-all": [
+      "@test",
+      "@e2e-test"
+    ],
+    "check": "phing check",
+    "phing": "phing"
   }
 }

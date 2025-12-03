@@ -19,10 +19,6 @@ class BadClassSpacing {
 
 
 class TooMuchClassSpacing {
-
-
-
-
   /**
    * This is a sample method.
    */

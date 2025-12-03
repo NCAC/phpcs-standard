@@ -24,6 +24,16 @@ use NCAC\Tests\SniffUnitTest;
 class VariableNameSniffUnitTest extends SniffUnitTest {
 
   /**
+   * @dataProvider fixtureProvider
+   * @testdox Fixture with $fixture_file
+   * Runs each fixture individually using the parent implementation.
+   *
+   */
+  public function testFixture(string $fixture_file): void {
+    parent::testFixture($fixture_file);
+  }
+
+  /**
    * Returns the lines where errors should occur.
    *
    * The key of the array should represent the line number and the value

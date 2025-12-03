@@ -6,7 +6,7 @@ if (
   && $bar
   || $baz
 ) {
-  doSomething();
+  $test = true;
 }
 
 // GOOD: Multiline while condition, each line indented +2 spaces from 'while ('
@@ -14,7 +14,7 @@ while (
   $cond1
   && $cond2
 ) {
-  doSomethingElse();
+  $test = false;
 }
 
 // GOOD: Multiline for condition, each line indented +2 spaces from 'for ('
@@ -23,5 +23,5 @@ for (
   $i < 10 && $other_check;
   $i++
 ) {
-  loopBody();
+  $test = null;
 }

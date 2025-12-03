@@ -4,7 +4,7 @@
  * @return array<string, mixed>
  */
 function test_array_in_case(string $path): array {
-  
+
   switch ($path) {
     case 'ok':
       return [
@@ -16,7 +16,7 @@ function test_array_in_case(string $path): array {
         'is_ok' => false,
         'is_not_ok' => true
       ];
-    
+
     default:
       return [
         'is_ok' => null,

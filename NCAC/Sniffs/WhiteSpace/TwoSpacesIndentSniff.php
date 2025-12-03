@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace NCAC\Sniffs\WhiteSpace;
 
@@ -29,6 +31,78 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  */
 class TwoSpacesIndentSniff implements Sniff {
 
+  public const SPACES = 2;
+
+  // ==========================================
+  // CONTEXT TYPES FOR INDENTATION STACK
+  // ==========================================
+
+  /**
+   * Block: code section delimited by { } (function, class, if, while, for, etc.)
+   */
+  public const BLOCK = 'BLOCK';
+
+  /**
+   * Switch block: switch { } statement
+   */
+  public const SWITCH_BLOCK = 'SWITCH_BLOCK';
+
+  /**
+   * Case block: case/default ... : section
+   */
+  public const CASE_BLOCK = 'CASE_BLOCK';
+
+  /**
+   * Multiline list: array/function call delimited by ( ) or [ ]
+   */
+  public const LIST_MULTILINE = 'LIST_MULTILINE';
+
+  /**
+   * Multiline assignment: assignment spanning multiple lines
+   */
+  public const ASSIGNATION_MULTILINE = 'ASSIGNATION_MULTILINE';
+
+  /**
+   * Ternary operator: ternary expression ? :
+   */
+  public const TERNARY_OPERATOR = 'TERNARY_OPERATOR';
+
+  /**
+   * Match expression: PHP 8+ match { } expression
+   */
+  public const MATCH_EXPRESSION = 'MATCH_EXPRESSION';
+
+  /**
+   * Chained method: method chaining with -> or ?->
+   */
+  public const CHAINED_BLOCK = 'CHAINED_BLOCK';
+
+
+  /**
+   * @var array<int|string> Tokens that open a multiline list.
+   */
+  public const LIST_MULTILINE_OPEN_TOKENS = [
+    T_OPEN_PARENTHESIS,
+    T_OPEN_SQUARE_BRACKET,
+    T_OPEN_SHORT_ARRAY
+  ];
+
+  /**
+   * @var array<int|string> Tokens that close a multiline list.
+   */
+  public const LIST_MULTILINE_CLOSE_TOKENS = [
+    T_CLOSE_PARENTHESIS,
+    T_CLOSE_SQUARE_BRACKET,
+    T_CLOSE_SHORT_ARRAY,
+  ];
+
+  /**
+   * Stack of indentation contexts (blocks, lists, chains, etc.)
+   * 
+   * @var array<int, self::BLOCK|self::SWITCH_BLOCK|self::CASE_BLOCK|self::LIST_MULTILINE|self::ASSIGNATION_MULTILINE|self::TERNARY_OPERATOR|self::MATCH_EXPRESSION|self::CHAINED_BLOCK>
+   */
+  private array $blockStack = [];
+
   /**
    * Registers the tokens this sniff wants to listen for.
    *
@@ -58,83 +132,29 @@ class TwoSpacesIndentSniff implements Sniff {
    * @param  int  $stack_pointer The position of the current token in the stack.
    */
   public function process(File $phpcs_file, $stack_pointer) {
-    $tokens = $phpcs_file->getTokens();
 
     // Process only at the last token to ensure complete file analysis
     if ($stack_pointer !== count($phpcs_file->getTokens()) - 1) {
       return;
     }
 
+    // CRITICAL: Reset the stack for each file
+    // The sniff instance is reused across multiple files in PHPUnit
+    $this->blockStack = [];
+
     $line_token_codes = $this->collectLineTokenCodes($phpcs_file);
-    $line_levels_stack = $this->computeLineLevels($line_token_codes);
 
-    // Validate and fix indentation for each line
-    $lines_seen = [];
-    foreach ($tokens as $pointer => $token) {
-      $line = $token['line'];
 
-      if (isset($lines_seen[$line])) {
-        continue;
-      }
-      $lines_seen[$line] = true;
-
-      $line_tokens = [];
-      for ($scan_pointer = $pointer; $scan_pointer < count($tokens) && $tokens[$scan_pointer]['line'] === $line; $scan_pointer++) {
-        $line_tokens[] = $tokens[$scan_pointer];
-      }
-      
-      // Find first meaningful token on the line
-      $first_code_token = null;
-      foreach ($line_tokens as $tok) {
-        if ($tok['code'] !== T_WHITESPACE && $tok['code'] !== T_INLINE_HTML) {
-          $first_code_token = $tok;
-          break;
-        }
-      }
-      
-      if ($first_code_token === null) {
-        continue;
-      }
-
-      // Calculate expected vs actual indentation
-      $expected = ($line_levels_stack[$line] ?? 0) * 2;
-      $expected = intval($expected);
-      if (empty($line_tokens)) {
-        continue;
-      }
-      
-      $first_token = $line_tokens[0];
-      if ($first_token['code'] === T_WHITESPACE
-        || $first_token['code'] === T_DOC_COMMENT_WHITESPACE
+    foreach ($line_token_codes as $line_number => $line_info) {
+      $this->processLine($line_number, $line_info, $phpcs_file);
+      $actual_indent = $line_info['actual_indent'];
+      $expected_indent = $line_info['expected_indent'];
+      if (
+        $expected_indent !== null
+        && $actual_indent !== $expected_indent
+        && !($line_info['tokens'] === ['HEREDOC_BYPASS'])
       ) {
-        $whitespace = (string) $first_token['content'];
-        $actual = strlen(str_replace("\t", "  ", $whitespace)); // Convert tabs to 2 spaces
-        if ($actual != $expected) {
-          $fix = $phpcs_file->addFixableError(
-            "Incorrect indentation: expected $expected spaces, found $actual.",
-            $pointer,
-            'IndentationTwoSpaces'
-          );
-          if ($fix) {
-            $phpcs_file->fixer->beginChangeset();
-            $phpcs_file->fixer->replaceToken($pointer, str_repeat(' ', $expected));
-            $phpcs_file->fixer->endChangeset();
-          }
-        }
-      } else {
-        // Handle lines that should be indented but start with code
-        if ($expected !== 0) {
-          $fix = $phpcs_file->addFixableError(
-            "Incorrect indentation: expected $expected spaces, found 0.",
-            $pointer,
-            'IndentationTwoSpaces'
-          );
-          if ($fix) {
-            $phpcs_file->fixer->beginChangeset();
-            $phpcs_file->fixer->addContentBefore($pointer, str_repeat(' ', $expected));
-            $phpcs_file->fixer->endChangeset();
-          }
-        }
+        $this->reportIndentationError($phpcs_file, $line_info, $expected_indent, $actual_indent, $line_number);
       }
     }
   }
@@ -144,294 +164,960 @@ class TwoSpacesIndentSniff implements Sniff {
    *
    * Iterates through all tokens to collect the sequence of meaningful tokens
    * for each line, excluding leading whitespace but preserving token order.
-   * This data structure is used by computeLineLevels() to determine nesting.
+   * This structure is used by processLine() to determine nesting depth.
    *
    * @param File $phpcs_file The file being analyzed.
    *
-   * @return array<int, array<int|string>>
-   *   Map of line numbers to arrays of token codes.
-   *   Token codes can be native PHPCS integers or wrapper strings.
-   *
-   *   Example:
-   *     [
-   *       10 => [T_DOC_COMMENT_STAR, T_STRING],
-   *       11 => [T_OPEN_CURLY_BRACKET, T_VARIABLE],
-   *     ]
+   * @return array<int, array{tokens: array<int, string|int>, actual_indent: int, expected_indent: int|null}>
+   *   Map of line numbers to associative arrays:
+   *     - tokens: list of significant token codes
+   *     - actual_indent: actual indentation (spaces)
+   *     - expected_indent: expected indentation (or null if not applicable)
    */
   private function collectLineTokenCodes(File $phpcs_file): array {
+    // Get all tokens from the file
     $tokens = $phpcs_file->getTokens();
     $line_token_codes = [];
 
     $tokens_list = array_values($tokens);
     $tokens_count = count($tokens_list);
-    
+    // Iterate over all tokens to group them by line
     for ($pointer = 0; $pointer < $tokens_count; $pointer++) {
       $token = $tokens_list[$pointer];
       $line = $token['line'];
-      
+      // Detect new line start
       $is_new_line = ($pointer === 0) || ($tokens_list[$pointer - 1]['line'] !== $line);
       if (!$is_new_line) {
         continue;
       }
-      
-      // Collect meaningful tokens for this line
+      // Collect significant tokens for this line
+      $actual_indent = 0;
       $line_tokens = [];
       $first_non_ws_found = false;
+      $first_significant_token_ptr = null; // To track pointer to first token
       for ($scan_pointer = $pointer; $scan_pointer < $tokens_count && $tokens_list[$scan_pointer]['line'] === $line; $scan_pointer++) {
         $code = $tokens_list[$scan_pointer]['code'];
-        if (!$first_non_ws_found && ($code === T_WHITESPACE || $code === T_DOC_COMMENT_WHITESPACE || $code === T_INLINE_HTML)) {
+
+        // replace content 'match' with T_MATCH
+        $token_content = $tokens_list[$scan_pointer]['content'] ?? '';
+        if (strtolower($token_content) === 'match') { // single remap for T_MATCH
+          $code = T_MATCH;
+        }
+
+        // Count leading whitespace (excluding newlines)
+        if (!$first_non_ws_found && ($code === T_WHITESPACE || $code === T_DOC_COMMENT_WHITESPACE)) {
+          $content = $tokens_list[$scan_pointer]['content'];
+          // Skip newlines - they're not indentation
+          if ($content !== "\n" && $content !== "\r\n" && $content !== "\r") {
+            $actual_indent += strlen($content);
+          }
           continue;
         }
         $first_non_ws_found = true;
+        // Save pointer to first significant token
+        if ($first_significant_token_ptr === null) {
+          $first_significant_token_ptr = $scan_pointer;
+        }
         $line_tokens[] = $code;
       }
-      
-      // Remove trailing whitespace to simplify pattern matching
-      if (!empty($line_tokens) && ($line_tokens[count($line_tokens) - 1] === T_WHITESPACE || $line_tokens[count($line_tokens) - 1] === T_DOC_COMMENT_WHITESPACE)) {
+      // Remove trailing whitespace tokens for pattern matching
+      if (
+        !empty($line_tokens)
+        && (
+          $line_tokens[count($line_tokens) - 1] === T_WHITESPACE
+          || $line_tokens[count($line_tokens) - 1] === T_DOC_COMMENT_WHITESPACE
+        )
+      ) {
         array_pop($line_tokens);
       }
-      
-      // === METHOD CHAINING DETECTION ===
-      // Check if this line starts with T_OBJECT_OPERATOR (->)
-      if (!empty($line_tokens) && $line_tokens[0] === T_OBJECT_OPERATOR) {
-        $is_method_call = $this->isMethodChain($line_tokens);
-        if ($is_method_call) {
-          // Mark this line as method chaining
-          $line_tokens[] = 'METHOD_CHAIN_MARKER';
+      // Check for special cases BEFORE filtering comments
+      $first_token_code_unfiltered = $line_tokens[0] ?? null;
+      // Special handling for single line comments (//, #, /* ... */) - check BEFORE filtering
+      if ($first_token_code_unfiltered === T_COMMENT && $first_significant_token_ptr !== null) {
+        $first_token_content = $tokens_list[$first_significant_token_ptr]['content'] ?? '';
+        $trimmed_content = trim($first_token_content);
+        if (strpos($trimmed_content, '//') === 0 || strpos($trimmed_content, '#') === 0) {
+          $line_token_codes[$line] = [
+            'tokens' => ['SINGLE_LINE_COMMENT'],
+            'actual_indent' => $actual_indent,
+            'expected_indent' => null
+          ];
+          continue;
+        }
+        if (strpos($trimmed_content, '/*') === 0 && strpos($trimmed_content, '*/') !== false) {
+          $line_token_codes[$line] = [
+            'tokens' => ['SINGLE_LINE_COMMENT'],
+            'actual_indent' => $actual_indent,
+            'expected_indent' => null
+          ];
+          continue;
         }
       }
-      
-      $line_token_codes[$line] = $line_tokens;
+      // Filter out all whitespace tokens and end-of-line comments for analysis
+      $line_tokens = array_filter($line_tokens, function ($code) {
+        return $code !== T_WHITESPACE && $code !== T_DOC_COMMENT_WHITESPACE && $code !== T_COMMENT;
+      });
+
+      // reset the keys after filtering
+      $line_tokens = array_values($line_tokens);
+
+      $first_token_code = $line_tokens[0] ?? null;
+      // Special handling for Heredoc/Nowdoc blocks: skip indentation
+      if ($this->isInsideHeredocOrNowdoc($line, $tokens_list, $pointer)) {
+        $line_token_codes[$line] = [
+          'tokens' => ['HEREDOC_BYPASS'],
+          'actual_indent' => $actual_indent,
+          'expected_indent' => null
+        ];
+        continue;
+      }
+      // Special handling for DocBlock start
+      if ($first_token_code === T_DOC_COMMENT_OPEN_TAG) {
+        $line_token_codes[$line] = [
+          'tokens' => ['START_DOC_BLOCK'],
+          'actual_indent' => $actual_indent,
+          'expected_indent' => null
+        ];
+        continue;
+      }
+      // Special handling for DocBlock continuation/end
+      if (
+        $first_token_code === T_DOC_COMMENT_STAR
+        || $first_token_code === T_DOC_COMMENT_CLOSE_TAG
+      ) {
+        $line_token_codes[$line] = [
+          'tokens' => ['DOC_BLOCK_LINE'],
+          'actual_indent' => $actual_indent,
+          'expected_indent' => null
+        ];
+        continue;
+      }
+      // Blank line handling: if no non-whitespace token found, mark sentinel for later fix (Prettier style => 0 indent)
+      if (!$first_non_ws_found) {
+        $line_token_codes[$line] = [
+          'tokens' => ['BLANK_LINE'],
+          'actual_indent' => $actual_indent,
+          'expected_indent' => null
+        ];
+        continue;
+      }
+      // Default: regular line, store token codes and indentation
+      $line_token_codes[$line] = [
+        'tokens' => $line_tokens,
+        'actual_indent' => $actual_indent,
+        'expected_indent' => null
+      ];
     }
     return $line_token_codes;
   }
 
   /**
-   * Determines if a line starting with T_OBJECT_OPERATOR is a method call.
+   * Handles trivial cases that don't require complex stack logic.
    * 
-   * @param array $line_tokens Array of token codes for the line
-   * @return bool True if this is a method call, false if it's property access
+   * Returns true if the case was handled (and processLine should return early).
+   * 
+   * @param array<string, mixed> $line_info Line information including tokens and indentation
+   * @return bool True if case was handled
    */
-  private function isMethodChain(array $line_tokens): bool {
-    if (empty($line_tokens) || $line_tokens[0] !== T_OBJECT_OPERATOR) {
-      return false;
-    }
-    
-    // Must have: -> + STRING + (
-    for ($i = 1; $i < count($line_tokens); $i++) {
-      $token = $line_tokens[$i];
-      
-      if ($token === T_STRING) {
-        // Found method name, look for opening parenthesis
-        for ($j = $i + 1; $j < count($line_tokens); $j++) {
-          if ($line_tokens[$j] === T_OPEN_PARENTHESIS) {
-            return true; // This is a method call
-          }
-          if (!in_array($line_tokens[$j], [T_WHITESPACE])) {
-            return false; // Hit something else, not a method
-          }
-        }
-      }
-      
-      if (!in_array($token, [T_STRING, T_WHITESPACE])) {
-        return false; // Invalid sequence
-      }
-    }
-    
-    return false;
-  }
+  private function handleTrivialCases(array &$line_info): bool {
+    $line_tokens = $line_info['tokens'];
 
-  private function getActualLevel(array $stack): int {
-    $level = 0;
-    foreach ($stack as $block) {
-      if (is_string($block) && strpos($block, 'MERGED:') === 0) {
-        // MERGED tokens count as 1 level (not 2)
-        $level++;
-      } else if ($block === 'SWITCH_CASE') {
-        // SWITCH_CASE is a special marker that adds indentation for case content
-        $level++;
+    // Case 1: Blank line - Prettier style = no whitespace at all
+    if (
+      empty($line_tokens)
+      || (
+        count($line_tokens) === 1
+        && $line_tokens[0] === 'BLANK_LINE'
+      )
+    ) {
+      if ($line_info['actual_indent'] > 0) {
+        // Blank line should have 0 indentation (Prettier style)
+        $line_info['expected_indent'] = 0;
       } else {
-        $level++;
+        // Blank line is correct (no indentation), skip validation
+        $line_info['expected_indent'] = null;
       }
+      return true;
     }
-    return $level;
+
+    // Case 2: DocBlock start, single-line comment, or whitespace-only line
+    if (
+      count($line_tokens) === 1
+      && (
+        $line_tokens[0] === T_WHITESPACE
+        || $line_tokens[0] === 'START_DOC_BLOCK'
+        || $line_tokens[0] === 'SINGLE_LINE_COMMENT'
+      )
+    ) {
+      $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+      return true;
+    }
+
+    // Case 3: DocBlock continuation lines (with star)
+    if (
+      count($line_tokens) === 1
+      && $line_tokens[0] === 'DOC_BLOCK_LINE'
+    ) {
+      // DocBlock lines have +1 space for the star alignment
+      $line_info['expected_indent'] = (count($this->blockStack) * self::SPACES) + intdiv(self::SPACES, 2);
+      return true;
+    }
+
+    // Case 4: Heredoc/Nowdoc bypass - skip indentation checks entirely
+    if (
+      count($line_tokens) === 1
+      && $line_tokens[0] === 'HEREDOC_BYPASS'
+    ) {
+      // expected_indent is already null by default
+      return true;
+    }
+
+    return false; // Not a trivial case, continue with complex logic
   }
 
   /**
-   * Computes the expected indentation level for each line based on nesting structure.
-   *
-   * Analyzes token patterns to determine proper indentation levels using a stack-based
-   * approach. Handles various PHP constructs including:
-   * - DocBlocks (0.5 level = 1 space offset)
-   * - Switch/case statements with consecutive case handling
-   * - Ternary operators (?:)
-   * - Multiline assignments
-   * - Nested blocks (braces, brackets, parentheses)
-   * - Arrays passed as function arguments (special handling)
-   *
-   * @param array<int, array<int|string>> $line_token_codes Token codes per line.
-   *
-   * @return array<int, float|int> Indentation levels per line (multiplied by 2 for spaces).
+   * Processes a line to identify method chaining patterns.
+   * @param int $line_number 
+   * @param array{tokens: array<int, string|int>, actual_indent: int, expected_indent: int|null} $line_info 
+   * @param File $phpcs_file 
+   * @return void 
    */
-  private function computeLineLevels(array $line_token_codes): array {
-    
-    $line_levels_stack = [];
-    $blocks_stack = [];
-    $docblock_indentation_level = 0;
-    $opening_closure_tokens = [T_OPEN_CURLY_BRACKET, T_OPEN_PARENTHESIS, T_OPEN_SQUARE_BRACKET, T_OPEN_SHORT_ARRAY];
+  private function processLine(int $line_number, array &$line_info, File $phpcs_file): void {
+    $line_tokens = $line_info['tokens'];
+    $first_token = $line_tokens[0] ?? null;
+    $last_token = $line_tokens[count($line_tokens) - 1] ?? null;
 
-    foreach ($line_token_codes as $index_line => $line_tokens) {
-      $first_token_code = $line_tokens[0] ?? null;
-      $last_token_code = !empty($line_tokens) ? $line_tokens[count($line_tokens) - 1] : null;
-      $start_index = 0;
-
-      // === DocBlock Processing ===
-      if ($first_token_code === T_DOC_COMMENT_OPEN_TAG) {
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        $docblock_indentation_level = $this->getActualLevel($blocks_stack) + 0.5;
-        continue;
-      }
-
-      if ($first_token_code === T_DOC_COMMENT_STAR || $first_token_code === T_DOC_COMMENT_CLOSE_TAG) {
-        $line_levels_stack[$index_line] = $docblock_indentation_level;
-        continue;
-      }
-
-      // === METHOD CHAINING Processing ===
-      if (in_array('METHOD_CHAIN_MARKER', $line_tokens)) {
-        // For method chains: current scope + 1 level (which adds 2 spaces)
-        $base_level = $this->getActualLevel($blocks_stack);
-        $line_levels_stack[$index_line] = $base_level + 1;
-        continue;
-      }
-
-      // === Block Structure Processing ===
-      
-      // Handle closing tokens - pop stack before calculating indentation
-      $last_block = end($blocks_stack);
-      if (
-        ($first_token_code === T_CLOSE_CURLY_BRACKET && $last_block === T_OPEN_CURLY_BRACKET)
-        || ($first_token_code === T_CLOSE_PARENTHESIS && $last_block === T_OPEN_PARENTHESIS)
-        || ($first_token_code === T_CLOSE_SQUARE_BRACKET && $last_block === T_OPEN_SQUARE_BRACKET)
-        || ($first_token_code === T_CLOSE_SHORT_ARRAY && $last_block === T_OPEN_SHORT_ARRAY)
-        // Handle merged token closures  
-        || ($first_token_code === T_CLOSE_SQUARE_BRACKET && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_SQUARE_BRACKET) !== false)
-        || ($first_token_code === T_CLOSE_SHORT_ARRAY && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_SHORT_ARRAY) !== false)
-        || ($first_token_code === T_CLOSE_PARENTHESIS && is_string($last_block) && strpos($last_block, 'MERGED:') === 0 && strpos($last_block, ':' . T_OPEN_PARENTHESIS) !== false)
-      ) {
-        array_pop($blocks_stack);
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        $start_index = 1;
-      } else if ($first_token_code === T_CLOSE_CURLY_BRACKET && end($blocks_stack) === 'SWITCH_CASE') {
-        // Handle switch closing brace - remove SWITCH_CASE marker first
-        array_pop($blocks_stack); // Remove SWITCH_CASE
-        if (end($blocks_stack) === T_OPEN_CURLY_BRACKET) {
-          array_pop($blocks_stack); // Remove the switch opening brace
-        }
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        $start_index = 1;
-
-        // Handle ternary operators
-      } else if ($first_token_code === T_INLINE_THEN) {
-        $blocks_stack[] = T_INLINE_THEN;
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        $start_index = 1;
-      } else if ($first_token_code === T_INLINE_ELSE && end($blocks_stack) === T_INLINE_THEN) {
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        array_pop($blocks_stack);
-        $start_index = 1;      // Handle switch/case statements with consecutive case support
-      } else if ($first_token_code === T_CASE || $first_token_code === T_DEFAULT) {
-        // Consecutive case/default statements maintain same indentation level
-        $case_level = $this->getActualLevel($blocks_stack);
-        if (end($blocks_stack) === 'SWITCH_CASE') {
-          // Remove previous SWITCH_CASE marker before adding new one
-          array_pop($blocks_stack);
-          $case_level = $this->getActualLevel($blocks_stack);
-        }
-        $line_levels_stack[$index_line] = $case_level;
-        
-        // Track switch case block 
-        $blocks_stack[] = 'SWITCH_CASE';
-        $start_index = 1;
-
-        // Handle case/default block terminators
-      } else if (
-        end($blocks_stack) === 'SWITCH_CASE'
-        && (
-          $first_token_code === T_BREAK
-          || $first_token_code === T_CONTINUE
-          || $first_token_code === T_EXIT
-          || $first_token_code === T_GOTO
-          || $first_token_code === T_CLOSE_CURLY_BRACKET
-        )
-      ) {
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-        array_pop($blocks_stack);
-        $start_index = 1;
-
-        // Default indentation level
-      } else {
-        $line_levels_stack[$index_line] = $this->getActualLevel($blocks_stack);
-      }
-
-      // === Multiline Assignment Handling ===
-      if ($last_token_code === T_EQUAL) {
-        $blocks_stack[] = T_EQUAL;
-      }
-      if ($last_token_code === T_SEMICOLON && end($blocks_stack) === T_EQUAL) {
-        $line_levels_stack[$index_line] = count($blocks_stack);
-        array_pop($blocks_stack);
-      }
-      // === Process remaining tokens on the line ===
-      while ($start_index < count($line_tokens)) {
-        $token_code = $line_tokens[$start_index];
-        if (in_array($token_code, $opening_closure_tokens)) {
-          // Special handling for arrays as function arguments
-          // Check if this array token immediately follows a parenthesis in the same line
-          // BUT exclude switch/case contexts where normal indentation is preferred
-          $in_switch_case = in_array('SWITCH_CASE', $blocks_stack, true);
-          
-          if (($token_code === T_OPEN_SQUARE_BRACKET || $token_code === T_OPEN_SHORT_ARRAY) 
-            && !empty($blocks_stack) 
-            && end($blocks_stack) === T_OPEN_PARENTHESIS
-            && !$in_switch_case) {
-            // Check if the parenthesis was added on this same line (meaning func([ pattern)
-            $prev_token_index = $start_index - 1;
-            if ($prev_token_index >= 0 && 
-              ($line_tokens[$prev_token_index] === T_OPEN_PARENTHESIS)) {
-              // This is an array directly after opening parentheses: func([
-              // Mark this as a merged opening - store both tokens but count as one level
-              array_pop($blocks_stack); // Remove the parenthesis
-              $blocks_stack[] = 'MERGED:' . T_OPEN_PARENTHESIS . ':' . $token_code;
-            } else {
-              $blocks_stack[] = $token_code;
-            }
-          } else {
-            // Regular opening token (parentheses, braces, arrays not in function calls)
-            $blocks_stack[] = $token_code;
-          }
-        } else if (
-          ($token_code === T_CLOSE_CURLY_BRACKET && end($blocks_stack) === T_OPEN_CURLY_BRACKET)
-          || ($token_code === T_CLOSE_PARENTHESIS && end($blocks_stack) === T_OPEN_PARENTHESIS)
-          || ($token_code === T_CLOSE_SQUARE_BRACKET && end($blocks_stack) === T_OPEN_SQUARE_BRACKET)
-          || ($token_code === T_CLOSE_SHORT_ARRAY && end($blocks_stack) === T_OPEN_SHORT_ARRAY)
-        ) {
-          array_pop($blocks_stack);
-        } else {
-          // Handle merged token closures - only specific array-in-function cases
-          $last_block = end($blocks_stack);
-          if (
-            ($token_code === T_CLOSE_SQUARE_BRACKET && is_string($last_block) && strpos($last_block, 'MERGED:' . T_OPEN_PARENTHESIS . ':' . T_OPEN_SQUARE_BRACKET) === 0)
-            || ($token_code === T_CLOSE_SHORT_ARRAY && is_string($last_block) && strpos($last_block, 'MERGED:' . T_OPEN_PARENTHESIS . ':' . T_OPEN_SHORT_ARRAY) === 0)
-          ) {
-            array_pop($blocks_stack);
-          }
-        }
-        $start_index += 1;
-      }
+    // ==========================================
+    // CHAINED_BLOCK AUTO-POP LOGIC
+    // ==========================================
+    // CRITICAL: This MUST execute BEFORE handleTrivialCases()
+    // Otherwise, comments after method chains inherit wrong indentation
+    // If line does NOT start with -> or ?->, and CHAINED_BLOCK is on top,
+    // then we've reached the end of the chain - pop it
+    if (
+      $first_token !== null
+      && !in_array($first_token, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])
+      && $this->getStackTop() === self::CHAINED_BLOCK
+    ) {
+      array_pop($this->blockStack);
     }
 
-    return $line_levels_stack;
+    // Handle trivial cases (comments, blank lines, etc.) AFTER auto-pop
+    if ($this->handleTrivialCases($line_info)) {
+      return;
+    }
+
+    // Skip if we don't have valid tokens
+    if ($first_token === null || $last_token === null) {
+      return;
+    }
+
+    $event = $this->detectEvent($line_tokens, $first_token, $last_token);
+
+    if ($this->handleBlockEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    if ($this->handleListEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    if ($this->handleSwitchCaseEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    if ($this->handleMatchEvents($event['type'], $event['data'], $line_info, $line_number, $phpcs_file)) {
+      return;
+    }
+
+    if ($this->handleMethodChainEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    if ($this->handleAssignmentEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    if ($this->handleTernaryEvents($event['type'], $event['data'], $line_info)) {
+      return;
+    }
+
+    // Default case: set expected indentation based on current stack depth
+    $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+  }
+
+  /**
+   * Checks if a line is inside a Heredoc or Nowdoc block.
+   *
+   * @param int   $line        The line number to check.
+   * @param array $tokens_list All tokens in the file.
+   * @param int   $pointer     Current token pointer.
+   *
+   * @return bool True if the line is inside Heredoc/Nowdoc content.
+   */
+  private function isInsideHeredocOrNowdoc(int $line, array $tokens_list, int $pointer): bool {
+    // Look backwards from current position to find Heredoc/Nowdoc markers
+    for ($i = $pointer; $i >= 0; $i--) {
+      $token = $tokens_list[$i];
+      // If we find a Heredoc/Nowdoc start on a previous line
+      if (
+        ($token['code'] === T_START_HEREDOC || $token['code'] === T_START_NOWDOC)
+        && $token['line'] < $line
+      ) {
+        // Look forward to find the corresponding end marker
+        for ($j = $i + 1; $j < count($tokens_list); $j++) {
+          $end_token = $tokens_list[$j];
+          if (
+            ($end_token['code'] === T_END_HEREDOC || $end_token['code'] === T_END_NOWDOC)
+            && $end_token['line'] >= $line
+          ) {
+            // We're between start and end markers
+            return $end_token['line'] > $line; // True if end is after current line
+          }
+        }
+      }
+      // If we reach a line before potential Heredoc start, stop searching
+      if ($token['line'] < $line - 100) { // Reasonable limit for performance
+        break;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Détecte si la ligne est dans le contexte d'une expression match.
+   * @param array<int, string|int> $line_tokens
+   * @return bool
+   */
+  private function isMatchExpression(array $line_tokens): bool {
+    return in_array(T_MATCH, $line_tokens, true);
+  }
+
+  /**
+   * Get top element of stack.
+   *
+   * @return string|null
+   */
+  private function getStackTop(): ?string {
+    return empty($this->blockStack) ? null : end($this->blockStack);
+  }
+
+  /**
+   * Get Parent element of stack.
+   * @return string|null 
+   */
+  private function getStackParent(): ?string {
+    $count = count($this->blockStack);
+    if ($count < 2) {
+      return null;
+    }
+    $top = array_pop($this->blockStack);
+    $parent = end($this->blockStack);
+    $this->blockStack[] = $top; // restore top
+    return $parent;
+  }
+
+  /**
+   * Pop element from stack if it matches expected type.
+   *
+   * @param string $expected_type
+   * @return bool
+   */
+  private function popIfTop(string $expected_type): bool {
+    if ($this->getStackTop() === $expected_type) {
+      array_pop($this->blockStack);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Push element to stack if not already on top.
+   *
+   * @param 'BLOCK'|'LIST_MULTILINE'|'TERNARY_OPERATOR'|'CHAINED_BLOCK'|'SWITCH_BLOCK'|'CASE_BLOCK'|'MATCH_EXPRESSION'|'ASSIGNATION_MULTILINE' $expected_type
+   * @return bool
+   */
+  private function pushIfNotTop(string $expected_type): bool {
+    if ($this->getStackTop() !== $expected_type) {
+      /** @psalm-suppress PropertyTypeCoercion */
+      $this->blockStack[] = $expected_type;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Pop tous les éléments de la stack jusqu'à matcher le type donné (inclus).
+   * @param string $expected_type
+   * @return void
+   */
+  private function popStackUntil(string $expected_type): void {
+    while (!empty($this->blockStack)) {
+      $type = array_pop($this->blockStack);
+      if ($type === $expected_type) {
+        break;
+      }
+    }
+  }
+
+  /**
+   * Report indentation error.
+   *
+   * @param File $phpcs_file
+   * @param array{tokens: array<int, int|string>, actual_indent: int, expected_indent: int|null, first_significant_token?: int|null, last_significant_token?: int|null, comment_type?: string|null, indent?: int} $line_info
+   * @param int|null $expected
+   * @param int $actual
+   * @param int $line_number
+   * @return void
+   */
+  private function reportIndentationError(File $phpcs_file, array $line_info, ?int $expected, int $actual, int $line_number): void {
+    if ($expected === null) {
+      return; // Cannot report an error without an expected value
+    }
+    $tokens = $phpcs_file->getTokens();
+    // Find the first token on this line to report the error
+    $token_index = null;
+    foreach ($tokens as $index => $token) {
+      if ($token['line'] === $line_number) {
+        $token_index = $index;
+        break;
+      }
+    }
+    if ($token_index === null) {
+      return; // No token found on this line
+    }
+    $message = sprintf(
+      'Line indented incorrectly; expected %d spaces, found %d',
+      $expected,
+      $actual
+    );
+    $fix = $phpcs_file->addFixableError($message, $token_index, 'IndentationTwoSpaces');
+    if ($fix) {
+      $this->fixIndentation($phpcs_file, $token_index, $expected, $line_number);
+    }
+  }
+
+  /**
+   * Fix indentation for a line.
+   *
+   * @param File $phpcs_file
+   * @param int $token_index
+   * @param int $expected_indent
+   * @param int $line_number
+   * @return void
+   */
+  private function fixIndentation(File $phpcs_file, int $token_index, int $expected_indent, int $line_number): void {
+    $tokens = $phpcs_file->getTokens();
+    // Find the first whitespace token on this line
+    foreach ($tokens as $index => $token) {
+      if ($token['line'] === $line_number) {
+        if ($token['code'] === T_WHITESPACE || $token['code'] === T_DOC_COMMENT_WHITESPACE) {
+          $phpcs_file->fixer->replaceToken($index, $expected_indent === 0 ? '' : str_repeat(' ', $expected_indent));
+        } else {
+          if ($expected_indent > 0) {
+            $phpcs_file->fixer->addContentBefore($index, str_repeat(' ', $expected_indent));
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  /**
+   * Handles block-related events (BLOCK_OPEN, BLOCK_CLOSE).
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleBlockEvents(string $event_type, array $event_data, array &$line_info): bool {
+    switch ($event_type) {
+      case 'BLOCK_CLOSE_BLOCK_OPEN':
+        // Close current block, then open new block on same line (e.g., "} else {")
+        $this->popStackUntil(self::BLOCK);
+        // Indentation for this line is at the new depth (after close, before open)
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // Now push new BLOCK
+        $this->blockStack[] = self::BLOCK;
+        return true;
+
+      case 'CLOSURE_CLOSE_COMMA':
+        // Closure closure with comma: },
+        // Only pop the BLOCK, preserve LIST_MULTILINE underneath
+        if ($this->getStackTop() === self::BLOCK) {
+          array_pop($this->blockStack);
+        }
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        return true;
+
+      case 'BLOCK_CLOSE':
+        // Pop all contexts up to and including BLOCK (cascade pop)
+        // This handles cases like: if ( ... ->chain() ) { }
+        $this->popStackUntil(self::BLOCK);
+        // Set expected indentation at the new depth
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        return true;
+
+      case 'CLOSURE_OPEN':
+        // Closure opening: function(...) { 
+        // This is like BLOCK_OPEN but preserves LIST_MULTILINE context
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::BLOCK;
+        return true;
+
+      case 'BLOCK_OPEN':
+        // Set expected indentation BEFORE pushing (current line indents at previous depth)
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // Push BLOCK context to the stack
+        $this->blockStack[] = self::BLOCK;
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Handles list-related events (LIST_OPEN, LIST_CLOSE, etc.).
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleListEvents(string $event_type, array $event_data, array &$line_info): bool {
+    switch ($event_type) {
+      case 'LIST_OPEN':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::LIST_MULTILINE;
+        return true;
+
+      case 'LIST_CLOSE':
+        // Pop all contexts up to and including LIST_MULTILINE (cascade pop)
+        $this->popStackUntil(self::LIST_MULTILINE);
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // If line ends with semicolon, also pop any remaining transient contexts
+        if ($event_data['has_semicolon']) {
+          while (in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
+            array_pop($this->blockStack);
+          }
+        }
+        return true;
+
+      case 'LIST_CLOSE_BLOCK_OPEN':
+        // Close list (cascade pop), then open block on same line
+        $this->popStackUntil(self::LIST_MULTILINE);
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::BLOCK;
+        return true;
+
+      case 'LIST_CLOSE_SEMICOLON':
+        // Special case: ']); ' or similar - cascade pop to LIST_MULTILINE
+        // Only if LIST_MULTILINE is actually on the stack
+        if (in_array(self::LIST_MULTILINE, $this->blockStack, true)) {
+          $this->popStackUntil(self::LIST_MULTILINE);
+          $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+          // Also pop any remaining transient contexts (TERNARY_OPERATOR, CHAINED_BLOCK)
+          while (in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
+            array_pop($this->blockStack);
+          }
+          return true;
+        }
+        // If no LIST_MULTILINE on stack, handle transient contexts
+        // Calculate indentation BEFORE popping for closing lines
+        // This handles cases like ternaries in parentheses: ($a ? $b : $c);
+        if (in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
+          // Calculate indentation at current level (before popping)
+          $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+          // Now pop transients: closing paren pops one, semicolon ends the statement
+          while (in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
+            array_pop($this->blockStack);
+          }
+          return true;
+        }
+        // If no LIST_MULTILINE and no transients, treat as regular line
+        return false;
+
+      case 'GENERIC_LIST_OPEN':
+        // Fallback for lines ending with list open tokens
+        $this->pushIfNotTop(self::LIST_MULTILINE);
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Handles switch/case-related events.
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleSwitchCaseEvents(string $event_type, array $event_data, array &$line_info): bool {
+    switch ($event_type) {
+      case 'SWITCH_OPEN':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::SWITCH_BLOCK;
+        return true;
+
+      case 'CASE_START':
+        // Pop previous CASE_BLOCK if it exists
+        $this->popIfTop(self::CASE_BLOCK);
+        // Now calculate indentation at SWITCH_BLOCK level
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // Push new CASE_BLOCK
+        $this->blockStack[] = self::CASE_BLOCK;
+        return true;
+
+      case 'CASE_END':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->popIfTop(self::CASE_BLOCK);
+        return true;
+
+      case 'SWITCH_CASE_CLOSE':
+        // Pop all contexts up to and including SWITCH_BLOCK (cascade pop)
+        $this->popStackUntil(self::SWITCH_BLOCK);
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Handles match expression events.
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @param int $line_number Current line number
+   * @param File $phpcs_file The file being processed
+   * @return bool True if event was handled
+   */
+  private function handleMatchEvents(string $event_type, array $event_data, array &$line_info, int $line_number, File $phpcs_file): bool {
+    switch ($event_type) {
+      case 'MATCH_OPEN':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::MATCH_EXPRESSION;
+        return true;
+
+      case 'MATCH_KEYWORD':
+        // Special case: T_MATCH as last token, check if opening brace follows
+        $tokens = $phpcs_file->getTokens();
+        $found = false;
+        foreach ($tokens as $tok) {
+          if ($tok['line'] === $line_number && $tok['code'] === T_OPEN_CURLY_BRACKET) {
+            $found = true;
+            break;
+          }
+        }
+        if ($found) {
+          $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+          $this->blockStack[] = self::MATCH_EXPRESSION;
+          return true;
+        }
+        return false;
+
+      case 'MATCH_CLOSE':
+        // Pop all contexts up to and including MATCH_EXPRESSION (cascade pop)
+        $this->popStackUntil(self::MATCH_EXPRESSION);
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Handles method chaining events.
+   * 
+   * Method chaining adds +1 indentation level (2 spaces) to the current line.
+   * We push CHAINED_BLOCK on stack to maintain context across chained lines.
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleMethodChainEvents(string $event_type, array $event_data, array &$line_info): bool {
+    if ($event_type !== 'METHOD_CHAIN') {
+      return false;
+    }
+
+    // Push CHAINED_BLOCK context to maintain indentation across chain
+    $this->pushIfNotTop(self::CHAINED_BLOCK);
+    // Method chaining: calculate indentation based on stack depth
+    $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+
+    return true;
+  }
+
+  /**
+   * Handles assignment-related events.
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleAssignmentEvents(string $event_type, array $event_data, array &$line_info): bool {
+    switch ($event_type) {
+      case 'ASSIGNMENT_OPEN':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        $this->blockStack[] = self::ASSIGNATION_MULTILINE;
+        return true;
+
+      case 'ASSIGNMENT_CLOSE':
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // Only pop if top of stack is actually ASSIGNATION_MULTILINE
+        $this->popIfTop(self::ASSIGNATION_MULTILINE);
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Handles ternary operator events.
+   * 
+   * @param string $event_type The type of event
+   * @param array<string, mixed> $event_data Additional event data
+   * @param array<string, mixed> $line_info Line information to update
+   * @return bool True if event was handled
+   */
+  private function handleTernaryEvents(string $event_type, array $event_data, array &$line_info): bool {
+    switch ($event_type) {
+      case 'TERNARY_THEN':
+        // Push TERNARY_OPERATOR context
+        $this->blockStack[] = self::TERNARY_OPERATOR;
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+        // If line also ends with list open token, push LIST_MULTILINE
+        if ($event_data['has_list_open']) {
+          $this->blockStack[] = self::LIST_MULTILINE;
+        }
+        return true;
+
+      case 'TERNARY_ELSE':
+        // Pop all CHAINED_BLOCK contexts before handling ternary else
+        while ($this->getStackTop() === self::CHAINED_BLOCK) {
+          array_pop($this->blockStack);
+        }
+
+        // Calculate indentation at current level
+        $line_info['expected_indent'] = count($this->blockStack) * self::SPACES;
+
+        // If line ends with list open token, push LIST_MULTILINE
+        if ($event_data['has_list_open'] ?? false) {
+          $this->blockStack[] = self::LIST_MULTILINE;
+          return true;
+        }
+
+        // If line ends with closing parenthesis, pop ONE TERNARY_OPERATOR (the one inside parens)
+        if (($event_data['has_list_close'] ?? false) && $this->getStackTop() === self::TERNARY_OPERATOR) {
+          array_pop($this->blockStack);
+          return true;
+        }
+
+        // If line ends with semicolon, pop ALL TERNARY_OPERATOR contexts
+        if (($event_data['has_semicolon'] ?? false) && $this->getStackTop() === self::TERNARY_OPERATOR) {
+          while ($this->getStackTop() === self::TERNARY_OPERATOR) {
+            array_pop($this->blockStack);
+          }
+          return true;
+        }
+
+        // If line ends with comma and LIST_MULTILINE is in stack, pop TERNARY_OPERATOR contexts
+        if (
+          ($event_data['has_comma'] ?? false)
+          && in_array(self::LIST_MULTILINE, $this->blockStack, true)
+        ) {
+          while ($this->getStackTop() === self::TERNARY_OPERATOR) {
+            array_pop($this->blockStack);
+          }
+          return true;
+        }
+
+        return false;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Detects what kind of event this line represents.
+   * 
+   * This is the foundation for the state machine refactoring.
+   * 
+   * @param array<int, string|int> $line_tokens Tokens on the line
+   * @param int|string $first_token First significant token
+   * @param int|string $last_token Last significant token
+   * @return array{type: string, data: array<string, mixed>} Event type and associated data
+   */
+  private function detectEvent(array $line_tokens, $first_token, $last_token): array {
+    // Block closure with immediate block opening (e.g., "} else {")
+    if (
+      $first_token === T_CLOSE_CURLY_BRACKET
+      && $last_token === T_OPEN_CURLY_BRACKET
+      && $this->getStackTop() === self::BLOCK
+    ) {
+      return ['type' => 'BLOCK_CLOSE_BLOCK_OPEN', 'data' => []];
+    }
+
+    // Closure closure with comma (e.g., "},") - preserves LIST_MULTILINE
+    // This must come BEFORE generic BLOCK_CLOSE to prevent stack corruption
+    if (
+      $first_token === T_CLOSE_CURLY_BRACKET
+      && $last_token === T_COMMA
+      && $this->getStackTop() === self::BLOCK
+    ) {
+      return ['type' => 'CLOSURE_CLOSE_COMMA', 'data' => []];
+    }
+
+    // Block closure
+    if ($first_token === T_CLOSE_CURLY_BRACKET && $this->getStackTop() === self::BLOCK) {
+      return ['type' => 'BLOCK_CLOSE', 'data' => []];
+    }
+
+    // Closure opening: function(...) { 
+    // Detected by T_FUNCTION or T_CLOSURE as first token within a LIST_MULTILINE context
+    // This should preserve the LIST_MULTILINE context on the stack
+    if (
+      in_array($first_token, [T_FUNCTION, T_CLOSURE])
+      && $last_token === T_OPEN_CURLY_BRACKET
+      && in_array(self::LIST_MULTILINE, $this->blockStack, true)
+    ) {
+      return ['type' => 'CLOSURE_OPEN', 'data' => []];
+    }
+
+    // Block opening (not after list closure, not switch, not match, not closure)
+    if (
+      $last_token === T_OPEN_CURLY_BRACKET
+      && !in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
+      && $first_token !== T_SWITCH
+      && !$this->isMatchExpression($line_tokens)
+    ) {
+      return ['type' => 'BLOCK_OPEN', 'data' => []];
+    }
+
+    // List opening
+    if (
+      !in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
+      && !in_array($first_token, [T_INLINE_THEN, T_INLINE_ELSE])
+      && in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)
+    ) {
+      return ['type' => 'LIST_OPEN', 'data' => []];
+    }
+
+    // List closure (simple)
+    if (
+      in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
+      && $last_token !== T_OPEN_CURLY_BRACKET
+    ) {
+      return ['type' => 'LIST_CLOSE', 'data' => ['has_semicolon' => $last_token === T_SEMICOLON]];
+    }
+
+    // List closure with block opening
+    if (
+      in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
+      && $last_token === T_OPEN_CURLY_BRACKET
+    ) {
+      return ['type' => 'LIST_CLOSE_BLOCK_OPEN', 'data' => []];
+    }
+
+    // List closure with semicolon (special case like ']);')
+    // CRITICAL: Only match if line STARTS with closing token, not just contains one
+    if (
+      $last_token === T_SEMICOLON
+      && count($line_tokens) >= 2
+      && in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
+      && in_array($line_tokens[count($line_tokens) - 2], self::LIST_MULTILINE_CLOSE_TOKENS)
+    ) {
+      return ['type' => 'LIST_CLOSE_SEMICOLON', 'data' => []];
+    }
+
+    // Method chaining start
+    if (in_array($first_token, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR])) {
+      return ['type' => 'METHOD_CHAIN', 'data' => ['has_semicolon' => $last_token === T_SEMICOLON, 'has_comma' => $last_token === T_COMMA]];
+    }
+
+    // Match expression opening
+    if ($last_token === T_OPEN_CURLY_BRACKET && $this->isMatchExpression($line_tokens)) {
+      return ['type' => 'MATCH_OPEN', 'data' => []];
+    }
+
+    // Match expression with T_MATCH as last token (special case)
+    if ($last_token === T_MATCH) {
+      return ['type' => 'MATCH_KEYWORD', 'data' => []];
+    }
+
+    // Match expression closure
+    if ($first_token === T_CLOSE_CURLY_BRACKET && $this->getStackTop() === self::MATCH_EXPRESSION) {
+      return ['type' => 'MATCH_CLOSE', 'data' => []];
+    }
+
+    // Switch block opening
+    if ($first_token === T_SWITCH) {
+      return ['type' => 'SWITCH_OPEN', 'data' => []];
+    }
+
+    // Case/default block - detect when SWITCH_BLOCK is in stack (may have CASE_BLOCK on top)
+    if (
+      in_array($first_token, [T_CASE, T_DEFAULT])
+      && in_array(self::SWITCH_BLOCK, $this->blockStack, true)
+    ) {
+      return ['type' => 'CASE_START', 'data' => []];
+    }
+
+    // Case block closure (return/break/throw)
+    if (in_array($first_token, [T_RETURN, T_BREAK, T_THROW]) && $this->getStackTop() === self::CASE_BLOCK) {
+      return ['type' => 'CASE_END', 'data' => []];
+    }
+
+    // Switch/case closure (closing brace)
+    if ($first_token === T_CLOSE_CURLY_BRACKET && in_array($this->getStackTop(), [self::SWITCH_BLOCK, self::CASE_BLOCK])) {
+      return ['type' => 'SWITCH_CASE_CLOSE', 'data' => []];
+    }
+
+    // Assignment multiline opening
+    if ($last_token === T_EQUAL) {
+      return ['type' => 'ASSIGNMENT_OPEN', 'data' => []];
+    }
+
+    // Assignment multiline closure
+    if ($last_token === T_SEMICOLON && $this->getStackTop() === self::ASSIGNATION_MULTILINE) {
+      return ['type' => 'ASSIGNMENT_CLOSE', 'data' => []];
+    }
+
+    // Ternary operator '?'
+    if ($first_token === T_INLINE_THEN) {
+      return ['type' => 'TERNARY_THEN', 'data' => ['has_list_open' => in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)]];
+    }
+
+    // Ternary operator ':'
+    if ($first_token === T_INLINE_ELSE) {
+      return ['type' => 'TERNARY_ELSE', 'data' => [
+        'has_semicolon' => $last_token === T_SEMICOLON,
+        'has_comma' => $last_token === T_COMMA,
+        'has_list_close' => in_array($last_token, self::LIST_MULTILINE_CLOSE_TOKENS),
+        'has_list_open' => in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)
+      ]];
+    }
+
+    // Generic list opening (fallback for lines ending with list open tokens)
+    if (in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)) {
+      return ['type' => 'GENERIC_LIST_OPEN', 'data' => []];
+    }
+
+    // Default: regular line
+    return ['type' => 'REGULAR', 'data' => []];
   }
 
 }

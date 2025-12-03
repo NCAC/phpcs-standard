@@ -30,6 +30,7 @@
 !.husky
 !docs
 !scripts
+!e2e-tests
 #
 # docker
 !.docker
@@ -45,7 +46,6 @@
 !.docker/post-create-command.sh
 !.docker/generate-env.sh
 #
-
 #
 !/NCAC
 !/tests

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC-E2E-Tests">
+  <description>NCAC coding standard for E2E tests (NCAC rules only, no external standards)</description>
+
+  <!-- Include only NCAC-specific sniffs for E2E testing -->
+  <rule ref="NCAC.WhiteSpace.TwoSpacesIndent"/>
+  <rule ref="NCAC.NamingConventions.PascalCaseClassName"/>
+  <rule ref="NCAC.NamingConventions.MethodName"/>
+  <rule ref="NCAC.NamingConventions.FunctionName"/>
+  <rule ref="NCAC.Formatting.OpeningBraceKAndR"/>
+  <rule ref="NCAC.Formatting.ClassOpeningSpacing"/>
+  <rule ref="NCAC.Formatting.ClassClosingSpacing"/>
+  <rule ref="NCAC.ControlStructures.SwitchDeclaration"/>
+</ruleset>

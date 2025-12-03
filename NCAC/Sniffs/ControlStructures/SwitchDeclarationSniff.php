@@ -111,7 +111,6 @@ class SwitchDeclarationSniff implements Sniff {
         $opener = $tokens[$next_case]['scope_opener'];
         $closer = $tokens[$next_case]['scope_closer'];
         $found_content = false;
-        
         // Loop through all tokens in the case/default block
         for ($i = $opener + 1; $i < $closer; $i++) {
           // Skip nested case statements to avoid false positives
@@ -130,7 +129,6 @@ class SwitchDeclarationSniff implements Sniff {
             break;
           }
         }
-        
         // Report errors for empty blocks with appropriate messages
         if ($found_content === false) {
           if ($type === 'Default') {

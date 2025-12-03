@@ -59,6 +59,35 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
       case 'TwoSpacesIndentSniff.goodClass.inc':
         return [];
 
+      case 'TwoSpacesIndentSniff.goodClosureInFunctionCall.inc':
+        // TODO: Fix closure indentation detection - currently detects false positives
+        return [];
+
+      case 'TwoSpacesIndentSniff.testClosureMinimal.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.testClosureWithArg.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.testClosureWithAssignment.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.testExactCopy.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.badClosureInFunctionCall.inc':
+        return [
+          7 => 1,   // return strtoupper - wrong indentation (0 spaces instead of 4)
+          8 => 1,   // }, $input - wrong indentation (0 spaces instead of 2)
+          17 => 1,  // }, $input - wrong indentation (2 spaces instead of 0)
+          23 => 1,  // $value = $matches[1]; - wrong indentation (0 spaces instead of 4)
+          24 => 1,  // return strtoupper - wrong indentation (0 spaces instead of 4)
+          32 => 1,  // return strtoupper - wrong indentation (6 spaces instead of 4)
+          41 => 1,  // if (isset - wrong indentation (0 spaces instead of 4)
+          42 => 1,  // return strtoupper - wrong indentation (0 spaces instead of 6)
+          43 => 1,  // } - wrong indentation (0 spaces instead of 4)
+          44 => 1,  // return ''; - wrong indentation (0 spaces instead of 4)
+        ];
 
       case 'TwoSpacesIndentSniff.badTernaryExpression.inc':
         return [
@@ -144,6 +173,52 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           20 => 1   // ->getResult() wrong indentation (10 spaces instead of 6)
         ];
 
+      case 'TwoSpacesIndentSniff.goodClosure.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.badClosure.inc':
+        return [
+          7 => 1,   // closureInReturnStatement: return $x * 2; wrong indentation (6 spaces instead of 2)
+          17 => 1,  // closureInVariableAssignment: return $item->getValue(); wrong indentation (4 spaces instead of 2)
+        ];
+
+      case 'TwoSpacesIndentSniff.goodAttributes.inc':
+        return [];
+
+      case 'TwoSpacesIndentSniff.badArrowFunction.inc':
+        return [
+          5 => 1,   // Arrow function body wrong indentation (4 spaces instead of 2)
+          6 => 1,   // 'id' => $item->id, wrong indentation (0 spaces instead of 2)
+          11 => 1,  // fn($user) => [ wrong indentation (0 spaces instead of 2)
+          12 => 1,  // 'id' => $user->getId() wrong indentation (0 spaces instead of 4)
+          13 => 1,  // 'email' => $user->getEmail() wrong indentation (0 spaces instead of 4)
+          14 => 1,  // ], wrong indentation (0 spaces instead of 2)
+          15 => 1,  // $users wrong indentation (0 spaces instead of 2)
+          20 => 1,  // array_map wrong indentation (0 spaces instead of 2)
+          21 => 1,  // fn($item) => wrong indentation (0 spaces instead of 4)
+          22 => 1,  // ? [ wrong indentation (0 spaces instead of 4)
+          23 => 1,  // 'id' => $item->id wrong indentation (0 spaces instead of 6)
+          24 => 1,  // 'status' => 'active' wrong indentation (0 spaces instead of 6)
+          25 => 1,  // ] wrong indentation (0 spaces instead of 4)
+          26 => 1,  // : null, wrong indentation (0 spaces instead of 2)
+          27 => 1,  // $items wrong indentation (0 spaces instead of 2)
+          28 => 1,  // ), wrong indentation (0 spaces instead of 2)
+          29 => 1,  // fn($result) => wrong indentation (0 spaces instead of 2)
+          34 => 1,  // ->validateInput($data) wrong indentation (0 spaces instead of 2)
+          35 => 1,  // ->transformToArray() wrong indentation (0 spaces instead of 2)
+          36 => 1,  // ->process() wrong indentation (0 spaces instead of 2)
+          40 => 1,  // ? fn($data) => $this->complexTransformer wrong indentation (0 spaces instead of 2)
+          41 => 1,  // ->withOptions(['strict' => true]) wrong indentation (0 spaces instead of 4)
+          42 => 1,  // ->transform($data) wrong indentation (0 spaces instead of 4)
+          43 => 1,  // : fn($data) => [ wrong indentation (0 spaces instead of 2)
+          44 => 1,  // 'raw' => $data wrong indentation (0 spaces instead of 4)
+          45 => 1,  // 'processed' => false wrong indentation (0 spaces instead of 4)
+          46 => 1,  // ]; wrong indentation (0 spaces instead of 2)
+          50 => 1,  // 200 => 'success' wrong indentation (0 spaces instead of 2)
+          51 => 1,  // 404 => 'not_found' wrong indentation (0 spaces instead of 2)
+          52 => 1,  // default => 'unknown' wrong indentation (0 spaces instead of 2)
+        ];
+
       default:
         return [];
     }
@@ -176,5 +251,4 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
-
 }

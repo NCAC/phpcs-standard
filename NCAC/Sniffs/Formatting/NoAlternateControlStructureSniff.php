@@ -95,7 +95,6 @@ class NoAlternateControlStructureSniff implements Sniff {
         // Defensive programming: could not find the matching opening T_IF
         return;
       }
-      
       // Process each if/elseif/else that uses colon syntax within this block
       for ($i = $open_pointer; $i < $stack_pointer; $i++) {
         if (in_array($tokens[$i]['code'], [T_IF, T_ELSEIF, T_ELSE], true)) {
@@ -147,12 +146,10 @@ class NoAlternateControlStructureSniff implements Sniff {
         // Defensive programming: could not find valid opening token
         return;
       }
-      
       if (!isset($structure_map[$token['code']]) || $tokens[$open_pointer]['code'] !== $structure_map[$token['code']]) {
         // Defensive programming: invalid token mapping
         return;
       }
-      
       // Process the opening structure if it uses colon syntax
       $colon = $phpcs_file->findNext(T_COLON, $open_pointer + 1, $stack_pointer);
       if ($colon !== false && $colon < $stack_pointer) {
@@ -166,7 +163,6 @@ class NoAlternateControlStructureSniff implements Sniff {
           $phpcs_file->fixer->replaceToken($colon, '{');
         }
       }
-      
       // Process the closing token (endforeach, endwhile, etc.)
       $fix = $phpcs_file->addFixableError(
         'Alternate control structure syntax is forbidden: use curly braces {}.',

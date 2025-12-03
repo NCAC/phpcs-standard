@@ -111,3 +111,18 @@ if (!defined('T_EQUAL')) {
 if (!defined('T_ANON_CLASS')) {
   define('T_ANON_CLASS', 1036);
 }
+if (!defined('T_COMMA')) {
+  define('T_COMMA', 1037);
+}
+if (!defined('T_START_HEREDOC')) {
+  define('T_START_HEREDOC', 1038);
+}
+if (!defined('T_START_NOWDOC')) {
+  define('T_START_NOWDOC', 1039);
+}
+if (!defined('T_END_HEREDOC')) {
+  define('T_END_HEREDOC', 1040);
+}
+if (!defined('T_END_NOWDOC')) {
+  define('T_END_NOWDOC', 1041);
+}

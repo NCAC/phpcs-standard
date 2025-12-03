@@ -27,7 +27,7 @@
     // Intelephense configuration (PHP language server)
     "intelephense.environment.documentRoot": "/apps/cms/darty-multisite/web",
     "intelephense.completion.maxItems": 500,
-    "intelephense.environment.phpVersion": "7.4.30",
+    "intelephense.environment.phpVersion": "^8",
     // Universal exclusions for all folders
     "files.exclude": {
       "**/.git": true,
@@ -38,7 +38,7 @@
       "**/node_modules": true
     },
     // Editor formatting settings
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
@@ -49,14 +49,25 @@
       "editor.defaultFormatter": "valeryanm.vscode-phpsab"
     },
     // PHPSAB (PHP CS Fixer/PHPCS integration, for linting and auto-fix)
-    "phpsab.fixerEnable": true,
-    "phpsab.standard": "/workspace/NCAC/ruleset.xml",
-    "phpsab.executablePathCS": "/workspace/vendor/bin/phpcs",
-    "phpsab.executablePathCBF": "/workspace/vendor/bin/phpcbf",
-    // Activation du formatage automatique via phpsab
+    // "phpsab.fixerEnable": true,
+    "phpsab.executablePathCBF": "${workspaceFolder}/vendor/bin/phpcbf",
+    "phpsab.executablePathCS": "${workspaceFolder}/vendor/bin/phpcs",
     "phpsab.allowedAutoRulesets": ["/workspace/NCAC/ruleset.xml"],
     "phpsab.snifferEnable": true,
-    "phpsab.snifferMode": "onSave"
+    "phpsab.snifferMode": "onSave",
+    "phpsab.standard": "${workspaceFolder}/NCAC/ruleset.xml",
+    "phpsab.snifferTypeDelay": 250,
+    "phpsab.fixerEnable": true,
+    "phpsab.fixerEnableOnSave": false,
+  
+  // File associations
+  "files.associations": {
+    "*.inc": "php"
+  },
+  
+  
+  
+
   },
   "extensions": {
     "recommendations": [
@@ -73,7 +84,8 @@
       "jannisx11.batch-rename-extension",
       // GitHub Actions integration
       "github.vscode-github-actions",
-      "github.vscode-pull-request-github"
+      "github.vscode-pull-request-github",
+      "maptz.regionfolder"
     ]
   },
   "launch": {
