@@ -75,8 +75,10 @@ This is an **opinionated** standard that makes specific choices about code forma
 
 - Extends **Slevomat Coding Standard** for type safety and structural rules
 - Adds **7 custom sniffs** for specific formatting requirements
-- Compatible with **PHP 7.4+ features** including typed properties and enums
+- Requires **PHP 8.0+** for modern type safety features (union types, named arguments, etc.)
 - Designed for **auto-fixing** to minimize manual formatting work
+
+> **Note:** For PHP 7.4 support, use version `^1.2.0`. See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) for migration details.
 
 ### **Opinionated Choices**
 
@@ -103,13 +105,18 @@ This is an **opinionated** standard that makes specific choices about code forma
 
 ## 📊 Quality Assurance
 
-### Continuous Integration (PHP 7.4 - 8.2)
+### Continuous Integration (PHP 8.0 - 8.2)
 
 [![Psalm Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=psalm)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 [![PHPCS Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpcs)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 [![PHPUnit Tests](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpunit)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
 
 ## ⚡ Quick Start
+
+### Requirements
+
+- **PHP 8.0+** (for PHP 7.4 support, use version `^1.2.0`)
+- Composer
 
 ### Installation
 
