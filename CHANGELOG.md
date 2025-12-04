@@ -1,5 +1,61 @@
 # Changelog
 
+# [3.0.0](https://github.com/ncac/phpcs-standard/compare/v1.2.0...v3.0.0) (2025-12-04)
+
+
+### chore
+
+* add codecov configuration and exclude dev tools ([](https://github.com/ncac/phpcs-standard/commit/ff12537f1b02f4ab83c47ac5ed8cb1604b338bdb))
+* clean readme.md ([](https://github.com/ncac/phpcs-standard/commit/60f06126f796c19a1bd9b8506c7866dc30741f34))
+* upgrade PHP 8.2 ([](https://github.com/ncac/phpcs-standard/commit/e66ce4322608cca531eb620a419f99e3a03eb490))
+
+
+### feat
+
+* add comprehensive e2e test suite ([](https://github.com/ncac/phpcs-standard/commit/9da024901823e65e11c7a3e84c904031818c4083))
+* require PHP 8.1+ and add comprehensive improvements ([](https://github.com/ncac/phpcs-standard/commit/ebf0098273b857ac6aac7a7d570f425316cd398c)), closes [#18](https://github.com/ncac/phpcs-standard/issues/18)
+
+
+### fix
+
+* Correct closure indentation detection in TwoSpacesIndentSniff ([](https://github.com/ncac/phpcs-standard/commit/5cca95f9ce2560b19fd81d9fe945f21d5714a2c8))
+
+
+### refacto
+
+* clean up and optimize NCAC sniffs ([](https://github.com/ncac/phpcs-standard/commit/9c4dfb3df33887fbbc92798321f4be80fb78f1db))
+
+
+### release
+
+* v1.2.1 ([](https://github.com/ncac/phpcs-standard/commit/057bc7176cf5a046da74122d04e21ff6544067da))
+
+
+### BREAKING CHANGE
+
+* Minimum PHP version is now 8.1 (was 7.4)
+
+This release consolidates multiple improvements and establishes PHP 8.1+
+as the baseline for modern PHP development:
+
+- Require PHP ^8.1 to match PHPUnit 10, Phing 3, and Symfony 6 requirements
+- Add comprehensive e2e test suite with Phing integration
+- Fix closure indentation detection in TwoSpacesIndentSniff
+- Refactor and optimize NCAC sniffs for better performance
+- Add codecov configuration and exclude dev tools
+- Update CI to test PHP 8.1, 8.2, 8.3 only
+- Constrain symfony/console to ^6.0 for PHP 8.1 compatibility
+- Add BREAKING_CHANGES.md with migration guide
+- Update README.md with PHP 8.1+ requirement
+
+Why PHP 8.1+?
+- PHP 7.4 EOL: November 2022
+- PHP 8.0 EOL: November 2023
+- PHPUnit 10, Phing 3, Symfony 6/7 all require PHP 8.1+
+- Aligns with modern PHP ecosystem (Laravel 10+, Symfony 6+)
+
+Migration: Projects on PHP <8.1 should stay on v1.2.0 until they upgrade.
+
 # [2.0.0](https://github.com/ncac/phpcs-standard/compare/v1.2.0...v2.0.0) (2025-12-04)
 
 
