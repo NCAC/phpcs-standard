@@ -37,7 +37,7 @@ function _internal_helper(string $data): string {
     // Should detect errors for double underscore and leading underscore
     $has_double_underscore_error = false;
     $has_leading_underscore_error = false;
-    
+
     foreach ($result1['lines'] as $line) {
       if (strpos($line, 'mymodule_preprocess_node__homepage') !== false && strpos($line, 'snake_case') !== false) {
         $has_double_underscore_error = true;
@@ -87,7 +87,7 @@ function _internal_helper(string $data): string {
     $this->step("Testing Drupal hooks WITH allowDoubleUnderscore...");
 
     $file3 = $this->runner->createTestFile('drupal-hooks-with-option.php', $drupal_content);
-    
+
     // Use runPhpcs but with custom standard
     $result3 = $this->runner->runPhpcs($file3, [
       'standard' => $ruleset_file,
@@ -138,7 +138,7 @@ function _internal_helper() {
       'standard' => $ruleset_file,
       'sniffs' => 'NCAC.NamingConventions.FunctionName',
     ]);
-    
+
     $fixed_content = file_get_contents($file4);
 
     // Check that calculateTotalPrice was fixed
