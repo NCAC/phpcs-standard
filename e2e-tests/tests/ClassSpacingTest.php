@@ -101,7 +101,6 @@ namespace Test;
 
 class BadClass {
   private $value = 1;
-
 }
 ';
 
