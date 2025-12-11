@@ -45,6 +45,7 @@ class FunctionNameSniff implements Sniff {
    * - hook_theme_suggestions_paragraph__alter() for paragraph suggestions
    *
    * @var bool
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
   public $allowDoubleUnderscore = false;
 
@@ -55,6 +56,7 @@ class FunctionNameSniff implements Sniff {
    * directly from outside the module/file.
    *
    * @var bool
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
   public $allowLeadingUnderscore = false;
 

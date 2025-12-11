@@ -135,7 +135,8 @@ class StringCaseHelper {
       '/_([a-z])/',
       function ($matches) {
         return strtoupper($matches[1]);
-      }, $camel_case_string
+      },
+      $camel_case_string
     );
     return $camel_case_string;
   }
@@ -155,12 +156,12 @@ class StringCaseHelper {
       $leading_underscore = '_';
       $string = substr($string, 1);
     }
-    
+
     // Insert underscore before each uppercase (except at the start)
     $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string);
     // Convert to lowercase
     $string = strtolower($string);
-    
+
     // Handle double underscores
     if (!$allow_double_underscore) {
       // Replace double underscores with single
@@ -169,15 +170,15 @@ class StringCaseHelper {
       // Only replace 3+ underscores with double underscores
       $string = preg_replace('/_{3,}/', '__', $string);
     }
-    
+
     // Remove trailing underscores
     $string = rtrim($string, '_');
-    
+
     // Remove leading underscores only if not allowed
     if (!$allow_leading_underscore) {
       $string = ltrim($string, '_');
     }
-    
+
     return $leading_underscore . $string;
   }
 
