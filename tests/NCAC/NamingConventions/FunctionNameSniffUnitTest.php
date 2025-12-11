@@ -54,6 +54,10 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
           // Lines 20-25 contain class methods - should not trigger errors
         ];
 
+      case 'FunctionNameSniffUnitTest.drupal.inc':
+        // All functions should be valid with Drupal options enabled
+        return [];
+
       default:
         return [];
 

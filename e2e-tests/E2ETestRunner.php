@@ -67,6 +67,7 @@ class E2ETestRunner {
       ClosureIndentationTest::class,
       MethodChainingTest::class,
       ClassSpacingTest::class,
+      DrupalHooksTest::class,
       SelfComplianceTest::class,
     ];
   }
@@ -272,5 +273,4 @@ class E2ETestRunner {
       throw new \Exception($message ?: "Expected false but got true");
     }
   }
-
 }

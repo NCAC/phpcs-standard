@@ -88,8 +88,12 @@ class StringCaseHelper {
   /**
    * Checks if a string is in snake_case (lowercase, digits, underscores).
    *
+   * @param string $string The string to check.
+   * @param bool $allow_double_underscore Allow double underscores (__) in the string.
+   * @param bool $allow_leading_underscore Allow leading underscore (_) in the string.
+   * @return bool True if the string is in snake_case, false otherwise.
    */
-  public function isSnakeCase(string $string): bool {
+  public function isSnakeCase(string $string, bool $allow_double_underscore = false, bool $allow_leading_underscore = false): bool {
     // If the string is all lowercase, it's valid snake_case
     if (ctype_lower($string)) {
       return true;
@@ -98,12 +102,16 @@ class StringCaseHelper {
     if (!preg_match('/^[a-z0-9_]+$/', $string)) {
       return false;
     }
-    // No double underscores
-    if (strpos($string, '__') !== false) {
+    // Check double underscores if not allowed
+    if (!$allow_double_underscore && strpos($string, '__') !== false) {
       return false;
     }
-    // No leading/trailing underscore
-    if ($string[0] === '_' || substr($string, -1) === '_') {
+    // Check leading underscore if not allowed
+    if (!$allow_leading_underscore && $string[0] === '_') {
+      return false;
+    }
+    // No trailing underscore
+    if (substr($string, -1) === '_') {
       return false;
     }
     // Must contain at least one lowercase letter
@@ -135,17 +143,42 @@ class StringCaseHelper {
   /**
    * Converts a string to snake_case (e.g. MyVariable → my_variable).
    *
+   * @param string $string The string to convert.
+   * @param bool $allow_double_underscore Preserve double underscores (__) in the string.
+   * @param bool $allow_leading_underscore Preserve leading underscore (_) in the string.
+   * @return string The converted snake_case string.
    */
-  public function toSnakeCase(string $string): string {
+  public function toSnakeCase(string $string, bool $allow_double_underscore = false, bool $allow_leading_underscore = false): string {
+    // Preserve leading underscore if allowed
+    $leading_underscore = '';
+    if ($allow_leading_underscore && $string[0] === '_') {
+      $leading_underscore = '_';
+      $string = substr($string, 1);
+    }
+    
     // Insert underscore before each uppercase (except at the start)
     $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string);
     // Convert to lowercase
     $string = strtolower($string);
-    // Replace double underscores with single
-    $string = preg_replace('/_+/', '_', $string);
-    // Remove leading/trailing underscores
-    $string = trim($string, '_');
-    return $string;
+    
+    // Handle double underscores
+    if (!$allow_double_underscore) {
+      // Replace double underscores with single
+      $string = preg_replace('/_+/', '_', $string);
+    } else {
+      // Only replace 3+ underscores with double underscores
+      $string = preg_replace('/_{3,}/', '__', $string);
+    }
+    
+    // Remove trailing underscores
+    $string = rtrim($string, '_');
+    
+    // Remove leading underscores only if not allowed
+    if (!$allow_leading_underscore) {
+      $string = ltrim($string, '_');
+    }
+    
+    return $leading_underscore . $string;
   }
 
   /**
