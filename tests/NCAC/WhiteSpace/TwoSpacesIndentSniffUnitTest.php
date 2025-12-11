@@ -105,7 +105,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
 
       case 'TwoSpacesIndentSniff.goodTernaryExpression.inc':
         return [];
-        break;
 
       case 'TwoSpaces.badMultilineConditions.inc':
         return [
@@ -251,4 +250,5 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
+
 }
