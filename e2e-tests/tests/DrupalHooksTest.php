@@ -34,6 +34,13 @@ function _internal_helper(string $data): string {
     $file1 = $this->runner->createTestFile('drupal-hooks-no-option.php', $drupal_content);
     $result1 = $this->runner->runPhpcs($file1, ['sniffs' => 'NCAC.NamingConventions.FunctionName']);
 
+    // DEBUG: Print the command output
+    echo "\n  DEBUG - PHPCS Output:\n";
+    foreach ($result1['lines'] as $line) {
+      echo "    " . $line . "\n";
+    }
+    echo "  DEBUG - Exit code: " . $result1['exit_code'] . "\n";
+
     // Should detect errors for double underscore and leading underscore
     $has_double_underscore_error = false;
     $has_leading_underscore_error = false;
@@ -46,6 +53,9 @@ function _internal_helper(string $data): string {
         $has_leading_underscore_error = true;
       }
     }
+
+    echo "  DEBUG - has_double_underscore_error: " . ($has_double_underscore_error ? 'true' : 'false') . "\n";
+    echo "  DEBUG - has_leading_underscore_error: " . ($has_leading_underscore_error ? 'true' : 'false') . "\n";
 
     $this->runner->assertTrue(
       $has_double_underscore_error,
