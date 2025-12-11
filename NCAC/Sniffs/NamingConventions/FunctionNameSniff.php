@@ -21,6 +21,10 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  *   function calculateTotalSum()  → function calculate_total_sum()
  *   function XMLParser()          → function xml_parser()
  *
+ * Configuration options:
+ *   - allowDoubleUnderscore: Allow __ in function names (for Drupal hooks)
+ *   - allowLeadingUnderscore: Allow _ prefix for private/internal functions
+ *
  * Note: This sniff only affects global functions. Class methods are handled
  * by a separate sniff with different naming conventions.
  *
@@ -31,6 +35,30 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * @link     https://github.com/ncac-php/standard
  */
 class FunctionNameSniff implements Sniff {
+
+  /**
+   * Allow double underscores (__) in function names.
+   *
+   * This is essential for Drupal projects where template suggestion hooks use
+   * double underscores to target specific templates. For example:
+   * - hook_preprocess_node__homepage() targets node--homepage.html.twig
+   * - hook_theme_suggestions_paragraph__alter() for paragraph suggestions
+   *
+   * @var bool
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
+  public $allowDoubleUnderscore = false;
+
+  /**
+   * Allow leading underscore (_) in function names.
+   *
+   * Useful for marking internal or private functions that should not be called
+   * directly from outside the module/file.
+   *
+   * @var bool
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
+  public $allowLeadingUnderscore = false;
 
   /**
    * Registers the tokens this sniff wants to listen for.
@@ -85,7 +113,7 @@ class FunctionNameSniff implements Sniff {
 
     // Step 3: Validate and fix function name casing if necessary.
     // Use StringCaseHelper for reliable case detection and conversion.
-    if (!$string_case_helper->isSnakeCase($function_name)) {
+    if (!$string_case_helper->isSnakeCase($function_name, $this->allowDoubleUnderscore, $this->allowLeadingUnderscore)) {
       $fix = $phpcs_file->addFixableError(
         "Function name '$function_name' must be in snake_case (Drupal convention).",
         $function_name_pointer,
@@ -93,7 +121,10 @@ class FunctionNameSniff implements Sniff {
       );
       if ($fix) {
         // Apply automatic fix by converting to proper snake_case
-        $phpcs_file->fixer->replaceToken($function_name_pointer, $string_case_helper->toSnakeCase($function_name));
+        $phpcs_file->fixer->replaceToken(
+          $function_name_pointer,
+          $string_case_helper->toSnakeCase($function_name, $this->allowDoubleUnderscore, $this->allowLeadingUnderscore)
+        );
       }
     }
   }

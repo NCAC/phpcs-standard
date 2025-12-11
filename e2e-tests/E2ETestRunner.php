@@ -67,6 +67,7 @@ class E2ETestRunner {
       ClosureIndentationTest::class,
       MethodChainingTest::class,
       ClassSpacingTest::class,
+      DrupalHooksTest::class,
       SelfComplianceTest::class,
     ];
   }

@@ -6,7 +6,7 @@ use NCAC\Utils\StringCaseHelper;
 use PHPUnit\Framework\TestCase;
 
 class StringCaseHelperTest extends TestCase {
-  
+
   private StringCaseHelper $helper;
 
   // --- isCamelCase ---
@@ -66,6 +66,75 @@ class StringCaseHelperTest extends TestCase {
     $this->assertFalse($this->helper->isSnakeCase('my__variable'));
     $this->assertFalse($this->helper->isSnakeCase('_my_variable'));
     $this->assertFalse($this->helper->isSnakeCase('my_variable_'));
+  }
+
+  // --- isSnakeCase with allowDoubleUnderscore ---
+  public function testIsSnakeCaseWithAllowDoubleUnderscore(): void {
+    // Without option: double underscores are rejected
+    $this->assertFalse($this->helper->isSnakeCase('my__variable', false, false));
+    $this->assertFalse($this->helper->isSnakeCase('preprocess_node__homepage', false, false));
+
+    // With option: double underscores are allowed
+    $this->assertTrue($this->helper->isSnakeCase('my__variable', true, false));
+    $this->assertTrue($this->helper->isSnakeCase('preprocess_node__homepage', true, false));
+    $this->assertTrue($this->helper->isSnakeCase('theme_suggestions_node__alter', true, false));
+  }
+
+  // --- isSnakeCase with allowLeadingUnderscore ---
+  public function testIsSnakeCaseWithAllowLeadingUnderscore(): void {
+    // Without option: leading underscores are rejected
+    $this->assertFalse($this->helper->isSnakeCase('_my_variable', false, false));
+    $this->assertFalse($this->helper->isSnakeCase('_internal_helper', false, false));
+
+    // With option: leading underscores are allowed
+    $this->assertTrue($this->helper->isSnakeCase('_my_variable', false, true));
+    $this->assertTrue($this->helper->isSnakeCase('_internal_helper', false, true));
+    $this->assertTrue($this->helper->isSnakeCase('_calculate_price', false, true));
+
+    // Trailing underscores are never allowed
+    $this->assertFalse($this->helper->isSnakeCase('my_variable_', false, true));
+  }
+
+  // --- isSnakeCase with both options ---
+  public function testIsSnakeCaseWithBothOptions(): void {
+    // With both options: both __ and leading _ are allowed
+    $this->assertTrue($this->helper->isSnakeCase('_preprocess_node__homepage', true, true));
+    $this->assertTrue($this->helper->isSnakeCase('_my__custom__function', true, true));
+  }
+
+  // --- toSnakeCase with allowDoubleUnderscore ---
+  public function testToSnakeCaseWithAllowDoubleUnderscore(): void {
+    // Without option: double underscores are collapsed to single
+    $this->assertSame('my_variable', $this->helper->toSnakeCase('my__variable', false, false));
+    $this->assertSame('my_variable', $this->helper->toSnakeCase('my___variable', false, false));
+
+    // With option: double underscores are preserved
+    $this->assertSame('my__variable', $this->helper->toSnakeCase('my__variable', true, false));
+    $this->assertSame('preprocess_node__homepage', $this->helper->toSnakeCase('preprocessNode__homepage', true, false));
+
+    // Triple+ underscores are normalized to double
+    $this->assertSame('my__variable', $this->helper->toSnakeCase('my___variable', true, false));
+    $this->assertSame('my__variable', $this->helper->toSnakeCase('my____variable', true, false));
+  }
+
+  // --- toSnakeCase with allowLeadingUnderscore ---
+  public function testToSnakeCaseWithAllowLeadingUnderscore(): void {
+    // Without option: leading underscores are removed
+    $this->assertSame('my_variable', $this->helper->toSnakeCase('_my_variable', false, false));
+    $this->assertSame('my_variable', $this->helper->toSnakeCase('_myVariable', false, false));
+
+    // With option: leading underscores are preserved
+    $this->assertSame('_my_variable', $this->helper->toSnakeCase('_my_variable', false, true));
+    $this->assertSame('_my_variable', $this->helper->toSnakeCase('_myVariable', false, true));
+    $this->assertSame('_calculate_price', $this->helper->toSnakeCase('_calculatePrice', false, true));
+  }
+
+  // --- toSnakeCase with both options ---
+  public function testToSnakeCaseWithBothOptions(): void {
+    // With both options: preserve both __ and leading _
+    $this->assertSame('_preprocess_node__homepage', $this->helper->toSnakeCase('_preprocessNode__homepage', true, true));
+    $this->assertSame('_my_custom__function', $this->helper->toSnakeCase('_myCustom__function', true, true));
+    $this->assertSame('_my__variable', $this->helper->toSnakeCase('_my__variable', true, true));
   }
 
   // --- isSnakeUpperCase ---

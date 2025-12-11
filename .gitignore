@@ -32,6 +32,17 @@
 !docs
 !scripts
 !e2e-tests
+e2e-tests/*
+!e2e-tests/README.md
+!e2e-tests/E2ETest.php
+!e2e-tests/E2ETestRunner.php
+!e2e-tests/run.php
+!e2e-tests/ruleset.xml
+!e2e-tests/tests
+e2e-tests/tests/*
+!e2e-tests/tests/*.php
+# Ignore tmp directory for E2E test artifacts
+e2e-tests/tmp/
 #
 # docker
 !.docker

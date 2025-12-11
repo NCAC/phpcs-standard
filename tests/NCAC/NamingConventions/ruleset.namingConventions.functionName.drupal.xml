@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="NCAC NamingConventions FunctionName Test (Drupal Mode)">
+  <description>Test ruleset for FunctionNameSniff with Drupal options enabled</description>
+  
+  <!-- Include only the FunctionNameSniff for testing -->
+  <rule ref="NCAC.NamingConventions.FunctionName">
+    <properties>
+      <property name="allowDoubleUnderscore" value="1"/>
+      <property name="allowLeadingUnderscore" value="1"/>
+    </properties>
+  </rule>
+</ruleset>

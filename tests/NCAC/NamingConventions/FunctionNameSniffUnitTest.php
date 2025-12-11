@@ -22,12 +22,19 @@ use NCAC\Tests\SniffUnitTest;
 class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
+   * Current test file being processed.
+   * @var string
+   */
+  private string $currentTestFile = '';
+
+  /**
    * @dataProvider fixtureProvider
    * @testdox Fixture with $fixture_file
    * Runs each fixture individually using the parent implementation.
    *
    */
   public function testFixture(string $fixture_file): void {
+    $this->currentTestFile = $fixture_file;
     parent::testFixture($fixture_file);
   }
 
@@ -54,9 +61,30 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
           // Lines 20-25 contain class methods - should not trigger errors
         ];
 
-      default:
+      case 'FunctionNameSniffUnitTest.drupal.inc':
+        // All functions should be valid with Drupal options enabled
         return [];
 
+      case 'FunctionNameSniffUnitTest.drupal-disabled.inc':
+        // Double underscores and leading underscores should be rejected when options are disabled
+        return [
+          9   => 1, // mymodule_preprocess_node__homepage (has __)
+          13  => 1, // theme_preprocess_paragraph__chapitres (has __)
+          18  => 1, // _mymodule_internal_helper (has leading _)
+          22  => 1, // _another_private_function (has leading _)
+        ];
+
+      case 'FunctionNameSniffUnitTest.drupal-fix.inc':
+        // Test PHPCBF fixes with Drupal options enabled (preserves __ and _)
+        return [
+          10  => 1, // calculateTotalPrice (should fix to calculate_total_price)
+          15  => 1, // GetUserData (should fix to get_user_data)
+          30  => 1, // _calculatePrice (should fix to _calculate_price, preserve _)
+          35  => 1, // mymodule_preprocessNode__customPage (should fix to mymodule_preprocess_node__custom_page, preserve __)
+        ];
+
+      default:
+        return [];
     }
   }
 
@@ -72,8 +100,19 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the path to the ruleset XML file for this test.
+   * 
+   * @return string Path to the ruleset file.
    */
   protected function getStandard(): string {
+    // Use Drupal-specific ruleset for Drupal test files
+    if (
+      strpos($this->currentTestFile, '.drupal.inc') !== false ||
+      strpos($this->currentTestFile, '.drupal-fix.inc') !== false
+    ) {
+      return __DIR__ . '/ruleset.namingConventions.functionName.drupal.xml';
+    }
+
+    // Use default ruleset for all other test files
     return __DIR__ . '/ruleset.namingConventions.functionName.xml';
   }
 

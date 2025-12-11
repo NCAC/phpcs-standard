@@ -1,0 +1,95 @@
+<?php
+
+// Invalid function parameters - should be snake_case
+function test_function($camel_case_param, $pascal_case_param) {
+    return $camel_case_param + $pascal_case_param;
+}
+$test_closure = function ($wrong_param) {
+    return $wrong_param;
+};
+
+// Invalid class properties - should be camelCase
+class TestClass {
+
+  public $snakeCaseProperty;
+
+  private $pascalCaseProperty;
+
+  protected $anotherSnakeCase;
+
+  public static $upperCaseStatic;
+
+  public $oldStyleVar;
+
+}
+
+// Invalid trait properties - should be camelCase
+trait TestTrait {
+
+  public $snakeCaseTrait;
+
+  private $pascalCaseTrait;
+
+}
+
+// Invalid dynamic properties - should be snake_case
+$obj = new stdClass();
+$camel_case_var = 'test';
+$pascal_case_var = 'another';
+$obj->$camel_case_var = 1;
+$obj->$pascal_case_var = 2;
+
+// Invalid local variables - should be snake_case
+function test_local_function() {
+  $local_var = 'local';
+  $camel_case_local = 'test';
+  $pascal_case_local = 'another';
+
+  return $local_var . $camel_case_local . $pascal_case_local;
+}
+
+// Invalid global variables - should be snake_case
+$global_var = 'global';
+$camel_case_global = 'test';
+$pascal_case_global = 'another';
+
+// Mixed invalid contexts
+class MixedInvalidExample {
+  public $snakeCaseProp;
+  private $pascalCaseProp;
+
+  public function testMethod($camel_case_param, $pascal_param) {
+    $local_variable = $camel_case_param;
+    $camel_case_local = $pascal_param;
+    $dynamic_var = 'property';
+    $this->$dynamic_var = $local_variable;
+
+    return $this->snakeCaseProp;
+  }
+
+}
+
+// Multiple errors on same line (parameters)
+function multiple_params($first_param, $second_param, $third_param) {
+  return $first_param + $second_param + $third_param;
+}
+
+// Complex invalid case
+class ComplexInvalidClass {
+
+  public $wrongProperty;
+
+  public static $anotherWrongProperty;
+
+  public function complexMethod($wrong_param) {
+    $wrong_local = $wrong_param;
+    $dynamic_prop = 'test';
+    $this->$dynamic_prop = $wrong_local;
+
+    global $wrong_global;
+    $wrong_global = 'global';
+
+    return $this->wrongProperty;
+  }
+
+}

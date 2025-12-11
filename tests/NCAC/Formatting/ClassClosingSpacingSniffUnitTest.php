@@ -63,4 +63,5 @@ class ClassClosingSpacingSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
+
 }

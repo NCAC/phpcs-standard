@@ -239,6 +239,51 @@ Customize Slevomat spacing rules (built-in configurability):
 </rule>
 ```
 
+### Drupal Compatibility
+
+Enable support for Drupal hook naming conventions:
+
+```xml
+<!-- Enable Drupal hook support -->
+<rule ref="NCAC.NamingConventions.FunctionName">
+    <properties>
+        <!-- Allow double underscores for Drupal hooks -->
+        <property name="allowDoubleUnderscore" value="1"/>
+        <!-- Allow leading underscores for internal functions -->
+        <property name="allowLeadingUnderscore" value="1"/>
+    </properties>
+</rule>
+```
+
+**Why this is needed:** Drupal uses double underscores (`__`) in hook function names to target specific template suggestions. For example:
+
+```php
+// ✅ Valid Drupal preprocess hook (with allowDoubleUnderscore enabled)
+function mymodule_preprocess_node__homepage(array &$variables): void {
+  // Targets node--homepage.html.twig template
+}
+
+// ✅ Valid Drupal theme suggestions hook
+function mymodule_theme_suggestions_paragraph__alter(array &$suggestions): void {
+  $suggestions[] = 'paragraph__custom';
+}
+
+// ✅ Valid internal helper function (with allowLeadingUnderscore enabled)
+function _mymodule_internal_helper(string $data): string {
+  return strtoupper($data);
+}
+```
+
+**Without these options enabled**, PHPCBF would incorrectly transform:
+
+- `mymodule_preprocess_node__homepage` → `mymodule_preprocess_node_homepage` ❌ (breaks Drupal hooks!)
+- `_internal_helper` → `internal_helper` ❌ (loses private function convention)
+
+**Configuration options:**
+
+- **`allowDoubleUnderscore`** (default: `false`): When enabled, allows `__` in function names for Drupal preprocess hooks and theme suggestions
+- **`allowLeadingUnderscore`** (default: `false`): When enabled, allows `_` prefix for marking internal/private functions
+
 > **Note:** NCAC custom sniffs (like `NCAC.Formatting.ClassClosingSpacing`, `NCAC.WhiteSpace.TwoSpacesIndent`) are not yet configurable. This is planned for future releases.
 
 ## 🛠️ Development & Contributing
