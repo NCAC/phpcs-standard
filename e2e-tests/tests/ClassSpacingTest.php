@@ -110,7 +110,11 @@ class BadClass {
 
     $has_spacing_error3 = false;
     foreach ($result3['lines'] as $line) {
-      if (strpos($line, 'blank line(s) after the class opening brace') !== false) {
+      // Check for the error message (works with both old and new format)
+      if (
+        strpos($line, 'blank line') !== false &&
+        strpos($line, 'class opening brace') !== false
+      ) {
         $has_spacing_error3 = true;
         break;
       }
