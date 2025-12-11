@@ -95,14 +95,8 @@ class SimpleClass {
     $this->success("Simple class spacing check passed");    // Test 3: Class with INCORRECT spacing (should detect error)
     $this->step("Testing class with INCORRECT spacing...");
 
-    $content3 = '<?php
-
-namespace Test;
-
-class BadClass {
-  private $value = 1;
-}
-';
+    // Use explicit \n to ensure cross-platform consistency
+    $content3 = "<?php\n\nnamespace Test;\n\nclass BadClass {\n  private \$value = 1;\n}\n";
 
     $file3 = $this->runner->createTestFile('class-spacing-bad.php', $content3);
     $result3 = $this->runner->runPhpcs($file3);
@@ -117,6 +111,16 @@ class BadClass {
         $has_spacing_error3 = true;
         break;
       }
+    }
+
+    // Debug: Print all output lines if error not found
+    if (!$has_spacing_error3) {
+      echo "\n[DEBUG] PHPCS output for BadClass:\n";
+      foreach ($result3['lines'] as $line) {
+        echo "  - " . $line . "\n";
+      }
+      echo "[DEBUG] Exit code: " . $result3['exit_code'] . "\n";
+      echo "[DEBUG] Full output:\n" . $result3['output'] . "\n";
     }
 
     $this->runner->assertTrue(
