@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.1](https://github.com/ncac/phpcs-standard/compare/v3.0.0...v3.0.1) (2025-12-11)
+
+
+### chore
+
+* **e2e:** remove debug output from ClassSpacingTest ([](https://github.com/ncac/phpcs-standard/commit/1c1ac4b17a4397b75f2265bddd8df1c3dfedb334))
+* minor format ([](https://github.com/ncac/phpcs-standard/commit/f0f3f0a8d71e8c81cd25ee2197453844199c4053))
+
+
+### fix
+
+* Correct blank line detection in ClassOpeningSpacingSniff with implements ([](https://github.com/ncac/phpcs-standard/commit/07449a8c6de7675bf19f99493b22a4e51f435963))
+* **e2e:** correct BadClass test case to have no blank line after opening brace ([](https://github.com/ncac/phpcs-standard/commit/97f0a9467b2e9dcf23e0410f69515d0ee3c2391c))
+* **e2e:** make ClassSpacingTest error detection more flexible ([](https://github.com/ncac/phpcs-standard/commit/034a7dfd96aabe5b970111d50e5fcec6ce0114e1))
+* **e2e:** remove comment from bad spacing test case ([](https://github.com/ncac/phpcs-standard/commit/8a2096fac86639c59c00e36494cf12255d16aff1))
+* **e2e:** search error message in full output instead of line by line ([](https://github.com/ncac/phpcs-standard/commit/08477168e1846cc80642c5beb8334b4e2e0c13b0))
+* **e2e:** use explicit line breaks for cross-version consistency ([](https://github.com/ncac/phpcs-standard/commit/9e60f6cf1d90d1ee908acacb8e72ed138cd20630))
+
 # [3.0.0](https://github.com/ncac/phpcs-standard/compare/v1.2.0...v3.0.0) (2025-12-04)
 
 
