@@ -92,9 +92,7 @@ class SimpleClass {
       "Simple class with comment should NOT trigger spacing error"
     );
 
-    $this->success("Simple class spacing check passed");
-
-    // Test 3: Class with INCORRECT spacing (should detect error)
+    $this->success("Simple class spacing check passed");    // Test 3: Class with INCORRECT spacing (should detect error)
     $this->step("Testing class with INCORRECT spacing...");
 
     $content3 = '<?php
@@ -102,7 +100,6 @@ class SimpleClass {
 namespace Test;
 
 class BadClass {
-  // No blank line after opening brace - should trigger error
   private $value = 1;
 
 }
