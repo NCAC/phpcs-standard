@@ -110,16 +110,6 @@ class SimpleClass {
       $has_spacing_error3 = true;
     }
 
-    // Debug: Print all output lines if error not found
-    if (!$has_spacing_error3) {
-      echo "\n[DEBUG] PHPCS output for BadClass:\n";
-      foreach ($result3['lines'] as $line) {
-        echo "  - " . $line . "\n";
-      }
-      echo "[DEBUG] Exit code: " . $result3['exit_code'] . "\n";
-      echo "[DEBUG] Full output:\n" . $result3['output'] . "\n";
-    }
-
     $this->runner->assertTrue(
       $has_spacing_error3,
       "Class without blank line should trigger spacing error"
