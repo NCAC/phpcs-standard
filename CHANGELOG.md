@@ -1,5 +1,30 @@
 # Changelog
 
+# [3.1.0](https://github.com/ncac/phpcs-standard/compare/v3.0.1...v3.1.0) (2025-12-11)
+
+
+### chore
+
+* add comprehensive .fixed files and improve test coverage ([](https://github.com/ncac/phpcs-standard/commit/af4e75971eda4e1649ccbe023a78a589588b1e24))
+* add detailed logging to DrupalHooksTest for CI debugging ([](https://github.com/ncac/phpcs-standard/commit/665c8ee32abe6683da516ac8e27ea9f07082802f))
+* fix coding standards and add phpcsSuppress annotations ([](https://github.com/ncac/phpcs-standard/commit/a4659aad81f9dbbb538649e1c536ab105c627958))
+* improve test coverage for Drupal compatibility options ([](https://github.com/ncac/phpcs-standard/commit/e29c98ddbb87cbe62d504df221738657495a1710))
+
+
+### docs
+
+* add Drupal migration guide ([](https://github.com/ncac/phpcs-standard/commit/1f3811e37279cc84f8bf98a3d86ddb36617fbbd9))
+
+
+### feat
+
+* add support for Drupal hooks with double underscores ([](https://github.com/ncac/phpcs-standard/commit/58fbf87e7204d1e745204fdce1f00079e8ca2c16))
+
+
+### fix
+
+* handle PHPCS multi-line output in DrupalHooksTest ([](https://github.com/ncac/phpcs-standard/commit/1a5514f284fb0d184fbb63872d458b6eaa2317a6))
+
 ## [3.0.1](https://github.com/ncac/phpcs-standard/compare/v3.0.0...v3.0.1) (2025-12-11)
 
 
