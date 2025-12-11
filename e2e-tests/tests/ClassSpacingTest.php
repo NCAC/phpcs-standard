@@ -102,15 +102,12 @@ class SimpleClass {
     $result3 = $this->runner->runPhpcs($file3);
 
     $has_spacing_error3 = false;
-    foreach ($result3['lines'] as $line) {
-      // Check for the error message (works with both old and new format)
-      if (
-        strpos($line, 'blank line') !== false &&
-        strpos($line, 'class opening brace') !== false
-      ) {
-        $has_spacing_error3 = true;
-        break;
-      }
+    // Check in the full output instead of individual lines (message may span multiple lines)
+    if (
+      strpos($result3['output'], 'blank line') !== false &&
+      strpos($result3['output'], 'class opening') !== false
+    ) {
+      $has_spacing_error3 = true;
     }
 
     // Debug: Print all output lines if error not found
