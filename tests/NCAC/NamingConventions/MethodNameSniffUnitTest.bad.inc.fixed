@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * Bad examples of method naming conventions.
+ * Methods in classes and traits should be camelCase, but these are not.
+ */
+class BadMethodNamingExample {
+  
+  public function __construct() {
+    // Constructor
+  }
+
+  public static function getInstance(): self {
+    return new self();
+  }
+
+  /**
+   * Improperly named method in snake_case.
+   */
+  public function myMethod(): void {
+    // Method content
+  }
+
+  public function parseXml(): void {
+    // Method content
+  }
+
+  public function convertXmlFile(): void {
+    // Method content
+  }
+
+  public function callOtherMethods(): void {
+    $this->myMethod();
+    $test = self::getInstance();
+    $test->parseXml();
+  }
+
+
+
+  protected function handleEvent(): void {
+    // Method content
+  }
+
+  private function parseData(): void {
+    // Method content
+  }// Static methods - incorrectly in snake_case
+  // PascalCase methods - also invalid (should be camelCase)
+
+
+  // ALL_CAPS method - invalid
+  private function getData(): void {
+    // Method content
+  }
+  
+
+  /**
+   * Magic methods - excluded from camelCase rules, so these are valid
+   * @return string 
+   */
+  public function __toString(): string {
+    return 'BadMethodNamingExample';
+  }
+
+}
+
+// Trait with improperly named methods
+trait BadMethodNamingTrait {
+
+  public function traitMethod(): void {
+    // Method content
+  }
+
+  protected function doComplexOperation(): void {
+    $this->traitMethod();
+  }
+
+}
+
+// Global functions are ignored by this sniff (handled by FunctionNameSniff)
+function global_snake_case_function(): void {
+  // Function content - this is actually valid for global functions
+}
+
+// Anonymous class with improper method naming
+$anonymous = new class () {
+
+  public function invalidMethod(): void {
+    // Method content
+  }
+
+  private function internalHelper(): void {
+    // Method content
+  }
+
+};

@@ -74,6 +74,15 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
           22  => 1, // _another_private_function (has leading _)
         ];
 
+      case 'FunctionNameSniffUnitTest.drupal-fix.inc':
+        // Test PHPCBF fixes with Drupal options enabled (preserves __ and _)
+        return [
+          10  => 1, // calculateTotalPrice (should fix to calculate_total_price)
+          15  => 1, // GetUserData (should fix to get_user_data)
+          30  => 1, // _calculatePrice (should fix to _calculate_price, preserve _)
+          35  => 1, // mymodule_preprocessNode__customPage (should fix to mymodule_preprocess_node__custom_page, preserve __)
+        ];
+
       default:
         return [];
     }
@@ -96,11 +105,15 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
    */
   protected function getStandard(): string {
     // Use Drupal-specific ruleset for Drupal test files
-    if (strpos($this->currentTestFile, '.drupal.inc') !== false) {
+    if (
+      strpos($this->currentTestFile, '.drupal.inc') !== false ||
+      strpos($this->currentTestFile, '.drupal-fix.inc') !== false
+    ) {
       return __DIR__ . '/ruleset.namingConventions.functionName.drupal.xml';
     }
 
     // Use default ruleset for all other test files
     return __DIR__ . '/ruleset.namingConventions.functionName.xml';
   }
+
 }
