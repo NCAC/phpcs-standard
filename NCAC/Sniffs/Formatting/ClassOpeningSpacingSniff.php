@@ -70,13 +70,9 @@ class ClassOpeningSpacingSniff implements Sniff {
     $next_token = $open_class_token + 1;
 
     // Step 1: Locate the first meaningful content after the opening brace.
-    // We skip whitespace and comments to find the actual first code element.
+    // We skip whitespace but NOT comments, as comments are valid content.
     $first_content_token = $phpcs_file->findNext(
-      [
-        T_WHITESPACE,
-        T_COMMENT,
-        T_DOC_COMMENT
-      ],
+      T_WHITESPACE,
       $next_token,
       null,
       true

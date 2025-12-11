@@ -66,6 +66,7 @@ class E2ETestRunner {
       NamingConventionsTest::class,
       ClosureIndentationTest::class,
       MethodChainingTest::class,
+      ClassSpacingTest::class,
       SelfComplianceTest::class,
     ];
   }
@@ -177,25 +178,25 @@ class E2ETestRunner {
   public function createTestFile(string $name, string $content): string {
     $file = $this->working_dir . '/e2e-tests/tmp/' . $name;
     $dir = dirname($file);
-    
+
     if (!is_dir($dir)) {
       mkdir($dir, 0755, true);
     }
-    
+
     file_put_contents($file, $content);
     $this->test_files[] = $file;
-    
+
     return $file;
   }
 
   public function runPhpcs(string $file, array $options = []): array {
     $cmd = escapeshellarg($this->phpcs_executable);
     $cmd .= ' --standard=' . escapeshellarg($this->standard);
-    
+
     // Exclude Slevomat return type hints for E2E tests (too strict for simple examples)
     $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
-    
-    
+
+
     foreach ($options as $key => $value) {
       if ($value === true) {
         $cmd .= ' --' . $key;
@@ -203,11 +204,11 @@ class E2ETestRunner {
         $cmd .= ' --' . $key . '=' . escapeshellarg($value);
       }
     }
-    
+
     $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
-    
+
     exec($cmd, $output, $exit_code);
-    
+
     return [
       'output' => implode("\n", $output),
       'exit_code' => $exit_code,
@@ -218,11 +219,11 @@ class E2ETestRunner {
   public function runPhpcbf(string $file, array $options = []): array {
     $cmd = escapeshellarg($this->phpcbf_executable);
     $cmd .= ' --standard=' . escapeshellarg($this->standard);
-    
+
     // Exclude Slevomat return type hints for E2E tests (can't auto-fix)
     $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
-    
-    
+
+
     foreach ($options as $key => $value) {
       if ($value === true) {
         $cmd .= ' --' . $key;
@@ -230,11 +231,11 @@ class E2ETestRunner {
         $cmd .= ' --' . $key . '=' . escapeshellarg($value);
       }
     }
-    
+
     $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
-    
+
     exec($cmd, $output, $exit_code);
-    
+
     return [
       'output' => implode("\n", $output),
       'exit_code' => $exit_code,
@@ -271,4 +272,5 @@ class E2ETestRunner {
       throw new \Exception($message ?: "Expected false but got true");
     }
   }
+
 }
