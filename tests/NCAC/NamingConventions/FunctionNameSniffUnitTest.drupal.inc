@@ -2,8 +2,8 @@
 
 /**
  * Valid functions when allowDoubleUnderscore and allowLeadingUnderscore are enabled.
- * @phpcs:set NCAC.NamingConventions.FunctionName allowDoubleUnderscore 1
- * @phpcs:set NCAC.NamingConventions.FunctionName allowLeadingUnderscore 1
+ * Note: This file is tested with a custom ruleset that enables Drupal options.
+ * See: ruleset.namingConventions.functionName.drupal.xml
  */
 
 // ✅ Valid Drupal preprocess hooks with double underscores

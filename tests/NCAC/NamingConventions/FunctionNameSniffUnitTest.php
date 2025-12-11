@@ -22,12 +22,19 @@ use NCAC\Tests\SniffUnitTest;
 class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
+   * Current test file being processed.
+   * @var string
+   */
+  private string $currentTestFile = '';
+
+  /**
    * @dataProvider fixtureProvider
    * @testdox Fixture with $fixture_file
    * Runs each fixture individually using the parent implementation.
    *
    */
   public function testFixture(string $fixture_file): void {
+    $this->currentTestFile = $fixture_file;
     parent::testFixture($fixture_file);
   }
 
@@ -58,9 +65,17 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
         // All functions should be valid with Drupal options enabled
         return [];
 
+      case 'FunctionNameSniffUnitTest.drupal-disabled.inc':
+        // Double underscores and leading underscores should be rejected when options are disabled
+        return [
+          9   => 1, // mymodule_preprocess_node__homepage (has __)
+          13  => 1, // theme_preprocess_paragraph__chapitres (has __)
+          18  => 1, // _mymodule_internal_helper (has leading _)
+          22  => 1, // _another_private_function (has leading _)
+        ];
+
       default:
         return [];
-
     }
   }
 
@@ -76,9 +91,16 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the path to the ruleset XML file for this test.
+   * 
+   * @return string Path to the ruleset file.
    */
   protected function getStandard(): string {
+    // Use Drupal-specific ruleset for Drupal test files
+    if (strpos($this->currentTestFile, '.drupal.inc') !== false) {
+      return __DIR__ . '/ruleset.namingConventions.functionName.drupal.xml';
+    }
+
+    // Use default ruleset for all other test files
     return __DIR__ . '/ruleset.namingConventions.functionName.xml';
   }
-
 }
