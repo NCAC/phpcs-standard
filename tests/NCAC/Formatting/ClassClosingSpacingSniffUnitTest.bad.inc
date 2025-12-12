@@ -19,7 +19,6 @@ class BadClassSpacing {
   }
 }
 
-
 class TooMuchClassSpacing {
 
   /**

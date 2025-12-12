@@ -57,12 +57,13 @@
     "[php]": {
       "editor.formatOnSave": false,
       "editor.formatOnSaveMode": "file",
-      "editor.defaultFormatter": null,
+      "editor.defaultFormatter": "shevaua.phpcs",
       "editor.codeActionsOnSave": {},
       "editor.tabSize": 2
     },
 
     "phpcs.enable": true,
+    "phpcs.standard": "/workspace/NCAC/ruleset.xml",
     "phpcs.lintOnSave": true,
     "phpcs.lintOnType": false,
     "phpcs.showWarnings": true,
@@ -73,7 +74,7 @@
     "emeraldwalk.runonsave": {
       "commands": [
         {
-          "match": "\\.php$|\\.inc$",
+          "match": "\\.php$|(?<!\\.bad)\\.inc$",
           "cmd": "cd /workspace && vendor/bin/phpcbf --standard=NCAC '${file}' || true"
         }
       ]
@@ -92,8 +93,6 @@
       "esbenp.prettier-vscode",
       // Git and workflow tools
       "gxl.git-graph-3",
-      // PHPCS/PHPCBF integration
-      "valeryanm.vscode-phpsab",
       // Debugging
       "xdebug.php-debug",
       // Batch rename utility
