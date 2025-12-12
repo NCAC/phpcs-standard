@@ -7,7 +7,8 @@
     "vscode": {
       "settings": {
         // # auto open .code-workspace file
-        "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true
+        "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true,
+        "editor.formatOnSave": false
       },
       "extensions": [
         // PHP and code quality tools

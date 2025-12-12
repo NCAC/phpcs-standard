@@ -14,5 +14,8 @@
         <include>
             <directory suffix=".php">./NCAC/</directory>
         </include>
+        <exclude>
+            <file>./NCAC/Sniffs/sniff-psalm-tokens.php</file>
+        </exclude>
     </coverage>
 </phpunit>

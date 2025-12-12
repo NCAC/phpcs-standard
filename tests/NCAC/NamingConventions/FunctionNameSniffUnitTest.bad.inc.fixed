@@ -25,25 +25,25 @@ function get_current_timestamp2() {
 }
 
 // Line 28: function with abbreviation wrong case (should be snake_case)
-function format_xml_data() {
+function format_xmldata() {
   return '<xml></xml>';
 }
 
 // Class methods should NOT trigger errors (different naming convention)
 class TestClass {
-    
-    // These camelCase methods should be ignored by FunctionNameSniff
-    public function getUserName() {
-      return 'user';
-    }
 
-    private function calculateTotal() {
-      return 100;
-    }
+  // These camelCase methods should be ignored by FunctionNameSniff
+  public function getUserName() {
+    return 'user';
+  }
 
-    protected function validateInput() {
-      return true;
-    }
+  private function calculateTotal() {
+    return 100;
+  }
+
+  protected function validateInput() {
+    return true;
+  }
 
 }
 
@@ -51,7 +51,7 @@ class TestClass {
 trait TestTrait {
 
   public function processData() {
-      return 'processed';
+    return 'processed';
   }
 
 }

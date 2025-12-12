@@ -16,18 +16,27 @@ namespace NCAC\E2ETests;
 
 class E2ETestRunner {
 
-  private string $working_dir;
-  private string $phpcs_executable;
-  private string $phpcbf_executable;
+  private string $workingDir;
+
+  private string $phpcsExecutable;
+
+  private string $phpcbfExecutable;
+
   private string $standard = 'NCAC';
+
   private int $passed = 0;
+
   private int $failed = 0;
-  private array $test_files = [];
+
+  /** 
+   * @var string[] $testFiles Files created during tests for cleanup
+   */
+  private array $testFiles = [];
 
   public function __construct(string $working_dir) {
-    $this->working_dir = $working_dir;
-    $this->phpcs_executable = $working_dir . '/vendor/bin/phpcs';
-    $this->phpcbf_executable = $working_dir . '/vendor/bin/phpcbf';
+    $this->workingDir = $working_dir;
+    $this->phpcsExecutable = $working_dir . '/vendor/bin/phpcs';
+    $this->phpcbfExecutable = $working_dir . '/vendor/bin/phpcbf';
   }
 
   /**
@@ -54,8 +63,139 @@ class E2ETestRunner {
     return $this->failed > 0 ? 1 : 0;
   }
 
+  public function getPhpcsExecutable(): string {
+    return $this->phpcsExecutable;
+  }
+
+  public function getPhpcbfExecutable(): string {
+    return $this->phpcbfExecutable;
+  }
+
+  public function getStandard(): string {
+    return $this->standard;
+  }
+
+  public function getWorkingDir(): string {
+    return $this->workingDir;
+  }
+
+  public function createTestFile(string $name, string $content): string {
+    $file = $this->workingDir . '/e2e-tests/tmp/' . $name;
+    $dir = dirname($file);
+
+    if (!is_dir($dir)) {
+      mkdir($dir, 0755, true);
+    }
+
+    file_put_contents($file, $content);
+    $this->testFiles[] = $file;
+
+    return $file;
+  }
+
+  /**
+   * 
+   * @param array<string> $options 
+   * @return array<string>
+   */
+  public function runPhpcs(string $file, array $options = []): array {
+    $cmd = escapeshellarg($this->phpcsExecutable);
+    $cmd .= ' --standard=' . escapeshellarg($this->standard);
+
+    // Exclude Slevomat return type hints for E2E tests (too strict for simple examples)
+    $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
+
+
+    foreach ($options as $key => $value) {
+      if ($value === true) {
+        $cmd .= ' --' . $key;
+      } else {
+        $cmd .= ' --' . $key . '=' . escapeshellarg($value);
+      }
+    }
+
+    $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
+
+    exec($cmd, $output, $exit_code);
+
+    return [
+      'output' => implode("\n", $output),
+      'exit_code' => $exit_code,
+      'lines' => $output,
+    ];
+  }
+
+  /**
+   * 
+   * @param array<string> $options 
+   * @return array<string>
+   */
+  public function runPhpcbf(string $file, array $options = []): array {
+    $cmd = escapeshellarg($this->phpcbfExecutable);
+
+    // Use the standard specified in options, otherwise use the default standard
+    $standard = $options['standard'] ?? $this->standard;
+    unset($options['standard']); // Avoid duplication
+
+    $cmd .= ' --standard=' . escapeshellarg($standard);
+
+    // Exclude Slevomat return type hints for E2E tests (can't auto-fix)
+    if ($standard === 'NCAC' || $standard === $this->standard) {
+      $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
+    }
+
+    foreach ($options as $key => $value) {
+      if ($value === true) {
+        $cmd .= ' --' . $key;
+      } else {
+        $cmd .= ' --' . $key . '=' . escapeshellarg($value);
+      }
+    }
+
+    $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
+
+    exec($cmd, $output, $exit_code);
+
+    return [
+      'output' => implode("\n", $output),
+      'exit_code' => $exit_code,
+      'lines' => $output,
+    ];
+  }
+
+  public function assertContains(string $needle, string $haystack, string $message = ''): void {
+    if (strpos($haystack, $needle) === false) {
+      throw new \Exception($message ?: "Expected string not found: '{$needle}'");
+    }
+  }
+
+  public function assertNotContains(string $needle, string $haystack, string $message = ''): void {
+    if (strpos($haystack, $needle) !== false) {
+      throw new \Exception($message ?: "Unexpected string found: '{$needle}'");
+    }
+  }
+
+  public function assertEquals(mixed $expected, mixed $actual, string $message = ''): void {
+    if ($expected !== $actual) {
+      throw new \Exception($message ?: "Expected '{$expected}' but got '{$actual}'");
+    }
+  }
+
+  public function assertTrue(bool $condition, string $message = ''): void {
+    if (!$condition) {
+      throw new \Exception($message ?: "Expected true but got false");
+    }
+  }
+
+  public function assertFalse(bool $condition, string $message = ''): void {
+    if ($condition) {
+      throw new \Exception($message ?: "Expected false but got true");
+    }
+  }
+
   /**
    * Discover all test classes.
+   * @return class-string<E2ETest>[] List of test class names
    */
   private function discoverTests(): array {
     return [
@@ -67,6 +207,8 @@ class E2ETestRunner {
       ClosureIndentationTest::class,
       MethodChainingTest::class,
       ClassSpacingTest::class,
+      DeclarationSpacingTest::class,
+      FixedFilesValidationTest::class,
       DrupalHooksTest::class,
       SelfComplianceTest::class,
     ];
@@ -97,14 +239,14 @@ class E2ETestRunner {
    * Check prerequisites.
    */
   private function checkPrerequisites(): bool {
-    if (!file_exists($this->phpcs_executable)) {
-      echo "❌ ERROR: PHPCS executable not found at: {$this->phpcs_executable}\n";
+    if (!file_exists($this->phpcsExecutable)) {
+      echo "❌ ERROR: PHPCS executable not found at: {$this->phpcsExecutable}\n";
       echo "   Please run: composer install\n";
       return false;
     }
 
-    if (!file_exists($this->phpcbf_executable)) {
-      echo "❌ ERROR: PHPCBF executable not found at: {$this->phpcbf_executable}\n";
+    if (!file_exists($this->phpcbfExecutable)) {
+      echo "❌ ERROR: PHPCBF executable not found at: {$this->phpcbfExecutable}\n";
       echo "   Please run: composer install\n";
       return false;
     }
@@ -145,132 +287,17 @@ class E2ETestRunner {
     } else {
       echo "⚠️  Some tests failed. Please review the output above.\n\n";
     }
-  }
+  }// Public helper methods for tests
+
 
   /**
    * Clean up test files.
    */
   private function cleanup(): void {
-    foreach ($this->test_files as $file) {
+    foreach ($this->testFiles as $file) {
       if (file_exists($file)) {
         unlink($file);
       }
-    }
-  }
-
-  // Public helper methods for tests
-
-  public function getPhpcsExecutable(): string {
-    return $this->phpcs_executable;
-  }
-
-  public function getPhpcbfExecutable(): string {
-    return $this->phpcbf_executable;
-  }
-
-  public function getStandard(): string {
-    return $this->standard;
-  }
-
-  public function getWorkingDir(): string {
-    return $this->working_dir;
-  }
-
-  public function createTestFile(string $name, string $content): string {
-    $file = $this->working_dir . '/e2e-tests/tmp/' . $name;
-    $dir = dirname($file);
-
-    if (!is_dir($dir)) {
-      mkdir($dir, 0755, true);
-    }
-
-    file_put_contents($file, $content);
-    $this->test_files[] = $file;
-
-    return $file;
-  }
-
-  public function runPhpcs(string $file, array $options = []): array {
-    $cmd = escapeshellarg($this->phpcs_executable);
-    $cmd .= ' --standard=' . escapeshellarg($this->standard);
-
-    // Exclude Slevomat return type hints for E2E tests (too strict for simple examples)
-    $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
-
-
-    foreach ($options as $key => $value) {
-      if ($value === true) {
-        $cmd .= ' --' . $key;
-      } else {
-        $cmd .= ' --' . $key . '=' . escapeshellarg($value);
-      }
-    }
-
-    $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
-
-    exec($cmd, $output, $exit_code);
-
-    return [
-      'output' => implode("\n", $output),
-      'exit_code' => $exit_code,
-      'lines' => $output,
-    ];
-  }
-
-  public function runPhpcbf(string $file, array $options = []): array {
-    $cmd = escapeshellarg($this->phpcbf_executable);
-    $cmd .= ' --standard=' . escapeshellarg($this->standard);
-
-    // Exclude Slevomat return type hints for E2E tests (can't auto-fix)
-    $cmd .= ' --exclude=SlevomatCodingStandard.TypeHints.ReturnTypeHint,SlevomatCodingStandard.TypeHints.ParameterTypeHint';
-
-
-    foreach ($options as $key => $value) {
-      if ($value === true) {
-        $cmd .= ' --' . $key;
-      } else {
-        $cmd .= ' --' . $key . '=' . escapeshellarg($value);
-      }
-    }
-
-    $cmd .= ' ' . escapeshellarg($file) . ' 2>&1';
-
-    exec($cmd, $output, $exit_code);
-
-    return [
-      'output' => implode("\n", $output),
-      'exit_code' => $exit_code,
-      'lines' => $output,
-    ];
-  }
-
-  public function assertContains(string $needle, string $haystack, string $message = ''): void {
-    if (strpos($haystack, $needle) === false) {
-      throw new \Exception($message ?: "Expected string not found: '{$needle}'");
-    }
-  }
-
-  public function assertNotContains(string $needle, string $haystack, string $message = ''): void {
-    if (strpos($haystack, $needle) !== false) {
-      throw new \Exception($message ?: "Unexpected string found: '{$needle}'");
-    }
-  }
-
-  public function assertEquals($expected, $actual, string $message = ''): void {
-    if ($expected !== $actual) {
-      throw new \Exception($message ?: "Expected '{$expected}' but got '{$actual}'");
-    }
-  }
-
-  public function assertTrue(bool $condition, string $message = ''): void {
-    if (!$condition) {
-      throw new \Exception($message ?: "Expected true but got false");
-    }
-  }
-
-  public function assertFalse(bool $condition, string $message = ''): void {
-    if ($condition) {
-      throw new \Exception($message ?: "Expected false but got true");
     }
   }
 
