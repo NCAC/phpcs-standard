@@ -5,7 +5,7 @@
  * Methods in classes and traits should be camelCase, but these are not.
  */
 class BadMethodNamingExample {
-  
+
   public function __construct() {
     // Constructor
   }
@@ -35,8 +35,6 @@ class BadMethodNamingExample {
     $test->parseXml();
   }
 
-
-
   protected function handleEvent(): void {
     // Method content
   }
@@ -51,7 +49,6 @@ class BadMethodNamingExample {
   private function getData(): void {
     // Method content
   }
-  
 
   /**
    * Magic methods - excluded from camelCase rules, so these are valid

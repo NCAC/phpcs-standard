@@ -1,0 +1,47 @@
+<?php
+
+// BAD: Closure body not indented properly (should be +2 from function line)
+$result = preg_replace_callback(
+  '/pattern/',
+  function ($matches) {
+return strtoupper($matches[1]);
+}, $input
+);
+
+// BAD: Closing brace not aligned with function
+$result = preg_replace_callback(
+  '/pattern/',
+  function ($matches) {
+    return strtoupper($matches[1]);
+  }, $input
+  );
+
+// BAD: Multiple statements without proper indentation
+$result = preg_replace_callback(
+  '/pattern/',
+  function ($matches) {
+    $value = $matches[1];
+    return strtoupper($value);
+  },
+  $input
+);
+
+// BAD: Nested closure with wrong indentation
+$mapped = array_map(
+  function ($item) {
+    return $item * 2;
+  },
+  $array
+);
+
+// BAD: Complex logic without proper indentation
+$result = preg_replace_callback(
+  '/_([a-z])/',
+  function ($matches) {
+if (isset($matches[1])) {
+return strtoupper($matches[1]);
+}
+return '';
+  },
+  $string
+);

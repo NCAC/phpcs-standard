@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC PascalCaseClassName">
+  <description>Test ruleset for NCAC PascalCaseClassName sniff</description>
+  <rule ref="NCAC.NamingConventions.PascalCaseClassName"/>
+</ruleset>
