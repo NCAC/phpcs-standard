@@ -323,6 +323,50 @@ vendor/bin/phpunit            # Unit tests
 vendor/bin/phpcs --standard=NCAC NCAC/  # Self-check
 ```
 
+## 🔧 Tool Strategy: PHPCS vs PHP-CS-Fixer
+
+NCAC uses a **strategic separation** between detection and correction to avoid conflicts and ensure reliable results:
+
+### Current Implementation (v1.0)
+
+```bash
+# Detection and simple fixes
+vendor/bin/phpcs --standard=NCAC src/ --fix
+
+# Some complex rules are detection-only (see below)
+vendor/bin/phpcs --standard=NCAC src/
+```
+
+### Why Some Rules Are Detection-Only
+
+Certain rules like **NoAlternateControlStructureSniff** intentionally provide **no automatic fixes** due to PHP_CodeSniffer's token processing limitations:
+
+- **Token conflicts**: Sequential sniffs can overwrite each other's modifications
+- **Invalid syntax**: Complex transformations can generate broken PHP code
+- **Execution order**: Later sniffs (like indentation) may undo earlier fixes
+
+**Example issue:**
+```php
+// Original: if ($x): ... endif;
+// After sniff A: if ($x) { ... }  // Fixed
+// After sniff B: if ($x) { ...    // Broken (missing closing brace)
+```
+
+### Planned Evolution (v4.x)
+
+```bash
+# 1. Complex transformations via PHP-CS-Fixer
+php-cs-fixer fix --config=.ncac-cs-fixer.php src/
+
+# 2. Simple fixes + validation via PHPCS  
+vendor/bin/phpcs --standard=NCAC src/ --fix
+
+# 3. Final validation
+vendor/bin/phpcs --standard=NCAC src/
+```
+
+> **📖 Learn more:** See [docs/PHPCS_VS_PHPCSFIXER_STRATEGY.md](docs/PHPCS_VS_PHPCSFIXER_STRATEGY.md) for technical details.
+
 ### Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for:

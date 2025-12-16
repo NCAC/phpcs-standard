@@ -71,11 +71,6 @@ class FixedFilesValidationTest extends E2ETest {
         $bad_file = $file->getPathname();
         $fixed_file = str_replace('.bad.inc', '.bad.inc.fixed', $bad_file);
 
-        // TEMPORARY: Skip NoAlternateControlStructure until bug is fixed
-        if ($base_name === 'NoAlternateControlStructureSniffUnitTest') {
-          continue;
-        }
-
         // Check that the .fixed file exists
         if (file_exists($fixed_file)) {
           $ruleset = $this->findRulesetForFixture($bad_file);
@@ -108,6 +103,7 @@ class FixedFilesValidationTest extends E2ETest {
     // Special cases that require specific rulesets
     $special_cases = [
       'DeclarationSpacingSniffUnitTest' => 'declarationSpacing',
+      'SwitchDeclarationSniffUnitTest' => 'switchDeclaration',
       // Add other special cases if needed
     ];
 

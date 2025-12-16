@@ -47,7 +47,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "NCAC\\Tests\\": "tests/NCAC/"
+      "NCAC\\Tests\\": "tests/NCAC/",
+      "NCAC\\E2ETests\\": "e2e-tests/"
     }
   },
   "config": {

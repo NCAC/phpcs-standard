@@ -27,18 +27,18 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
 
       case 'NoAlternateControlStructureSniffUnitTest.bad.inc':
         return [
-          3 => 1,
-          5 => 1,
-          7 => 1,
-          9 => 1,
-          11 => 1,
-          13 => 1,
-          15 => 1,
-          17 => 1,
-          19 => 1,
-          21 => 1,
-          23 => 1,
-          29 => 1
+          3 => 1,   // if ($a): (detection only)
+          5 => 1,   // elseif ($b): (detection only)
+          7 => 1,   // else: (detection only)
+          9 => 1,   // endif; (detection only)
+          11 => 2,  // while ($i < 10): (detection only - opening + closing)
+          13 => 1,  // endwhile; (detection only)
+          15 => 2,  // for ($i = 0; $i < 10; $i++): (detection only - opening + closing)
+          17 => 1,  // endfor; (detection only)
+          19 => 2,  // foreach ($arr as $v): (detection only - opening + closing)
+          21 => 1,  // endforeach; (detection only)
+          23 => 2,  // switch ($x): (detection only - opening + closing)
+          29 => 1   // endswitch; (detection only)
         ];
 
       default:
