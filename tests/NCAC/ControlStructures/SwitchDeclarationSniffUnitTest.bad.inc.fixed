@@ -45,7 +45,7 @@ switch ($blank_line) {
   case 5:
     echo "Five";
 
-    break;  // Blank line before break - ERROR
+  break;  // Blank line before break - ERROR
   default:
     break;
 }
