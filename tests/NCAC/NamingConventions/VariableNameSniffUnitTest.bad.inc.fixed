@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 // Invalid function parameters - should be snake_case
 function test_function($camel_case_param, $pascal_case_param) {
-    return $camel_case_param + $pascal_case_param;
+  return $camel_case_param + $pascal_case_param;
 }
 $test_closure = function ($wrong_param) {
-    return $wrong_param;
+  return $wrong_param;
 };
 
 // Invalid class properties - should be camelCase
@@ -55,7 +55,9 @@ $pascal_case_global = 'another';
 
 // Mixed invalid contexts
 class MixedInvalidExample {
+
   public $snakeCaseProp;
+
   private $pascalCaseProp;
 
   public function testMethod($camel_case_param, $pascal_param) {
@@ -64,7 +66,7 @@ class MixedInvalidExample {
     $dynamic_var = 'property';
     $this->$dynamic_var = $local_variable;
 
-    return $this->snakeCaseProp;
+    return $this->snake_case_prop;
   }
 
 }
@@ -89,7 +91,7 @@ class ComplexInvalidClass {
     global $wrong_global;
     $wrong_global = 'global';
 
-    return $this->wrongProperty;
+    return $this->Wrong_Property;
   }
 
 }

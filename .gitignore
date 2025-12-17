@@ -19,6 +19,9 @@
 !composer.json
 !composer.lock
 !CONTRIBUTING.md
+!.php-cs-fixer.dist.php
+!var/
+var/cache/
 !KNOWN-ISSUES.md
 !codecov.yml
 !ruleset.xml

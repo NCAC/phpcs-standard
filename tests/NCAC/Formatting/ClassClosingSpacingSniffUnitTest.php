@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\Formatting;
 
 use NCAC\Tests\SniffUnitTest;
-
 
 /**
  * Unit test class for the ClassClosingSpacingSniff.
@@ -20,28 +19,17 @@ class ClassClosingSpacingSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'ClassClosingSpacingSniffUnitTest.good.inc':
         return [];
       case 'ClassClosingSpacingSniffUnitTest.bad.inc':
         return [
           20 => 1, // BadClassSpacing - missing blank line before closing brace
-          33 => 1  // TooMuchClassSpacing - missing blank line before closing brace
+          32 => 1  // TooMuchClassSpacing - missing blank line before closing brace
         ];
       default:
         // No errors expected.
         return [];
     }
-  }
-
-  /**
-   * Returns the PHPCS standard (ruleset) to use for this test.
-   * Uses a minimal ruleset that only enables ClassClosingSpacing.
-   *
-   * @return string
-   */
-  protected function getStandard(): string {
-    return __DIR__ . '/ruleset.formatting.classClosingSpacing.xml';
   }
 
   /**
@@ -62,6 +50,15 @@ class ClassClosingSpacingSniffUnitTest extends SniffUnitTest {
    */
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
+  }
+
+  /**
+   * Returns the PHPCS standard (ruleset) to use for this test.
+   * Uses a minimal ruleset that only enables ClassClosingSpacing.
+   *
+   */
+  protected function getStandard(): string {
+    return __DIR__ . '/ruleset.formatting.classClosingSpacing.xml';
   }
 
 }

@@ -115,7 +115,7 @@ class FunctionNameSniff implements Sniff {
     // Use StringCaseHelper for reliable case detection and conversion.
     if (!$string_case_helper->isSnakeCase($function_name, $this->allowDoubleUnderscore, $this->allowLeadingUnderscore)) {
       $fix = $phpcs_file->addFixableError(
-        "Function name '$function_name' must be in snake_case (Drupal convention).",
+        "Function name '$function_name' must be in snake_case.",
         $function_name_pointer,
         'NotSnakeCase'
       );

@@ -25,9 +25,19 @@
     "php.validate.executablePath": "/usr/local/bin/php",
     "php.suggest.basic": false,
     // Intelephense configuration (PHP language server)
+    "intelephense.format.enable": false,
     "intelephense.environment.documentRoot": "/apps/cms/darty-multisite/web",
     "intelephense.completion.maxItems": 500,
     "intelephense.environment.phpVersion": "^8",
+
+    "files.trimTrailingWhitespace": false,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": false,
+    "files.autoSave": "off",
+    "editor.codeActionsOnSave": {},
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+
     // Universal exclusions for all folders
     "files.exclude": {
       "**/.git": true,
@@ -39,35 +49,40 @@
     },
     // Editor formatting settings
     "editor.formatOnSave": false,
+    "editor.formatOnSaveMode": "file", 
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
-    // PHP-specific editor settings
+    // PHP-specific editor settings 
     "[php]": {
-      "editor.formatOnSave": true,
-      "editor.tabSize": 2,
-      "editor.defaultFormatter": "valeryanm.vscode-phpsab"
+      "editor.formatOnSave": false,
+      "editor.tabSize": 2
     },
-    // PHPSAB (PHP CS Fixer/PHPCS integration, for linting and auto-fix)
-    // "phpsab.fixerEnable": true,
-    "phpsab.executablePathCBF": "${workspaceFolder}/vendor/bin/phpcbf",
-    "phpsab.executablePathCS": "${workspaceFolder}/vendor/bin/phpcs",
-    "phpsab.allowedAutoRulesets": ["/workspace/NCAC/ruleset.xml"],
-    "phpsab.snifferEnable": true,
-    "phpsab.snifferMode": "onSave",
-    "phpsab.standard": "${workspaceFolder}/NCAC/ruleset.xml",
-    "phpsab.snifferTypeDelay": 250,
-    "phpsab.fixerEnable": true,
-    "phpsab.fixerEnableOnSave": false,
-  
-  // File associations
-  "files.associations": {
-    "*.inc": "php"
-  },
-  
-  
-  
 
+    "phpcs.enable": true,
+    "phpcs.executablePath": "/workspace/vendor/bin/phpcs",
+    "phpcs.standard": "NCAC",
+    "phpcs.lintOnSave": true,
+    "phpcs.lintOnType": false,
+    "phpcs.showWarnings": true,
+    "phpcs.showSources": true,
+    "phpcs.ignorePatterns": [
+
+    ],
+    // Run on Save - complete workflow : PHP-CS-Fixer then PHPCBF
+    "emeraldwalk.runonsave": {
+      "commands": [
+        {
+          "match": "\\.php$|(?<!\\.bad)\\.inc$",
+          "cmd": "cd /workspace && vendor/bin/php-cs-fixer fix '${file}' --config=.php-cs-fixer.dist.php --quiet && vendor/bin/phpcbf --standard=NCAC '${file}' || true"
+        }
+      ]
+    },
+
+    // File associations
+    "files.associations": {
+      "*.inc": "php"
+    }
   },
   "extensions": {
     "recommendations": [
@@ -76,8 +91,6 @@
       "esbenp.prettier-vscode",
       // Git and workflow tools
       "gxl.git-graph-3",
-      // PHPCS/PHPCBF integration
-      "valeryanm.vscode-phpsab",
       // Debugging
       "xdebug.php-debug",
       // Batch rename utility
@@ -85,7 +98,8 @@
       // GitHub Actions integration
       "github.vscode-github-actions",
       "github.vscode-pull-request-github",
-      "maptz.regionfolder"
+      "maptz.regionfolder",
+      "emeraldwalk.runonsave"
     ]
   },
   "launch": {

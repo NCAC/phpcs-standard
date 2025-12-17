@@ -7,23 +7,19 @@
     "vscode": {
       "settings": {
         // # auto open .code-workspace file
-        "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true
+        "autoOpenWorkspace.enableAutoOpenIfSingleWorkspace": true,
+        "editor.formatOnSave": false
       },
       "extensions": [
-        // PHP and code quality tools
         "bmewburn.vscode-intelephense-client",
         "esbenp.prettier-vscode",
-        // Git and workflow tools
         "gxl.git-graph-3",
-        // PHPCS/PHPCBF integration
-        "valeryanm.vscode-phpsab",
-        // Debugging
         "xdebug.php-debug",
-        // Batch rename utility
         "jannisx11.batch-rename-extension",
-        // GitHub Actions integration
         "github.vscode-github-actions",
-        "github.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
+        "emeraldwalk.RunOnSave",
+        "shevaua.phpcs"
       ]
     }
   },

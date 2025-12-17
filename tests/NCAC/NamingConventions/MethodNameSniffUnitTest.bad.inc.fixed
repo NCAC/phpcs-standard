@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Bad examples of method naming conventions.
  * Methods in classes and traits should be camelCase, but these are not.
  */
 class BadMethodNamingExample {
-  
+
   public function __construct() {
     // Constructor
   }
@@ -35,8 +35,6 @@ class BadMethodNamingExample {
     $test->parseXml();
   }
 
-
-
   protected function handleEvent(): void {
     // Method content
   }
@@ -46,16 +44,14 @@ class BadMethodNamingExample {
   }// Static methods - incorrectly in snake_case
   // PascalCase methods - also invalid (should be camelCase)
 
-
   // ALL_CAPS method - invalid
   private function getData(): void {
     // Method content
   }
-  
 
   /**
    * Magic methods - excluded from camelCase rules, so these are valid
-   * @return string 
+   * @return string
    */
   public function __toString(): string {
     return 'BadMethodNamingExample';
@@ -83,7 +79,6 @@ function global_snake_case_function(): void {
 
 // Anonymous class with improper method naming
 $anonymous = new class () {
-
   public function invalidMethod(): void {
     // Method content
   }
@@ -91,5 +86,4 @@ $anonymous = new class () {
   private function internalHelper(): void {
     // Method content
   }
-
 };

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<ruleset name="NCAC WhiteSpace DeclarationSpacing Test">
+  <description>Test ruleset for DeclarationSpacingSniff only</description>
+
+  <!-- Only test DeclarationSpacing sniff -->
+  <rule ref="NCAC.WhiteSpace.DeclarationSpacing"/>
+</ruleset>

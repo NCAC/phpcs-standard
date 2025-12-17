@@ -27,6 +27,7 @@
     </properties>
   </rule>
   <rule ref="SlevomatCodingStandard.Classes.ClassStructure">
+    <exclude-pattern>*Test*.inc*</exclude-pattern>
     <properties>
       <property name="groups" type="array">
         <element value="uses"/>
@@ -77,11 +78,15 @@
   </rule>
   <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
     <exclude-pattern>*/Sniffs/*</exclude-pattern>
+    <exclude-pattern>*Test*.inc*</exclude-pattern>
   </rule>
   <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
     <exclude-pattern>*/Sniffs/*</exclude-pattern>
+    <exclude-pattern>*Test*.inc*</exclude-pattern>
   </rule>
-  <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint" />
+  <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
+    <exclude-pattern>*Test*.inc*</exclude-pattern>
+  </rule>
 
 
   
@@ -104,4 +109,5 @@
   <rule ref="NCAC.NamingConventions.VariableName"/>
   <rule ref="NCAC.NamingConventions.FunctionName"/>
   <rule ref="NCAC.WhiteSpace.TwoSpacesIndent"/>
+  <rule ref="NCAC.WhiteSpace.DeclarationSpacing"/>
 </ruleset>
