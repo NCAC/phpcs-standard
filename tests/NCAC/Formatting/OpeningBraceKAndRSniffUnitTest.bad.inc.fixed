@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // BAD: Class opening brace on wrong line
 class Test {
@@ -6,7 +6,7 @@ class Test {
   /**
    * @var string
    */
-  private $var = 'Test';
+  private string $var = 'Test';
 
   /**
    * This is a test function.
@@ -14,9 +14,9 @@ class Test {
    */
   public function testFunction(): void {
     if ($this->var === 'Test') {
-      echo "This is a test.";
+      echo 'This is a test.';
     } else {
-      echo "This is not a test.";
+      echo 'This is not a test.';
     }
   }
 
@@ -33,12 +33,12 @@ interface TestInterface {
 trait TestTrait {
 
   public function traitMethod(): void {
-    echo "trait";
+    echo 'trait';
   }
 
 }
 
 // BAD: Function with brace on wrong line
 function bad_function() {
-  echo "bad";
+  echo 'bad';
 }

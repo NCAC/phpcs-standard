@@ -126,13 +126,56 @@ composer require --dev ncac/phpcs-standard
 
 ### Basic Usage
 
+#### Quick Start: One-Line Command
+
+The easiest way to apply the full NCAC workflow:
+
+```bash
+# Using Composer script (recommended)
+composer ncac-fix src/
+
+# Or directly with the script
+vendor/ncac/phpcs-standard/scripts/ncac-fix.sh src/
+
+# Preview changes without applying them
+vendor/ncac/phpcs-standard/scripts/ncac-fix.sh --dry-run src/
+
+# Fix all files in current directory
+composer ncac-fix
+```
+
+This automatically runs the complete 3-step workflow for you (PHP-CS-Fixer → PHPCBF → PHPCS validation).
+
+#### Manual: Full Workflow (Advanced)
+
+If you prefer running each step manually:
+
+```bash
+# Step 1: Apply PHP-CS-Fixer for complex transformations
+vendor/bin/php-cs-fixer fix src/ --config=vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php
+
+# Step 2: Apply PHPCBF for NCAC-specific corrections
+vendor/bin/phpcbf --standard=NCAC src/
+
+# Step 3: Check remaining violations
+vendor/bin/phpcs --standard=NCAC src/
+```
+
+> **Why this workflow?** PHP-CS-Fixer handles ~95% of complex formatting (alternate syntax, spacing), while PHPCBF handles NCAC-specific rules. This combination achieves the best conformity to the standard.
+
+#### Alternative: PHPCS/PHPCBF Only
+
+If you prefer to use only PHPCS tools (without PHP-CS-Fixer):
+
 ```bash
 # Check your code
 vendor/bin/phpcs --standard=NCAC src/
 
-# Auto-fix issues
+# Auto-fix issues (may not fix all violations)
 vendor/bin/phpcbf --standard=NCAC src/
 ```
+
+> **Note:** Using PHPCBF alone may leave some violations unfixed (~60% auto-fix rate vs ~95% with the full workflow). See [docs/WORKFLOW_STRATEGY.md](docs/WORKFLOW_STRATEGY.md) for details.
 
 ### Project Configuration
 
@@ -158,6 +201,8 @@ Create a `phpcs.xml` in your project root:
 ## 📚 Documentation
 
 - **📖 [Complete Rules Reference](docs/rules-reference.md)** - Detailed examples for all 21 rules
+- **⚙️ [Workflow Strategy](docs/WORKFLOW_STRATEGY.md)** - PHP-CS-Fixer + PHPCBF integration and migration plan
+- **🔄 [Code Quality Workflow](docs/CODE_QUALITY_WORKFLOW.md)** - Auto-fixing and CI/CD integration
 - **🛠️ [Development Setup Guide](docs/dev-container-setup.md)** - VS Code Dev Container setup
 - **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
 

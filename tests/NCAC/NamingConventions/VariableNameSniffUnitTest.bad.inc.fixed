@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // Invalid function parameters - should be snake_case
 function test_function($camel_case_param, $pascal_case_param) {

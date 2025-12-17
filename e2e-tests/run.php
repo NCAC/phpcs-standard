@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Main entry point for E2E tests.
@@ -10,23 +10,19 @@
  */
 
 // Autoload all test classes
-spl_autoload_register(function ($class) {
+spl_autoload_register(function ($class): void {
   $prefix = 'NCAC\\E2ETests\\';
   $base_dir = __DIR__ . '/';
-  
-  $len = strlen($prefix);
+  $len = \strlen($prefix);
   if (strncmp($prefix, $class, $len) !== 0) {
     return;
   }
-  
   $relative_class = substr($class, $len);
-  
   // Try different locations
   $locations = [
     $base_dir . str_replace('\\', '/', $relative_class) . '.php',
     $base_dir . 'tests/' . str_replace('\\', '/', $relative_class) . '.php',
   ];
-  
   foreach ($locations as $file) {
     if (file_exists($file)) {
       require $file;

@@ -27,6 +27,7 @@
   },
   "require": {
     "php": "^8.1",
+    "friendsofphp/php-cs-fixer": "^3.64",
     "slevomat/coding-standard": "^8.22",
     "squizlabs/php_codesniffer": "^4"
   },
@@ -52,7 +53,10 @@
     }
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "platform": {
+      "php": "8.1.33"
+    }
   },
   "scripts": {
     "test": "phpunit",
@@ -63,6 +67,10 @@
       "@e2e-test"
     ],
     "check": "phing check",
-    "phing": "phing"
+    "phing": "phing",
+    "ncac-fix": "bash scripts/ncac-fix.sh"
+  },
+  "scripts-descriptions": {
+    "ncac-fix": "Run the complete NCAC quality workflow (PHP-CS-Fixer + PHPCBF + PHPCS validation)"
   }
 }

@@ -2,10 +2,10 @@
 
 // Invalid function parameters - should be snake_case
 function test_function($CamelCaseParam, $PascalCaseParam) {
-    return $CamelCaseParam + $PascalCaseParam;
+  return $CamelCaseParam + $PascalCaseParam;
 }
 $test_closure = function ($WrongParam) {
-    return $WrongParam;
+  return $WrongParam;
 };
 
 // Invalid class properties - should be camelCase

@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\Formatting;
 
 use NCAC\Tests\SniffUnitTest;
-
 
 /**
  * Unit test class for the ClassClosingSpacingSniff.
@@ -20,7 +19,6 @@ class ClassClosingSpacingSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'ClassClosingSpacingSniffUnitTest.good.inc':
         return [];
       case 'ClassClosingSpacingSniffUnitTest.bad.inc':

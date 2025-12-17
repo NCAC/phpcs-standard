@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Test file with INVALID function names for FunctionNameSniff
  * This file tests violations of snake_case naming for global functions

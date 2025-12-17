@@ -14,9 +14,6 @@ class BadMethodNamingExample {
     return new self();
   }
 
-  /**
-   * Improperly named method in snake_case.
-   */
   public function my_method(): void {
     // Method content
   }
@@ -43,11 +40,11 @@ class BadMethodNamingExample {
 
   private function parseData(): void {
     // Method content
-  }// Static methods - incorrectly in snake_case
-  // PascalCase methods - also invalid (should be camelCase)
+  }
 
 
-  // ALL_CAPS method - invalid
+
+
   private function GET_DATA(): void {
     // Method content
   }
@@ -63,7 +60,6 @@ class BadMethodNamingExample {
 
 }
 
-// Trait with improperly named methods
 trait BadMethodNamingTrait {
 
   public function trait_method(): void {
@@ -76,12 +72,10 @@ trait BadMethodNamingTrait {
 
 }
 
-// Global functions are ignored by this sniff (handled by FunctionNameSniff)
 function global_snake_case_function(): void {
   // Function content - this is actually valid for global functions
 }
 
-// Anonymous class with improper method naming
 $anonymous = new class () {
 
   public function invalid_method(): void {

@@ -39,7 +39,6 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
    * @return array<int, int> Expected errors per line
    */
   public function getErrorList(string $test_file): array {
-    
     switch ($test_file) {
       case 'MethodNameSniffUnitTest.good.inc':
         return [];
@@ -47,20 +46,19 @@ class MethodNameSniffUnitTest extends SniffUnitTest {
       case 'MethodNameSniffUnitTest.bad.inc':
         return [
           13 => 1,  // Method name 'get_instance' must be in camelCase.
-          20 => 1,  // Method name 'my_method' must be in camelCase.
-          24 => 1,  // Method name 'ParseXml' must be in camelCase.
-          40 => 1,  // Method name 'handle_event' must be in camelCase.
-          51 => 1,  // Method name 'GET_DATA' must be in camelCase.
-          69 => 1,  // Method name 'trait_method' must be in camelCase.
-          73 => 1,  // Method name 'do_complex_operation' must be in camelCase.
-          87 => 1,  // Method name 'invalid_method' must be in camelCase.
-          91 => 1  // Method name 'internal_helper' must be in camelCase.
+          17 => 1,  // Method name 'my_method' must be in camelCase.
+          21 => 1,  // Method name 'ParseXml' must be in camelCase.
+          37 => 1,  // Method name 'handle_event' must be in camelCase.
+          48 => 1,  // Method name 'GET_DATA' must be in camelCase.
+          65 => 1,  // Method name 'trait_method' must be in camelCase.
+          69 => 1,  // Method name 'do_complex_operation' must be in camelCase.
+          81 => 1,  // Method name 'invalid_method' must be in camelCase.
+          85 => 1  // Method name 'internal_helper' must be in camelCase.
         ];
 
       default:
         return [];
     }
-
   }
 
   /**

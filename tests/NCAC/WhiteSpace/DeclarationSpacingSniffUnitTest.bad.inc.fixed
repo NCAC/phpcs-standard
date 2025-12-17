@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 // Multiple spaces between function keyword and name
 function my_function(): void {
-  echo "test";
+  echo 'test';
 }
 
 function another_function(): string {
@@ -12,7 +12,7 @@ function another_function(): string {
 class TestClass {
 
   public function methodWithSpaces(): void {
-    echo "test";
+    echo 'test';
   }
 
 }
@@ -26,15 +26,13 @@ interface TestInterface {
 trait TestTrait {
 
   public function traitMethod(): void {
-    echo "trait";
+    echo 'trait';
   }
 
 }
 
 enum Status {
-
   case PENDING;
-
 }
 
 abstract class AbstractClass {
@@ -50,7 +48,7 @@ abstract class AbstractClass {
 final class FinalClass {
 
   final public function finalMethod(): void {
-    echo "final";
+    echo 'final';
   }
 
 }

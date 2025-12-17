@@ -56,26 +56,25 @@
     // PHP-specific editor settings 
     "[php]": {
       "editor.formatOnSave": false,
-      "editor.formatOnSaveMode": "file",
-      "editor.defaultFormatter": "shevaua.phpcs",
-      "editor.codeActionsOnSave": {},
       "editor.tabSize": 2
     },
 
     "phpcs.enable": true,
-    "phpcs.standard": "/workspace/NCAC/ruleset.xml",
+    "phpcs.executablePath": "/workspace/vendor/bin/phpcs",
+    "phpcs.standard": "NCAC",
     "phpcs.lintOnSave": true,
     "phpcs.lintOnType": false,
     "phpcs.showWarnings": true,
     "phpcs.showSources": true,
-    "phpcs.ignorePatterns": [],
+    "phpcs.ignorePatterns": [
 
-    // Run on Save - Auto PHPCBF réactivé avec protection par commentaires
+    ],
+    // Run on Save - complete workflow : PHP-CS-Fixer then PHPCBF
     "emeraldwalk.runonsave": {
       "commands": [
         {
           "match": "\\.php$|(?<!\\.bad)\\.inc$",
-          "cmd": "cd /workspace && vendor/bin/phpcbf --standard=NCAC '${file}' || true"
+          "cmd": "cd /workspace && vendor/bin/php-cs-fixer fix '${file}' --config=.php-cs-fixer.dist.php --quiet && vendor/bin/phpcbf --standard=NCAC '${file}' || true"
         }
       ]
     },
@@ -89,7 +88,6 @@
     "recommendations": [
       // PHP and code quality tools
       "bmewburn.vscode-intelephense-client",
-      "shevaua.phpcs",
       "esbenp.prettier-vscode",
       // Git and workflow tools
       "gxl.git-graph-3",
