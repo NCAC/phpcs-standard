@@ -285,21 +285,28 @@ class E2ETestRunner {
    */
   private function checkPrerequisites(): bool {
     $missing = [];
+    $details = [];
     if (!file_exists($this->phpcsExecutable)) {
       $missing[] = 'PHPCS';
+      $details[] = "  - PHPCS: {$this->phpcsExecutable}";
     }
     if (!file_exists($this->phpcbfExecutable)) {
       $missing[] = 'PHPCBF';
+      $details[] = "  - PHPCBF: {$this->phpcbfExecutable}";
     }
     if (!file_exists($this->phpCsFixerExecutable)) {
       $missing[] = 'PHP-CS-Fixer';
+      $details[] = "  - PHP-CS-Fixer: {$this->phpCsFixerExecutable}";
     }
     if (!file_exists($this->phpCsFixerConfig)) {
       $missing[] = 'PHP-CS-Fixer config';
+      $details[] = "  - PHP-CS-Fixer config: {$this->phpCsFixerConfig}";
     }
 
     if (!empty($missing)) {
       echo '❌ Missing prerequisites: ' . implode(', ', $missing) . "\n";
+      echo "   Missing files:\n" . implode("\n", $details) . "\n";
+      echo "   Working directory: {$this->workingDir}\n";
       echo "   Please run: composer install\n";
       return false;
     }
@@ -393,11 +400,4 @@ class E2ETestRunner {
     }
   }
 
-}
-
-// Main execution
-if (php_sapi_name() === 'cli') {
-  $runner = new E2ETestRunner('/workspace');
-  $exit_code = $runner->run();
-  exit($exit_code);
 }
