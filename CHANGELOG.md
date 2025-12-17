@@ -1,5 +1,22 @@
 # Changelog
 
+# [4.0.0](https://github.com/ncac/phpcs-standard/compare/v3.1.0...v4.0.0) (2025-12-17)
+
+
+### feat
+
+* add DeclarationSpacingSniff to detect superfluous whitespace ([](https://github.com/ncac/phpcs-standard/commit/3169d7496574816cdad46a4ad1818392f2ce385c)), closes [#24](https://github.com/ncac/phpcs-standard/issues/24)
+* implement DeclarationSpacingSniff and fix E2E tests ([](https://github.com/ncac/phpcs-standard/commit/f4f46934aea45aa7276b91e3282c4e7bdd34a2f0)), closes [#24](https://github.com/ncac/phpcs-standard/issues/24)
+* Integrate PHP-CS-Fixer and refactor E2E testing strategy ([](https://github.com/ncac/phpcs-standard/commit/08220d47032437cbbab21d54d4d9680f5734560a)), closes [#24](https://github.com/ncac/phpcs-standard/issues/24)
+
+
+### fix
+
+* exclude detection-only sniffs from E2E .fixed tests ([](https://github.com/ncac/phpcs-standard/commit/7f4a57337e32974d346ef604cf0adde55fe67c1c))
+* remove hardcoded /workspace path from E2ETestRunner ([](https://github.com/ncac/phpcs-standard/commit/cdd97541f8dca2592e430bcd72fed6710c4fc6d5))
+* resolve NoAlternateControlStructureSniff auto-fix conflicts (#24 #26) ([](https://github.com/ncac/phpcs-standard/commit/c8341dc55d6952c3454c03e16700cd95fd6e206d)), closes [#24](https://github.com/ncac/phpcs-standard/issues/24) [#26](https://github.com/ncac/phpcs-standard/issues/26) [#24](https://github.com/ncac/phpcs-standard/issues/24)
+* update SwitchDeclarationSniff .fixed file indentation ([](https://github.com/ncac/phpcs-standard/commit/f97a0dfae2669ba182738466a9237407f908c7a1))
+
 # [3.1.0](https://github.com/ncac/phpcs-standard/compare/v3.0.1...v3.1.0) (2025-12-11)
 
 
