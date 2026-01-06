@@ -1,0 +1,68 @@
+# .gitattributes - Git export configuration for Packagist
+#
+# Files and directories marked with 'export-ignore' will be excluded
+# when creating archives (e.g., composer install, packagist downloads)
+# This reduces package size and keeps only production-relevant files
+
+# Development IDE/Editor configuration
+/.vscode export-ignore
+/.idea export-ignore
+*.code-workspace export-ignore
+/ncac-phpcs-standard.code-workspace export-ignore
+/.editorconfig export-ignore
+
+# Development containers
+/.devcontainer export-ignore
+/.devcontainer.json export-ignore
+/docker-compose.yml export-ignore
+
+# CI/CD and GitHub-specific files
+/.github export-ignore
+/.travis.yml export-ignore
+/.scrutinizer.yml export-ignore
+/codecov.yml export-ignore
+
+# Test files and directories
+/tests export-ignore
+/e2e-tests export-ignore
+/phpunit.xml export-ignore
+/phpunit.xml.dist export-ignore
+/coverage export-ignore
+/coverage-* export-ignore
+/junit.xml export-ignore
+/coverage.xml export-ignore
+
+# Build and quality assurance tools
+/build.xml export-ignore
+/psalm.xml export-ignore
+/psalm-autoload.php export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/.php-cs-fixer.php export-ignore
+/.phpcs.xml export-ignore
+/.phpcs.xml.dist export-ignore
+
+# Git-specific files
+/.gitattributes export-ignore
+/.gitignore export-ignore
+
+# Documentation (development-focused)
+/CONTRIBUTING.md export-ignore
+/BREAKING_CHANGES.md export-ignore
+
+# Node.js/npm (for release-it)
+/package.json export-ignore
+/pnpm-lock.yaml export-ignore
+/node_modules export-ignore
+
+# Temporary and cache directories
+/temp export-ignore
+/tmp export-ignore
+/var export-ignore
+/.php-cs-fixer.cache export-ignore
+
+# Keep these files (they are important for users)
+# README.md - NOT excluded (documentation)
+# LICENSE - NOT excluded (license information)
+# CHANGELOG.md - NOT excluded (version history)
+# composer.json - NOT excluded (package definition)
+# composer.lock - NOT excluded (dependency lock)
