@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.2](https://github.com/ncac/phpcs-standard/compare/v4.1.1...v4.1.2) (2026-01-06)
+
+
+### fix
+
+* improve tool detection to support nested vendor directories ([](https://github.com/ncac/phpcs-standard/commit/2e2a53524448af1c9e86ffb87ddc61d4a212fd0b))
+
 ## [4.1.1](https://github.com/ncac/phpcs-standard/compare/v4.1.0...v4.1.1) (2026-01-06)
 
 
