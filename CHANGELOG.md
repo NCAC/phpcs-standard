@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.3](https://github.com/ncac/phpcs-standard/compare/v4.1.2...v4.1.3) (2026-01-06)
+
+
+### fix
+
+* use getcwd() as starting point for project root detection ([](https://github.com/ncac/phpcs-standard/commit/b9f45851886ccf84f3524022086907cb951b273b))
+
 ## [4.1.2](https://github.com/ncac/phpcs-standard/compare/v4.1.1...v4.1.2) (2026-01-06)
 
 
