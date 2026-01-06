@@ -128,23 +128,37 @@ composer require --dev ncac/phpcs-standard
 
 #### Quick Start: One-Line Command
 
-The easiest way to apply the full NCAC workflow:
+The easiest way to apply the full NCAC formatting workflow:
 
 ```bash
-# Using Composer script (recommended)
-composer ncac-fix src/
-
-# Or directly with the script
-vendor/ncac/phpcs-standard/scripts/ncac-fix.sh src/
+# Using the dedicated command (recommended)
+vendor/bin/ncac-format src/
 
 # Preview changes without applying them
-vendor/ncac/phpcs-standard/scripts/ncac-fix.sh --dry-run src/
+vendor/bin/ncac-format --dry-run src/
 
-# Fix all files in current directory
-composer ncac-fix
+# Format all files in current directory
+vendor/bin/ncac-format
+
+# Alternative: Using Composer script
+composer format src/
+
+# Alternative: Using bash script directly
+bash vendor/ncac/phpcs-standard/scripts/ncac-fix.sh src/
 ```
 
-This automatically runs the complete 3-step workflow for you (PHP-CS-Fixer → PHPCBF → PHPCS validation).
+This automatically runs the complete 3-step formatting workflow for you (PHP-CS-Fixer → PHPCBF → PHPCS validation).
+
+> 💡 **Pro Tip:** Add a script to your project's `composer.json` for easy access:
+> ```json
+> {
+>   "scripts": {
+>     "format": "vendor/bin/ncac-format",
+>     "format:dry": "vendor/bin/ncac-format --dry-run"
+>   }
+> }
+> ```
+> Then run: `composer format` or `composer format:dry`
 
 #### Manual: Full Workflow (Advanced)
 

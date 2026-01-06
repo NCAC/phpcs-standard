@@ -52,6 +52,9 @@
       "NCAC\\E2ETests\\": "e2e-tests/"
     }
   },
+  "bin": [
+    "bin/ncac-format"
+  ],
   "config": {
     "sort-packages": true,
     "platform": {
@@ -68,9 +71,11 @@
     ],
     "check": "phing check",
     "phing": "phing",
-    "ncac-fix": "bash scripts/ncac-fix.sh"
+    "format": "php bin/ncac-format",
+    "format:dry": "php bin/ncac-format --dry-run"
   },
   "scripts-descriptions": {
-    "ncac-fix": "Run the complete NCAC quality workflow (PHP-CS-Fixer + PHPCBF + PHPCS validation)"
+    "format": "Run the complete NCAC formatting workflow (PHP-CS-Fixer + PHPCBF + PHPCS validation)",
+    "format:dry": "Preview formatting changes without applying them"
   }
 }

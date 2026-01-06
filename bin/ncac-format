@@ -1,0 +1,202 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * NCAC Code Formatter
+ *
+ * This executable runs the complete NCAC formatting workflow:
+ * 1. PHP-CS-Fixer (complex transformations)
+ * 2. PHPCBF (NCAC-specific formatting)
+ * 3. PHPCS validation (report remaining issues)
+ *
+ * Usage:
+ *   ncac-format [path]
+ *   ncac-format src/
+ *   ncac-format --dry-run src/
+ */
+
+// Find the autoloader
+$autoload_paths = [
+  __DIR__ . '/../vendor/autoload.php',  // When used as root package
+  __DIR__ . '/../../../autoload.php',    // When used as dependency
+];
+
+$autoload_found = false;
+foreach ($autoload_paths as $autoload_path) {
+  if (file_exists($autoload_path)) {
+    require_once $autoload_path;
+    $autoload_found = true;
+    break;
+  }
+}
+
+if (!$autoload_found) {
+  fwrite(\STDERR, "Error: Unable to find Composer autoloader.\n");
+  fwrite(\STDERR, "Please run: composer install\n");
+  exit(1);
+}
+
+// Find the project root (where composer.json is)
+function find_project_root(): string {
+  $current = __DIR__;
+  $max_levels = 10;
+
+  for ($i = 0; $i < $max_levels; $i++) {
+    if (file_exists($current . '/composer.json')) {
+      return $current;
+    }
+    $parent = \dirname($current);
+    if ($parent === $current) {
+      break;
+    }
+    $current = $parent;
+  }
+
+  return getcwd();
+}
+
+$project_root = find_project_root();
+chdir($project_root);
+
+// Parse arguments
+$dry_run = false;
+$target_path = '.';
+$args = \array_slice($argv, 1);
+
+foreach ($args as $arg) {
+  if ($arg === '--dry-run') {
+    $dry_run = true;
+  } elseif ($arg === '--help' || $arg === '-h') {
+    echo <<<HELP
+NCAC Code Formatter
+
+Usage: ncac-format [--dry-run] [path]
+
+Options:
+  --dry-run    Preview changes without applying them
+  --help       Show this help message
+
+Examples:
+  ncac-format src/              Format all files in src/
+  ncac-format --dry-run src/    Preview changes in src/
+  ncac-format                   Format all files in current directory
+
+HELP;
+    exit(0);
+  } else {
+    $target_path = $arg;
+  }
+}
+
+// Colors
+\define('GREEN', "\033[0;32m");
+\define('YELLOW', "\033[1;33m");
+\define('BLUE', "\033[0;34m");
+\define('RED', "\033[0;31m");
+\define('NC', "\033[0m"); // No Color
+
+echo "\n";
+echo BLUE . '╔══════════════════════════════════════════════════════════════════════════════╗' . NC . "\n";
+echo BLUE . '║ NCAC Code Quality Workflow                                                  ║' . NC . "\n";
+echo BLUE . '╠══════════════════════════════════════════════════════════════════════════════╣' . NC . "\n";
+echo BLUE . '║ Target: ' . $target_path . str_repeat(' ', 70 - \strlen($target_path)) . '║' . NC . "\n";
+if ($dry_run) {
+  echo BLUE . '║ Mode: DRY RUN (preview only)                                                 ║' . NC . "\n";
+}
+echo BLUE . '╚══════════════════════════════════════════════════════════════════════════════╝' . NC . "\n";
+echo "\n";
+
+// Check if tools are available
+$php_cs_fixer_path = $project_root . '/vendor/bin/php-cs-fixer';
+$phpcbf_path = $project_root . '/vendor/bin/phpcbf';
+$phpcs_path = $project_root . '/vendor/bin/phpcs';
+
+if (!file_exists($php_cs_fixer_path)) {
+  echo RED . '❌ php-cs-fixer not found. Run: composer install' . NC . "\n";
+  exit(1);
+}
+
+if (!file_exists($phpcbf_path)) {
+  echo RED . '❌ phpcbf not found. Run: composer install' . NC . "\n";
+  exit(1);
+}
+
+if (!file_exists($phpcs_path)) {
+  echo RED . '❌ phpcs not found. Run: composer install' . NC . "\n";
+  exit(1);
+}
+
+// Determine PHP-CS-Fixer config
+$config_file = '';
+if (file_exists('.php-cs-fixer.php')) {
+  $config_file = '.php-cs-fixer.php';
+} elseif (file_exists('vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php')) {
+  $config_file = 'vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php';
+} else {
+  echo YELLOW . '⚠️  No PHP-CS-Fixer config found, using defaults' . NC . "\n";
+}
+
+/**
+ * Execute a command and return the exit code
+ */
+function execute_command(string $command): int {
+  passthru($command, $exit_code);
+  return $exit_code;
+}
+
+// Step 1: PHP-CS-Fixer
+echo BLUE . '➜ Step 1/3: Applying PHP-CS-Fixer...' . NC . "\n";
+$php_cs_fixer_command = escapeshellcmd($php_cs_fixer_path) . ' fix ' . escapeshellarg($target_path);
+if ($config_file) {
+  $php_cs_fixer_command .= ' --config=' . escapeshellarg($config_file);
+}
+if ($dry_run) {
+  $php_cs_fixer_command .= ' --dry-run --diff';
+}
+execute_command($php_cs_fixer_command . ' || true');
+echo GREEN . '✓ PHP-CS-Fixer complete' . NC . "\n";
+echo "\n";
+
+// Step 2: PHPCBF
+echo BLUE . '➜ Step 2/3: Applying PHPCBF (NCAC-specific)...' . NC . "\n";
+if ($dry_run) {
+  $phpcbf_command = escapeshellcmd($phpcs_path) . ' --standard=NCAC --report=diff ' . escapeshellarg($target_path);
+} else {
+  $phpcbf_command = escapeshellcmd($phpcbf_path) . ' --standard=NCAC ' . escapeshellarg($target_path);
+}
+execute_command($phpcbf_command . ' || true');
+echo GREEN . '✓ PHPCBF complete' . NC . "\n";
+echo "\n";
+
+// Step 3: PHPCS validation
+echo BLUE . '➜ Step 3/3: Validating with PHPCS...' . NC . "\n";
+$phpcs_command = escapeshellcmd($phpcs_path) . ' --standard=NCAC ' . escapeshellarg($target_path);
+$validation_result = execute_command($phpcs_command);
+
+echo "\n";
+if ($validation_result === 0) {
+  echo GREEN . '╔══════════════════════════════════════════════════════════════════════════════╗' . NC . "\n";
+  echo GREEN . '║ 🎉 Success! No violations found                                             ║' . NC . "\n";
+  echo GREEN . '║ Your code is fully compliant with the NCAC standard                         ║' . NC . "\n";
+  echo GREEN . '╚══════════════════════════════════════════════════════════════════════════════╝' . NC . "\n";
+  exit(0);
+} else {
+  echo YELLOW . '╔══════════════════════════════════════════════════════════════════════════════╗' . NC . "\n";
+  echo YELLOW . '║ ⚠️  Some violations remain                                                   ║' . NC . "\n";
+  echo YELLOW . '║                                                                              ║' . NC . "\n";
+  echo YELLOW . '║ The workflow fixed most issues, but some require manual intervention.       ║' . NC . "\n";
+  echo YELLOW . '║ Please review the violations above and fix them manually.                   ║' . NC . "\n";
+  echo YELLOW . '╚══════════════════════════════════════════════════════════════════════════════╝' . NC . "\n";
+
+  if (!$dry_run) {
+    echo "\n";
+    echo BLUE . '💡 Tips:' . NC . "\n";
+    echo "  - Some violations cannot be auto-fixed (e.g., naming conventions)\n";
+    echo "  - Review each violation and apply manual fixes\n";
+    echo "  - Run this script again after manual fixes\n";
+  }
+
+  exit(1);
+}
