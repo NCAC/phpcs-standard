@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/ncac/phpcs-standard/compare/v4.1.0...v4.1.1) (2026-01-06)
+
+
+### fix
+
+* prevent negative padding in ncac-format display path ([](https://github.com/ncac/phpcs-standard/commit/5826530e77d53337439089e4b21a28c861318a35))
+
 # [4.1.0](https://github.com/ncac/phpcs-standard/compare/v4.0.0...v4.1.0) (2026-01-06)
 
 
