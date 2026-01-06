@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.4](https://github.com/ncac/phpcs-standard/compare/v4.1.3...v4.1.4) (2026-01-06)
+
+
+### fix
+
+* include .php-cs-fixer.dist.php in package and configure 2-space indentation ([](https://github.com/ncac/phpcs-standard/commit/031fc3bcdf82eee2cffac57ef197cc81c49f0a5f))
+
 ## [4.1.3](https://github.com/ncac/phpcs-standard/compare/v4.1.2...v4.1.3) (2026-01-06)
 
 
