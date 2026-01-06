@@ -101,7 +101,15 @@ echo "\n";
 echo BLUE . '╔══════════════════════════════════════════════════════════════════════════════╗' . NC . "\n";
 echo BLUE . '║ NCAC Code Quality Workflow                                                  ║' . NC . "\n";
 echo BLUE . '╠══════════════════════════════════════════════════════════════════════════════╣' . NC . "\n";
-echo BLUE . '║ Target: ' . $target_path . str_repeat(' ', 70 - \strlen($target_path)) . '║' . NC . "\n";
+
+// Truncate target path if too long to fit in the box
+$max_path_length = 60;
+$display_path = \strlen($target_path) > $max_path_length
+  ? '...' . \substr($target_path, -($max_path_length - 3))
+  : $target_path;
+$padding = \max(0, 70 - \strlen($display_path));
+
+echo BLUE . '║ Target: ' . $display_path . str_repeat(' ', $padding) . '║' . NC . "\n";
 if ($dry_run) {
   echo BLUE . '║ Mode: DRY RUN (preview only)                                                 ║' . NC . "\n";
 }
