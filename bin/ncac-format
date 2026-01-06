@@ -39,8 +39,9 @@ if (!$autoload_found) {
 }
 
 // Find the project root (where composer.json is)
+// Start from current working directory (not from __DIR__)
 function find_project_root(): string {
-  $current = __DIR__;
+  $current = getcwd();
   $max_levels = 10;
 
   for ($i = 0; $i < $max_levels; $i++) {
@@ -54,6 +55,7 @@ function find_project_root(): string {
     $current = $parent;
   }
 
+  // Fallback to current directory if no composer.json found
   return getcwd();
 }
 
