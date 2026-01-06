@@ -1,5 +1,22 @@
 # Changelog
 
+# [4.1.0](https://github.com/ncac/phpcs-standard/compare/v4.0.0...v4.1.0) (2026-01-06)
+
+
+### chore
+
+* add .gitattributes for optimized package exports ([](https://github.com/ncac/phpcs-standard/commit/a39809c47c706d668f1e17321902d0d3183fec17))
+
+
+### feat
+
+* add ncac-format command for code formatting ([](https://github.com/ncac/phpcs-standard/commit/66f4c1703fe884e19ed6c298f39a61e75117f740))
+
+
+### fix
+
+* resolve false positive on HEREDOC/NOWDOC closing markers ([](https://github.com/ncac/phpcs-standard/commit/9f3140ca91d3dd58d1dfd56341f617213ec7fa8b))
+
 # [4.0.0](https://github.com/ncac/phpcs-standard/compare/v3.1.0...v4.0.0) (2025-12-17)
 
 
