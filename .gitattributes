@@ -36,7 +36,7 @@
 /build.xml export-ignore
 /psalm.xml export-ignore
 /psalm-autoload.php export-ignore
-/.php-cs-fixer.dist.php export-ignore
+# .php-cs-fixer.dist.php - NOT excluded (users need to extend this config)
 /.php-cs-fixer.php export-ignore
 /.phpcs.xml export-ignore
 /.phpcs.xml.dist export-ignore

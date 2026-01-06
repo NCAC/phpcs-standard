@@ -39,6 +39,7 @@ $finder = (new Finder())
 return (new Config())
   ->setParallelConfig(ParallelConfigFactory::detect()) // @TODO 4.0 no need to call this manually
   ->setRiskyAllowed(true)
+  ->setIndent('  ')  // Use 2 spaces for indentation (NCAC standard)
   ->setRules([
     // ================================
     // ALTERNATE SYNTAX CONVERSION
@@ -50,7 +51,8 @@ return (new Config())
     // SPACING AND FORMATTING
     // ================================
     // Basic formatting that works well with NCAC
-    'indentation_type' => true,
+    // PHP-CS-Fixer will use 2-space indentation (set via setIndent())
+    'indentation_type' => true,                       // Ensure consistent spacing
     'line_ending' => true,
     'no_extra_blank_lines' => [
       'tokens' => [
