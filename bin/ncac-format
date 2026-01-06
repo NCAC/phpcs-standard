@@ -116,23 +116,46 @@ if ($dry_run) {
 echo BLUE . '╚══════════════════════════════════════════════════════════════════════════════╝' . NC . "\n";
 echo "\n";
 
+// Find tool executable (check multiple vendor locations)
+function find_tool(string $tool_name, string $project_root): ?string {
+  $possible_paths = [
+    $project_root . '/vendor/bin/' . $tool_name,
+    __DIR__ . '/../vendor/bin/' . $tool_name,
+    __DIR__ . '/../../bin/' . $tool_name,
+  ];
+
+  foreach ($possible_paths as $path) {
+    if (file_exists($path)) {
+      return $path;
+    }
+  }
+
+  // Try using 'which' command as fallback
+  $which_result = shell_exec("which {$tool_name} 2>/dev/null");
+  if ($which_result) {
+    return trim($which_result);
+  }
+
+  return null;
+}
+
 // Check if tools are available
-$php_cs_fixer_path = $project_root . '/vendor/bin/php-cs-fixer';
-$phpcbf_path = $project_root . '/vendor/bin/phpcbf';
-$phpcs_path = $project_root . '/vendor/bin/phpcs';
+$php_cs_fixer_path = find_tool('php-cs-fixer', $project_root);
+$phpcbf_path = find_tool('phpcbf', $project_root);
+$phpcs_path = find_tool('phpcs', $project_root);
 
-if (!file_exists($php_cs_fixer_path)) {
-  echo RED . '❌ php-cs-fixer not found. Run: composer install' . NC . "\n";
+if (!$php_cs_fixer_path) {
+  echo RED . '❌ php-cs-fixer not found. Run: composer require --dev friendsofphp/php-cs-fixer' . NC . "\n";
   exit(1);
 }
 
-if (!file_exists($phpcbf_path)) {
-  echo RED . '❌ phpcbf not found. Run: composer install' . NC . "\n";
+if (!$phpcbf_path) {
+  echo RED . '❌ phpcbf not found. Run: composer require --dev squizlabs/php_codesniffer' . NC . "\n";
   exit(1);
 }
 
-if (!file_exists($phpcs_path)) {
-  echo RED . '❌ phpcs not found. Run: composer install' . NC . "\n";
+if (!$phpcs_path) {
+  echo RED . '❌ phpcs not found. Run: composer require --dev squizlabs/php_codesniffer' . NC . "\n";
   exit(1);
 }
 
