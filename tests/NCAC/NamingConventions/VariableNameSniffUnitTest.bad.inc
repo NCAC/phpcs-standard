@@ -89,6 +89,9 @@ class ComplexInvalidClass {
     global $WrongGlobal;
     $WrongGlobal = 'global';
 
+    // Access static property - should detect PascalCase as invalid
+    $value = self::$AnotherWrongProperty;
+
     return $this->Wrong_Property;
   }
 

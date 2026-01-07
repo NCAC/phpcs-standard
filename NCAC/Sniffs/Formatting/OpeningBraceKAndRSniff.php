@@ -5,7 +5,6 @@ namespace NCAC\Sniffs\Formatting;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
-
 /**
  * NCAC Coding Standard - OpeningBraceKAndRSniff
  *
@@ -18,8 +17,8 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  *
  * Examples of transformations:
  *   class MyClass        →  class MyClass {
- *   {                        
- *   
+ *   {
+ *
  *   function foo()       →  function foo() {
  *   {
  *
@@ -41,7 +40,7 @@ class OpeningBraceKAndRSniff implements Sniff {
    */
   public function register(): array {
     // Listen for class, interface, trait, and function declarations
-    return [T_CLASS, T_INTERFACE, T_TRAIT, T_FUNCTION];
+    return [\T_CLASS, \T_INTERFACE, \T_TRAIT, \T_FUNCTION];
   }
 
   /**
@@ -55,7 +54,7 @@ class OpeningBraceKAndRSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the declaration token in the stack.
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
     // Step 1: Validate that the declaration has a proper opening brace.
     // Interface methods and abstract methods don't have braces, which is normal.
@@ -66,7 +65,7 @@ class OpeningBraceKAndRSniff implements Sniff {
     $curly_brace = $tokens[$stack_pointer]['scope_opener'];
     // Step 2: Find the last meaningful content before the opening brace.
     // This helps us determine where the declaration actually ends.
-    $last_content = $phpcs_file->findPrevious(T_WHITESPACE, ($curly_brace - 1), $stack_pointer, true);
+    $last_content = $phpcs_file->findPrevious(\T_WHITESPACE, ($curly_brace - 1), $stack_pointer, true);
     if ($last_content === false) {
       // Defensive programming: no content found before brace
       return;
@@ -78,18 +77,18 @@ class OpeningBraceKAndRSniff implements Sniff {
 
     // Step 4: Apply automatic fix if brace placement violates K&R style.
     if ($brace_line !== $declaration_line) {
-      $error = "The opening brace of a class, interface, trait or function must be on the same line as the declaration (K&R style).";
+      $error = 'The opening brace of a class, interface, trait or function must be on the same line as the declaration (K&R style).';
       $fix = $phpcs_file->addFixableError($error, $curly_brace, 'OpeningBraceNotSameLine');
       if ($fix) {
         $phpcs_file->fixer->beginChangeset();
         // Remove all whitespace and newlines between declaration and brace
         for ($i = $curly_brace - 1; $i > $last_content; $i--) {
-          if ($tokens[$i]['code'] === T_WHITESPACE) {
+          if ($tokens[$i]['code'] === \T_WHITESPACE) {
             $phpcs_file->fixer->replaceToken($i, '');
           }
         }
         // Ensure proper spacing between declaration and brace
-        if ($tokens[$last_content]['code'] !== T_WHITESPACE) {
+        if ($tokens[$last_content]['code'] !== \T_WHITESPACE) {
           $phpcs_file->fixer->addContent($last_content, ' ');
         }
         $phpcs_file->fixer->endChangeset();

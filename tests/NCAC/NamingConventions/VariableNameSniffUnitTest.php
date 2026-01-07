@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\NamingConventions;
 
@@ -50,14 +50,12 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
           5 => 1,   // return $CamelCaseParam + $PascalCaseParam;
           7 => 1,   // $test_closure = function ($WrongParam) {
           8 => 1,   // variabl $wrongPreturn $WrongParam;
-                  
-          // Class properties - should be camelCase  
+          // Class properties - should be camelCase
           14 => 1,  // public $snake_case_property;
           16 => 1,  // private $PascalCaseProperty;
           18 => 1,  // protected $another_snake_case;
           20 => 1,  // static $UPPER_CASE_STATIC;
           22 => 1,  // public $old_style_var;
-                  
           // trait properties - should be camelCase
           29 => 1,  // public $snake_case_trait;
           31 => 1,  // private $PascalCaseTrait;
@@ -67,14 +65,12 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
           38 => 1,  // $PascalCaseVar = 'another';
           39 => 1,  // $obj->$CamelCaseVar = 1;
           40 => 1,  // $obj->$PascalCaseVar = 2;
-                  
           // Local variables - should be snake_case
           44 => 1,  // $LocalVar = 'local';
           45 => 1,  // $CamelCaseLocal = 'test';
           46 => 1,  // $PascalCaseLocal = 'another';
           48 => 1,  // return $LocalVar . $CamelCaseLocal . $PascalCaseLocal;
-                  
-          // Global variables - should be snake_case  
+          // Global variables - should be snake_case
           52 => 1,  // $GlobalVar = 'global';
           53 => 1,  // $CamelCaseGlobal = 'test';
           54 => 1,  // $PascalCaseGlobal = 'another';
@@ -93,7 +89,6 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
           // Multiple errors on same line (parameters)
           73 => 1,  // function multiple_params($FirstParam, $SecondParam, $ThirdParam) {
           74 => 1,  // return $FirstParam + $SecondParam + $ThirdParam;
-                  
           // Complex invalid case
           80 => 1,  // public $Wrong_Property;
           82 => 1,  // public static $AnotherWrongProperty;
@@ -102,7 +97,8 @@ class VariableNameSniffUnitTest extends SniffUnitTest {
           86 => 1,  // $DynamicProp = 'test';
           87 => 1,  // $this->$DynamicProp = $WrongLocal;
           89 => 1,  // global $WrongGlobal;
-          90 => 1   // $WrongGlobal = 'global';
+          90 => 1,  // $WrongGlobal = 'global';
+          93 => 1   // $value = self::$AnotherWrongProperty;
         ];
 
       case 'VariableNameSniffUnitTest.good.inc':

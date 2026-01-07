@@ -36,7 +36,7 @@ class SwitchDeclarationSniff implements Sniff {
    * @return array<int|string> List of token codes this sniff listens to.
    */
   public function register(): array {
-    return [T_SWITCH];
+    return [\T_SWITCH];
   }
 
   /**
@@ -54,7 +54,7 @@ class SwitchDeclarationSniff implements Sniff {
    *
    * @return void This method does not return a value but reports errors via addError().
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer): void {
     $tokens = $phpcs_file->getTokens();
 
     // Ensure the SWITCH statement has a valid scope (opening and closing braces).
@@ -71,17 +71,17 @@ class SwitchDeclarationSniff implements Sniff {
 
     // Iterate over all CASE and DEFAULT statements within the SWITCH scope.
     // We also look for nested SWITCH statements to skip them properly.
-    while (($next_case = $phpcs_file->findNext([T_CASE, T_DEFAULT, T_SWITCH], ($next_case + 1), $switch['scope_closer'])) !== false) {
+    while (($next_case = $phpcs_file->findNext([\T_CASE, \T_DEFAULT, \T_SWITCH], ($next_case + 1), $switch['scope_closer'])) !== false) {
       // Skip nested SWITCH statements by jumping to their closing brace.
       // This prevents false positives when analyzing inner switch statements.
-      if ($tokens[$next_case]['code'] === T_SWITCH) {
+      if ($tokens[$next_case]['code'] === \T_SWITCH) {
         $next_case = $tokens[$next_case]['scope_closer'];
         continue;
       }
 
       // Determine if current token is a CASE or DEFAULT statement
       // and update our tracking variables accordingly
-      $type = ($tokens[$next_case]['code'] === T_DEFAULT) ? 'Default' : 'Case';
+      $type = ($tokens[$next_case]['code'] === \T_DEFAULT) ? 'Default' : 'Case';
       if ($type === 'Default') {
         $found_default = true;
       } else {
@@ -91,8 +91,8 @@ class SwitchDeclarationSniff implements Sniff {
       // Rule 1: Enforce lowercase keywords.
       if ($tokens[$next_case]['content'] !== strtolower($tokens[$next_case]['content'])) {
         $expected = strtolower($tokens[$next_case]['content']);
-        $error = sprintf("%s keyword must be lowercase; expected '%s' but found '%s'", $type, $expected, $tokens[$next_case]['content']);
-        $phpcs_file->addError($error, $next_case, $type.'NotLower');
+        $error = \sprintf("%s keyword must be lowercase; expected '%s' but found '%s'", $type, $expected, $tokens[$next_case]['content']);
+        $phpcs_file->addError($error, $next_case, $type . 'NotLower');
       }
 
       // Rule 2: No space before colon in case/default statements.
@@ -100,30 +100,39 @@ class SwitchDeclarationSniff implements Sniff {
       if (isset($tokens[$next_case]['scope_opener'])) {
         $opener = $tokens[$next_case]['scope_opener'];
         if ($tokens[$opener - 1]['type'] === 'T_WHITESPACE') {
-          $error = sprintf("No space allowed before colon in %s statement", $type);
-          $phpcs_file->addError($error, $next_case, 'SpaceBeforeColon'.$type);
+          $error = \sprintf('No space allowed before colon in %s statement', $type);
+          $phpcs_file->addError($error, $next_case, 'SpaceBeforeColon' . $type);
         }
       }
 
       // Rule 3: CASE/DEFAULT blocks must not be empty.
-      // Scan the content between scope opener and closer to verify non-empty blocks.
-      if (isset($tokens[$next_case]['scope_opener']) && isset($tokens[$next_case]['scope_closer'])) {
+      // Scan the content between scope opener and the next case/default.
+      if (isset($tokens[$next_case]['scope_opener'])) {
         $opener = $tokens[$next_case]['scope_opener'];
-        $closer = $tokens[$next_case]['scope_closer'];
+        // Find the next case/default or the switch closer
+        $next_boundary = $phpcs_file->findNext(
+          [\T_CASE, \T_DEFAULT],
+          $opener + 1,
+          $switch['scope_closer']
+        );
+        if ($next_boundary === false) {
+          $next_boundary = $switch['scope_closer'];
+        }
         $found_content = false;
-        // Loop through all tokens in the case/default block
-        for ($i = $opener + 1; $i < $closer; $i++) {
-          // Skip nested case statements to avoid false positives
-          if ($tokens[$i]['code'] === T_CASE) {
-            $i = $tokens[$i]['scope_opener'];
+        // Loop through all tokens until the next case/default
+        for ($i = $opener + 1; $i < $next_boundary; $i++) {
+          // Nested switch statements count as content, but we skip their internals
+          if ($tokens[$i]['code'] === \T_SWITCH && isset($tokens[$i]['scope_closer'])) {
+            $found_content = true;
+            $i = $tokens[$i]['scope_closer'];
             continue;
           }
           // Accept any meaningful content: non-empty tokens, comments, or control flow statements
           if (
-            isset(Tokens::$empty_tokens[$tokens[$i]['code']]) === false
-            || $tokens[$i]['code'] === T_COMMENT
-            || $tokens[$i]['code'] === T_DOC_COMMENT
-            || in_array($tokens[$i]['code'], [T_BREAK, T_EXIT, T_RETURN, T_THROW], true)
+            isset(Tokens::$emptyTokens[$tokens[$i]['code']]) === false
+            || $tokens[$i]['code'] === \T_COMMENT
+            || $tokens[$i]['code'] === \T_DOC_COMMENT
+            || \in_array($tokens[$i]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true)
           ) {
             $found_content = true;
             break;
@@ -143,8 +152,8 @@ class SwitchDeclarationSniff implements Sniff {
       // Check spacing between the last content and the break statement.
       if (isset($tokens[$next_case]['scope_closer'])) {
         $closer = $tokens[$next_case]['scope_closer'];
-        if ($tokens[$closer]['code'] === T_BREAK) {
-          $prev = $phpcs_file->findPrevious(T_WHITESPACE, ($closer - 1), $stack_pointer, true);
+        if ($tokens[$closer]['code'] === \T_BREAK) {
+          $prev = $phpcs_file->findPrevious(\T_WHITESPACE, ($closer - 1), $stack_pointer, true);
           if ($tokens[$prev]['line'] !== ($tokens[$closer]['line'] - 1)) {
             $phpcs_file->addError('Blank lines are not allowed before break statements', $closer, 'SpacingBeforeBreak');
           }
@@ -155,7 +164,7 @@ class SwitchDeclarationSniff implements Sniff {
       // Every case and default must terminate with a break (no fall-through allowed).
       if (isset($tokens[$next_case]['scope_closer'])) {
         $closer = $tokens[$next_case]['scope_closer'];
-        if (in_array($tokens[$closer]['code'], [T_BREAK, T_EXIT, T_RETURN, T_THROW], true) === false) {
+        if (\in_array($tokens[$closer]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true) === false) {
           $phpcs_file->addError('Each CASE and DEFAULT must end with a break/exit/return/throw statement', $closer, 'MissingBreak');
         }
       }

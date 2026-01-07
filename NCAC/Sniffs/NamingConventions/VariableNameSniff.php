@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Sniffs\NamingConventions;
 
@@ -48,7 +48,7 @@ class VariableNameSniff implements Sniff {
    */
   public function register(): array {
     // Listen for all variable tokens
-    return [T_VARIABLE];
+    return [\T_VARIABLE];
   }
 
   /**
@@ -62,7 +62,7 @@ class VariableNameSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the T_VARIABLE token in the stack.
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
     $token = $tokens[$stack_pointer];
     $var_name = ltrim($token['content'], '$');
@@ -96,6 +96,22 @@ class VariableNameSniff implements Sniff {
           "Property name '$var_name' must be in camelCase.",
           $stack_pointer,
           'PropertyNotCamelCase'
+        );
+        if ($fix) {
+          $fixed = $string_case_utils->toCamelCase($var_name);
+          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
+        }
+      }
+      return;
+    }
+
+    // Step 3.5: Static property access (self::$property, static::$property) must use camelCase.
+    if ($this->isStaticPropertyAccess($phpcs_file, $stack_pointer)) {
+      if (!$string_case_utils->isCamelCase($var_name)) {
+        $fix = $phpcs_file->addFixableError(
+          "Static property access '$var_name' must be in camelCase.",
+          $stack_pointer,
+          'StaticPropertyNotCamelCase'
         );
         if ($fix) {
           $fixed = $string_case_utils->toCamelCase($var_name);
@@ -165,7 +181,7 @@ class VariableNameSniff implements Sniff {
       '_REQUEST',
       'GLOBALS'
     ];
-    return in_array($name, $superglobals, true);
+    return \in_array($name, $superglobals, true);
   }
 
   /**
@@ -182,13 +198,13 @@ class VariableNameSniff implements Sniff {
   private function isFunctionParameter(File $phpcs_file, int $stack_pointer): bool {
     $tokens = $phpcs_file->getTokens();
     // Look for a function or closure declaration before the variable
-    foreach ([T_FUNCTION, T_CLOSURE] as $type) {
+    foreach ([\T_FUNCTION, T_CLOSURE] as $type) {
       $function_pointer = $phpcs_file->findPrevious([$type], $stack_pointer, null, false);
       if ($function_pointer !== false) {
         $open_paren = $phpcs_file->findNext([T_OPEN_PARENTHESIS], $function_pointer, null, false);
         $close_paren = $tokens[$open_paren]['parenthesis_closer'] ?? null;
         // Check if the variable is inside the parameter list
-        if ($open_paren !== false && is_int($close_paren) && $stack_pointer > $open_paren && $stack_pointer < $close_paren) {
+        if ($open_paren !== false && \is_int($close_paren) && $stack_pointer > $open_paren && $stack_pointer < $close_paren) {
           return true;
         }
       }
@@ -212,27 +228,30 @@ class VariableNameSniff implements Sniff {
     // Look for a visibility modifier on the same line
     $previous_pointer = $phpcs_file->findPrevious(
       [
-        T_PUBLIC,
-        T_PROTECTED,
-        T_PRIVATE,
-        T_STATIC,
-        T_VAR
-      ], $stack_pointer - 1, null, false
+        \T_PUBLIC,
+        \T_PROTECTED,
+        \T_PRIVATE,
+        \T_STATIC,
+        \T_VAR
+      ],
+      $stack_pointer - 1,
+      null,
+      false
     );
     if (
       $previous_pointer !== false
       && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line']
     ) {
       // if $previous_pointer matches a static modifier and the stack_pointer is inside a function, skip because it's likely a static variable inside a method
-      if ($tokens[$previous_pointer]['code'] === T_STATIC) {
-        $function_pointer = $phpcs_file->getCondition($stack_pointer, T_FUNCTION);
+      if ($tokens[$previous_pointer]['code'] === \T_STATIC) {
+        $function_pointer = $phpcs_file->getCondition($stack_pointer, \T_FUNCTION);
         if ($function_pointer !== false) {
           return false;
         }
       }
       // Ensure we are inside a class or trait
-      $class_pointer = $phpcs_file->getCondition($stack_pointer, T_CLASS);
-      $trait_pointer = $phpcs_file->getCondition($stack_pointer, T_TRAIT);
+      $class_pointer = $phpcs_file->getCondition($stack_pointer, \T_CLASS);
+      $trait_pointer = $phpcs_file->getCondition($stack_pointer, \T_TRAIT);
       if ($class_pointer !== false || $trait_pointer !== false) {
         return true;
       }
@@ -254,55 +273,79 @@ class VariableNameSniff implements Sniff {
    */
   private function isDynamicProperty(File $phpcs_file, int $stack_pointer): bool {
     $tokens = $phpcs_file->getTokens();
-    $previous_pointer = $phpcs_file->findPrevious([T_OBJECT_OPERATOR], $stack_pointer - 1, null, false);
+    $previous_pointer = $phpcs_file->findPrevious([\T_OBJECT_OPERATOR], $stack_pointer - 1, null, false);
     return $previous_pointer !== false && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line'];
   }
 
   /**
-   * Checks if the variable is a local variable (assignment or foreach).
+   * Checks if the variable is a static property access (self::$var, static::$var, ClassName::$var).
    *
-   * Local variables are those defined within function or closure scope.
-   * This method excludes dynamic properties ($this->var) and considers
-   * any other variable within a function/closure as local.
+   * Static property access is when a variable follows the double colon operator (::).
+   * This indicates access to a static property of a class using self::, static::,
+   * parent::, or a class name. These should follow camelCase naming convention.
    *
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the variable token.
-   * @return bool True if the variable is a local variable.
+   * @return bool True if the variable is a static property access.
    */
-  private function isLocalVariable(File $phpcs_file, int $stack_pointer): bool {
+  private function isStaticPropertyAccess(File $phpcs_file, int $stack_pointer): bool {
     $tokens = $phpcs_file->getTokens();
-    $function_pointer = $phpcs_file->getCondition($stack_pointer, T_FUNCTION);
-    $closure_pointer = $phpcs_file->getCondition($stack_pointer, T_CLOSURE);
-    // We are inside a function or closure
-    if ($function_pointer !== false || $closure_pointer !== false) {
-      // Exclude dynamic properties ($this->var)
-      $previous_pointer = $phpcs_file->findPrevious([T_OBJECT_OPERATOR], $stack_pointer - 1, null, false);
-      if ($previous_pointer !== false && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line']) {
-        return false;
-      }
-      // Any other variable in a function is local
-      return true;
-    }
-    return false;
-  }
+    // Look for T_DOUBLE_COLON (::) immediately before the variable on the same line
+    $previous_pointer = $phpcs_file->findPrevious(\T_WHITESPACE, $stack_pointer - 1, null, true);
+    if ($previous_pointer !== false
+    && $tokens[$previous_pointer]['code'] === \T_DOUBLE_COLON
+    && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line']
+) {
+  return true;
+}
+return false;
+}
 
-  /**
-   * Checks if the variable is a global variable (declared outside any function/method).
-   *
-   * Global variables are those defined in the global scope, outside of any
-   * function, closure, or class context. This method checks that the variable
-   * is not within any structured code block.
-   *
-   * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
-   * @param  int  $stack_pointer The position of the variable token.
-   * @return bool True if the variable is a global variable.
-   */
-  private function isGlobalVariable(File $phpcs_file, int $stack_pointer): bool {
-    $function_pointer = $phpcs_file->getCondition($stack_pointer, T_FUNCTION);
-    $closure_pointer = $phpcs_file->getCondition($stack_pointer, T_CLOSURE);
-    $class_pointer = $phpcs_file->getCondition($stack_pointer, T_CLASS);
-    // Not in a function, closure or class => global variable
-    return $function_pointer === false && $closure_pointer === false && $class_pointer === false;
+/**
+ * Checks if the variable is a local variable (assignment or foreach).
+ *
+ * Local variables are those defined within function or closure scope.
+ * This method excludes dynamic properties ($this->var) and considers
+ * any other variable within a function/closure as local.
+ *
+ * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
+ * @param  int  $stack_pointer The position of the variable token.
+ * @return bool True if the variable is a local variable.
+ */
+private function isLocalVariable(File $phpcs_file, int $stack_pointer): bool {
+  $tokens = $phpcs_file->getTokens();
+  $function_pointer = $phpcs_file->getCondition($stack_pointer, \T_FUNCTION);
+  $closure_pointer = $phpcs_file->getCondition($stack_pointer, T_CLOSURE);
+  // We are inside a function or closure
+  if ($function_pointer !== false || $closure_pointer !== false) {
+    // Exclude dynamic properties ($this->var)
+    $previous_pointer = $phpcs_file->findPrevious([\T_OBJECT_OPERATOR], $stack_pointer - 1, null, false);
+    if ($previous_pointer !== false && $tokens[$previous_pointer]['line'] === $tokens[$stack_pointer]['line']) {
+      return false;
+    }
+    // Any other variable in a function is local
+    return true;
   }
+  return false;
+}
+
+/**
+ * Checks if the variable is a global variable (declared outside any function/method).
+ *
+ * Global variables are those defined in the global scope, outside of any
+ * function, closure, or class context. This method checks that the variable
+ * is not within any structured code block.
+ *
+ * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
+ * @param  int  $stack_pointer The position of the variable token.
+ * @return bool True if the variable is a global variable.
+ */
+private function isGlobalVariable(File $phpcs_file, int $stack_pointer): bool {
+  $function_pointer = $phpcs_file->getCondition($stack_pointer, \T_FUNCTION);
+  $closure_pointer = $phpcs_file->getCondition($stack_pointer, T_CLOSURE);
+  $class_pointer = $phpcs_file->getCondition($stack_pointer, \T_CLASS);
+  // Not in a function, closure or class => global variable
+  return $function_pointer === false && $closure_pointer === false && $class_pointer === false;
+}
 
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Sniffs\NamingConventions;
 
@@ -44,10 +44,8 @@ class FunctionNameSniff implements Sniff {
    * - hook_preprocess_node__homepage() targets node--homepage.html.twig
    * - hook_theme_suggestions_paragraph__alter() for paragraph suggestions
    *
-   * @var bool
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
-  public $allowDoubleUnderscore = false;
+  public bool $allowDoubleUnderscore = false;
 
   /**
    * Allow leading underscore (_) in function names.
@@ -55,10 +53,8 @@ class FunctionNameSniff implements Sniff {
    * Useful for marking internal or private functions that should not be called
    * directly from outside the module/file.
    *
-   * @var bool
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
-  public $allowLeadingUnderscore = false;
+  public bool $allowLeadingUnderscore = false;
 
   /**
    * Registers the tokens this sniff wants to listen for.
@@ -70,7 +66,7 @@ class FunctionNameSniff implements Sniff {
    */
   public function register(): array {
     // Listen for all function declarations
-    return [T_FUNCTION];
+    return [\T_FUNCTION];
   }
 
   /**
@@ -84,11 +80,11 @@ class FunctionNameSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the T_FUNCTION token in the stack.
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
 
     // Step 1: Locate the function name token following the T_FUNCTION keyword.
-    $function_name_pointer = $phpcs_file->findNext(T_STRING, $stack_pointer);
+    $function_name_pointer = $phpcs_file->findNext(\T_STRING, $stack_pointer);
     $string_case_helper = StringCaseHelper::me();
 
     if ($function_name_pointer === false) {
@@ -100,10 +96,10 @@ class FunctionNameSniff implements Sniff {
 
     // Step 2: Determine if this function is global or a class/trait/interface method.
     // We only apply snake_case rules to global functions, not methods.
-    $in_class = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false;
+    $in_class = $phpcs_file->getCondition($stack_pointer, \T_CLASS) !== false;
     $in_anon_class = $phpcs_file->getCondition($stack_pointer, T_ANON_CLASS) !== false;
-    $in_trait = $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
-    $in_interface = $phpcs_file->getCondition($stack_pointer, T_INTERFACE) !== false;
+    $in_trait = $phpcs_file->getCondition($stack_pointer, \T_TRAIT) !== false;
+    $in_interface = $phpcs_file->getCondition($stack_pointer, \T_INTERFACE) !== false;
     $in_class_or_trait = $in_class || $in_anon_class || $in_trait || $in_interface;
 
     if ($in_class_or_trait) {

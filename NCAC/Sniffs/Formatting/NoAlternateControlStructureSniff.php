@@ -5,7 +5,6 @@ namespace NCAC\Sniffs\Formatting;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
-
 /**
  * NCAC Coding Standard - NoAlternateControlStructureSniff
  *
@@ -23,19 +22,19 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  *
  * ## Why This Sniff is Detection-Only
  *
- * This sniff intentionally provides NO automatic fixes (via PHPCBF) due to 
+ * This sniff intentionally provides NO automatic fixes (via PHPCBF) due to
  * technical limitations in PHP_CodeSniffer's architecture:
  *
- * 1. **Token Regeneration Issue**: When sniffs modify tokens (e.g., using 
- *    `addContentBefore()` or `replaceToken()`), subsequent sniffs in the 
+ * 1. **Token Regeneration Issue**: When sniffs modify tokens (e.g., using
+ *    `addContentBefore()` or `replaceToken()`), subsequent sniffs in the
  *    processing queue may not see the updated token stream.
  *
- * 2. **Execution Order Conflicts**: Sniffs like `TwoSpacesIndentSniff` run 
- *    after this sniff and can overwrite token modifications, leading to 
+ * 2. **Execution Order Conflicts**: Sniffs like `TwoSpacesIndentSniff` run
+ *    after this sniff and can overwrite token modifications, leading to
  *    invalid PHP syntax (e.g., missing closing braces).
  *
- * 3. **Complex Transformation Requirements**: Converting alternate syntax 
- *    (especially if/elseif/else chains) requires sophisticated token 
+ * 3. **Complex Transformation Requirements**: Converting alternate syntax
+ *    (especially if/elseif/else chains) requires sophisticated token
  *    manipulation that conflicts with whitespace normalization sniffs.
  *
  * ## Recommended Workflow
@@ -45,7 +44,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * ```bash
  * # 1. Use PHP-CS-Fixer for corrections (coming in future NCAC releases)
  * php-cs-fixer fix --rules=@NCAC-ControlStructures src/
- * 
+ *
  * # 2. Validate with PHPCS
  * phpcs --standard=NCAC src/
  * ```
@@ -76,18 +75,18 @@ class NoAlternateControlStructureSniff implements Sniff {
   public function register(): array {
     return [
       // Opening tokens that can use alternate syntax
-      T_FOREACH,
-      T_WHILE,
-      T_SWITCH,
-      T_DECLARE,
-      T_FOR,
+      \T_FOREACH,
+      \T_WHILE,
+      \T_SWITCH,
+      \T_DECLARE,
+      \T_FOR,
       // Closing tokens of alternate structures
-      T_ENDIF,
-      T_ENDFOREACH,
-      T_ENDWHILE,
-      T_ENDSWITCH,
-      T_ENDDECLARE,
-      T_ENDFOR
+      \T_ENDIF,
+      \T_ENDFOREACH,
+      \T_ENDWHILE,
+      \T_ENDSWITCH,
+      \T_ENDDECLARE,
+      \T_ENDFOR
     ];
   }
 
@@ -99,27 +98,25 @@ class NoAlternateControlStructureSniff implements Sniff {
    * - Opening tokens (foreach, while, for, switch, declare) that use colon syntax
    * - Closing tokens (endif, endforeach, etc.) for complete violation detection
    * - Complex if/elseif/else chains via processIfChain()
-   * 
+   *
    * All violations are reported as non-fixable errors with guidance to use
    * PHP-CS-Fixer for automatic correction.
    *
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the alternate structure token.
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
     $token = $tokens[$stack_pointer];
 
-
-
     // Special handling for IF chains (if/elseif/else/endif)
-    if ($token['code'] === T_ENDIF) {
+    if ($token['code'] === \T_ENDIF) {
       $this->processIfChain($phpcs_file, $stack_pointer);
       return;
     }
 
     // Handle simple opening tokens that might use alternate syntax (colon)
-    if (in_array($token['code'], [T_FOREACH, T_WHILE, T_FOR, T_SWITCH, T_DECLARE], true)) {
+    if (\in_array($token['code'], [\T_FOREACH, \T_WHILE, \T_FOR, \T_SWITCH, \T_DECLARE], true)) {
       // Look for a colon after this token (indicating alternate syntax)
       $colon = $phpcs_file->findNext([T_COLON], $stack_pointer + 1, null, false, null, true);
       if ($colon !== false) {
@@ -132,7 +129,7 @@ class NoAlternateControlStructureSniff implements Sniff {
             $paren_level++;
           } else if ($tokens[$i]['code'] === T_CLOSE_PARENTHESIS) {
             $paren_level--;
-          } else if ($paren_level === 0 && in_array($tokens[$i]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET], true)) {
+          } else if ($paren_level === 0 && \in_array($tokens[$i]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET], true)) {
             $has_intervening_structure = true;
             break;
           }
@@ -149,14 +146,14 @@ class NoAlternateControlStructureSniff implements Sniff {
     }
 
     // Handle closing tokens for simple structures
-    if (in_array($token['code'], [T_ENDFOREACH, T_ENDWHILE, T_ENDFOR, T_ENDSWITCH, T_ENDDECLARE], true)) {
+    if (\in_array($token['code'], [\T_ENDFOREACH, \T_ENDWHILE, \T_ENDFOR, \T_ENDSWITCH, \T_ENDDECLARE], true)) {
       // Map closing tokens to their corresponding opening tokens
       $structure_map = [
-        T_ENDFOREACH => T_FOREACH,
-        T_ENDWHILE => T_WHILE,
-        T_ENDFOR => T_FOR,
-        T_ENDSWITCH => T_SWITCH,
-        T_ENDDECLARE => T_DECLARE,
+        \T_ENDFOREACH => \T_FOREACH,
+        \T_ENDWHILE => \T_WHILE,
+        \T_ENDFOR => \T_FOR,
+        \T_ENDSWITCH => \T_SWITCH,
+        \T_ENDDECLARE => \T_DECLARE,
       ];
       // Find the corresponding opening token
       $open_token_type = $structure_map[$token['code']];
@@ -185,7 +182,7 @@ class NoAlternateControlStructureSniff implements Sniff {
 
   /**
    * Processes an entire if/elseif/else/endif chain for detection only.
-   * 
+   *
    * Complex if/elseif/else chains require sophisticated fixing that conflicts
    * with other sniffs (especially TwoSpacesIndentSniff). This method only
    * reports errors for detection purposes. Use PHP-CS-Fixer for automatic
@@ -201,10 +198,10 @@ class NoAlternateControlStructureSniff implements Sniff {
     $open_pointer = null;
     $level = 0;
     for ($i = $endif_pointer - 1; $i >= 0; $i--) {
-      if ($tokens[$i]['code'] === T_ENDIF) {
+      if ($tokens[$i]['code'] === \T_ENDIF) {
         $level++;
       }
-      if ($tokens[$i]['code'] === T_IF) {
+      if ($tokens[$i]['code'] === \T_IF) {
         if ($level === 0) {
           $open_pointer = $i;
           break;
@@ -220,7 +217,7 @@ class NoAlternateControlStructureSniff implements Sniff {
     // Collect all if/elseif/else tokens in this chain
     $chain_tokens = [];
     for ($i = $open_pointer; $i < $endif_pointer; $i++) {
-      if (in_array($tokens[$i]['code'], [T_IF, T_ELSEIF, T_ELSE], true)) {
+      if (\in_array($tokens[$i]['code'], [\T_IF, \T_ELSEIF, \T_ELSE], true)) {
         // Look for colon after this control structure token
         $colon = $phpcs_file->findNext(T_COLON, $i + 1, $endif_pointer);
         if ($colon !== false) {

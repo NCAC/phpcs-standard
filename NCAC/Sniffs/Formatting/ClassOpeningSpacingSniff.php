@@ -50,7 +50,7 @@ class ClassOpeningSpacingSniff implements Sniff {
    */
   public function register(): array {
     // Listen for class, trait, and interface declarations
-    return [T_CLASS, T_TRAIT, T_INTERFACE];
+    return [\T_CLASS, \T_TRAIT, \T_INTERFACE];
   }
 
   /**
@@ -63,7 +63,7 @@ class ClassOpeningSpacingSniff implements Sniff {
    * @param  File $phpcs_file The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_ptr  The position of the T_CLASS/T_TRAIT/T_INTERFACE token in the stack.
    */
-  public function process(File $phpcs_file, $stack_ptr) {
+  public function process(File $phpcs_file, int $stack_ptr) {
     $tokens = $phpcs_file->getTokens();
     $class_token = $tokens[$stack_ptr];
     $open_class_token = $class_token['scope_opener']; // T_OPEN_CURLY_BRACKET
@@ -72,7 +72,7 @@ class ClassOpeningSpacingSniff implements Sniff {
     // Step 1: Locate the first meaningful content after the opening brace.
     // We skip whitespace but NOT comments, as comments are valid content.
     $first_content_token = $phpcs_file->findNext(
-      T_WHITESPACE,
+      \T_WHITESPACE,
       $next_token,
       null,
       true
@@ -91,7 +91,7 @@ class ClassOpeningSpacingSniff implements Sniff {
     // This helps us target all tokens that need to be modified during auto-fixing.
     $whitespace_tokens = [];
     for ($i = $open_class_token + 1; $i < $first_content_token; $i++) {
-      if ($tokens[$i]['code'] === T_WHITESPACE) {
+      if ($tokens[$i]['code'] === \T_WHITESPACE) {
         $whitespace_tokens[] = $i;
       }
     }
@@ -103,7 +103,7 @@ class ClassOpeningSpacingSniff implements Sniff {
     // This ensures consistent formatting across all class-like structures.
     if ($lines_between !== $this->linesCount) {
       $fix = $phpcs_file->addFixableError(
-        sprintf('There must be exactly %d blank line(s) after the class opening brace.', $this->linesCount),
+        \sprintf('There must be exactly %d blank line(s) after the class opening brace.', $this->linesCount),
         $error_token,
         'InvalidClassOpeningSpacing'
       );
@@ -126,7 +126,7 @@ class ClassOpeningSpacingSniff implements Sniff {
         $phpcs_file->fixer->replaceToken($whitespace_tokens[0], $replacement);
 
         // Remove all other whitespace tokens
-        for ($i = 1; $i < count($whitespace_tokens); $i++) {
+        for ($i = 1; $i < \count($whitespace_tokens); $i++) {
           $phpcs_file->fixer->replaceToken($whitespace_tokens[$i], '');
         }
       } else {

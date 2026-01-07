@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Sniffs\NamingConventions;
 
@@ -44,7 +44,7 @@ class MethodNameSniff implements Sniff {
    */
   public function register(): array {
     // Listen for all function declarations
-    return [T_FUNCTION];
+    return [\T_FUNCTION];
   }
 
   /**
@@ -58,11 +58,11 @@ class MethodNameSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the T_FUNCTION token in the stack.
    */
-  public function process(File $phpcs_file, $stack_pointer) {
+  public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
 
     // Step 1: Locate the method name token following the T_FUNCTION keyword.
-    $function_name_pointer = $phpcs_file->findNext(T_STRING, $stack_pointer);
+    $function_name_pointer = $phpcs_file->findNext(\T_STRING, $stack_pointer);
     $string_case_helper = StringCaseHelper::me();
 
     if ($function_name_pointer === false) {
@@ -74,8 +74,8 @@ class MethodNameSniff implements Sniff {
 
     // Step 2: Verify this is a method within a class or trait context.
     // Global functions are handled by a separate sniff with different rules.
-    $in_class = $phpcs_file->getCondition($stack_pointer, T_CLASS) !== false;
-    $in_trait = $phpcs_file->getCondition($stack_pointer, T_TRAIT) !== false;
+    $in_class = $phpcs_file->getCondition($stack_pointer, \T_CLASS) !== false;
+    $in_trait = $phpcs_file->getCondition($stack_pointer, \T_TRAIT) !== false;
     $in_anon_class = $phpcs_file->getCondition($stack_pointer, T_ANON_CLASS) !== false;
 
     $in_class_or_trait = $in_class || $in_trait || $in_anon_class;
@@ -116,7 +116,7 @@ class MethodNameSniff implements Sniff {
    * to update all references to a renamed method. It handles various call patterns:
    * - Instance method calls via $this->methodName()
    * - Static method calls via self::methodName() and static::methodName()
-   * 
+   *
    * The method ensures consistency by updating all call sites when the
    * declaration is renamed, preventing broken references.
    *
@@ -129,15 +129,15 @@ class MethodNameSniff implements Sniff {
 
     foreach ($tokens as $ptr => $token) {
       // Ensure pointer is an integer for safe array access
-      if (!is_int($ptr)) {
+      if (!\is_int($ptr)) {
         continue;
       }
 
       // Handle instance method calls: $this->oldMethodName()
       if (
-        $token['code'] === T_OBJECT_OPERATOR
+        $token['code'] === \T_OBJECT_OPERATOR
         && isset($tokens[$ptr + 1])
-        && $tokens[$ptr + 1]['code'] === T_STRING
+        && $tokens[$ptr + 1]['code'] === \T_STRING
         && $tokens[$ptr + 1]['content'] === $old_name
       ) {
         $phpcs_file->fixer->replaceToken($ptr + 1, $new_name);
@@ -145,9 +145,9 @@ class MethodNameSniff implements Sniff {
 
       // Handle static method calls: self::oldMethodName() or static::oldMethodName()
       if (
-        $token['code'] === T_DOUBLE_COLON
+        $token['code'] === \T_DOUBLE_COLON
         && isset($tokens[$ptr + 1])
-        && $tokens[$ptr + 1]['code'] === T_STRING
+        && $tokens[$ptr + 1]['code'] === \T_STRING
         && $tokens[$ptr + 1]['content'] === $old_name
       ) {
         $phpcs_file->fixer->replaceToken($ptr + 1, $new_name);

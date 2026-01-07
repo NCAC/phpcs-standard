@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Sniffs\NamingConventions;
 
@@ -17,7 +17,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  *
  * Examples of transformations:
  *   class my_class_name        → class MyClassName
- *   interface user_interface   → interface UserInterface  
+ *   interface user_interface   → interface UserInterface
  *   trait helper_trait         → trait HelperTrait
  *   class XMLParser           → class XMLParser (already valid)
  *
@@ -39,7 +39,7 @@ class PascalCaseClassNameSniff implements Sniff {
    */
   public function register(): array {
     // Listen for class, interface, and trait declarations
-    return [T_CLASS, T_INTERFACE, T_TRAIT];
+    return [\T_CLASS, \T_INTERFACE, \T_TRAIT];
   }
 
   /**
@@ -53,16 +53,16 @@ class PascalCaseClassNameSniff implements Sniff {
    * @param  File $phpcs_file The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_ptr  The position of the T_CLASS/T_INTERFACE/T_TRAIT token.
    */
-  public function process(File $phpcs_file, $stack_ptr): void {
+  public function process(File $phpcs_file, int $stack_ptr): void {
     $tokens = $phpcs_file->getTokens();
     // Step 1: Locate the name token following the declaration keyword.
-    $name_ptr = $phpcs_file->findNext(T_STRING, $stack_ptr);
+    $name_ptr = $phpcs_file->findNext(\T_STRING, $stack_ptr);
     if ($name_ptr === false) {
       // Defensive programming: malformed declaration without name
       return;
     }
     /**
-     * @var string $name 
+     * @var string $name
      */
     $name = $tokens[$name_ptr]['content'];
     // Step 2: Validate PascalCase format using regex pattern.

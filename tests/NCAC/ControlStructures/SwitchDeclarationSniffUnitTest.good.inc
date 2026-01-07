@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Test file with VALID switch statements for SwitchDeclarationSniff
  *
@@ -9,13 +9,13 @@
 // Valid switch with lowercase keywords, proper spacing, and breaks
 switch ($value) {
   case 1:
-    echo "One";
+    echo 'One';
     break;
   case 2:
-    echo "Two";
+    echo 'Two';
     break;
   default:
-    echo "Other";
+    echo 'Other';
     break;
 }
 
@@ -25,6 +25,7 @@ switch ($status) {
     $result = true;
     break;
   case 'inactive':
+    // Fall through to disabled case
   case 'disabled':
     $result = false;
     break;
@@ -70,11 +71,11 @@ switch ($type) {
 function get_status_with_return(int $code): string {
   switch ($code) {
     case 200:
-      return "OK";
+      return 'OK';
     case 404:
-      return "Not Found";
+      return 'Not Found';
     default:
-      return "Unknown Status";
+      return 'Unknown Status';
   }
 }
 
@@ -82,11 +83,11 @@ function get_status_with_return(int $code): string {
 function get_status_or_throw(int $code): string {
   switch ($code) {
     case 200:
-      return "OK";
+      return 'OK';
     case 404:
-      throw new Exception("Not Found");
+      throw new Exception('Not Found');
     default:
-      throw new Exception("Unknown Status");
+      throw new Exception('Unknown Status');
   }
 }
 
@@ -94,13 +95,13 @@ function get_status_or_throw(int $code): string {
 function get_status_or_exit(int $code): void {
   switch ($code) {
     case 200:
-      echo "OK";
+      echo 'OK';
       exit;
     case 404:
-      echo "Not Found";
+      echo 'Not Found';
       exit;
     default:
-      echo "Unknown Status";
+      echo 'Unknown Status';
       exit;
   }
 }

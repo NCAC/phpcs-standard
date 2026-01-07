@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 // Invalid function parameters - should be snake_case
 function test_function($camel_case_param, $pascal_case_param) {
@@ -90,6 +90,9 @@ class ComplexInvalidClass {
 
     global $wrong_global;
     $wrong_global = 'global';
+
+    // Access static property - should detect PascalCase as invalid
+    $value = self::$anotherWrongProperty;
 
     return $this->Wrong_Property;
   }

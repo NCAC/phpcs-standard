@@ -672,6 +672,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return true;
 
       default:
+        // Not a block event
         return false;
     }
   }
@@ -743,6 +744,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return true;
 
       default:
+        // Not a list event
         return false;
     }
   }
@@ -783,6 +785,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return true;
 
       default:
+        // Not a switch/case event
         return false;
     }
   }
@@ -828,6 +831,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return true;
 
       default:
+        // Not a match event
         return false;
     }
   }
@@ -878,6 +882,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return true;
 
       default:
+        // Not an assignment event
         return false;
     }
   }
@@ -945,6 +950,7 @@ class TwoSpacesIndentSniff implements Sniff {
         return false;
 
       default:
+        // Not a ternary event
         return false;
     }
   }
