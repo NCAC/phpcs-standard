@@ -47,11 +47,11 @@ class SwitchDeclarationSniffUnitTest extends SniffUnitTest {
       case 'SwitchDeclarationSniffUnitTest.bad.inc':
         return [
           // Actual errors detected by the sniff
-          9   => 1, // Space before colon in case
-          41  => 1, // Missing break statement
-          48  => 1, // Blank line before break
-          63  => 1, // Missing default case
-          70  => 1, // Missing case statement (switch with only default)
+          9 => 1, // Space before colon in case
+          41 => 1, // Missing break statement
+          48 => 1, // Blank line before break
+          63 => 1, // Missing default case
+          70 => 1, // Missing case statement (switch with only default)
         ];
 
       default:

@@ -129,7 +129,7 @@ class SwitchDeclarationSniff implements Sniff {
           }
           // Accept any meaningful content: non-empty tokens, comments, or control flow statements
           if (
-            isset(Tokens::$emptyTokens[$tokens[$i]['code']]) === false
+            isset(Tokens::EMPTY_TOKENS[$tokens[$i]['code']]) === false
             || $tokens[$i]['code'] === \T_COMMENT
             || $tokens[$i]['code'] === \T_DOC_COMMENT
             || \in_array($tokens[$i]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true)
