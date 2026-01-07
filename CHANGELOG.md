@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.5](https://github.com/ncac/phpcs-standard/compare/v4.1.4...v4.1.5) (2026-01-07)
+
+
+### fix
+
+* static property access naming and switch case empty detection ([](https://github.com/ncac/phpcs-standard/commit/3cc74a53bd125a4a46516b492ba1efc1791780f7))
+
+
+### refacto
+
+* use Tokens::EMPTY_TOKENS instead of deprecated $emptyTokens ([](https://github.com/ncac/phpcs-standard/commit/49c174f18850ea26030f44680e74c4f5346e242a))
+
 ## [4.1.4](https://github.com/ncac/phpcs-standard/compare/v4.1.3...v4.1.4) (2026-01-06)
 
 
