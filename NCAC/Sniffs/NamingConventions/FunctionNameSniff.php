@@ -64,6 +64,7 @@ class FunctionNameSniff implements Sniff {
    *
    * @return array<int, int> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     // Listen for all function declarations
     return [\T_FUNCTION];
@@ -80,6 +81,7 @@ class FunctionNameSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the T_FUNCTION token in the stack.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
 

@@ -1,7 +1,4 @@
 <?php declare(strict_types=1);
-
-
-
 /**
  * Test file with INVALID switch statements for SwitchDeclarationSniff
  * This file tests switch structure rules (not keyword case)

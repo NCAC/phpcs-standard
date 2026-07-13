@@ -127,9 +127,9 @@ class StringCaseHelper {
    */
   public function toCamelCase(string $string): string {
     // Convert underscores to lowercase (snake_case)
-    $camel_case_string = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $string));
+    $camel_case_string = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $string) ?? $string);
     // Replace double underscores with single
-    $camel_case_string = preg_replace('/_+/', '_', $camel_case_string);
+    $camel_case_string = preg_replace('/_+/', '_', $camel_case_string) ?? $camel_case_string;
     // Remove underscores and capitalize the next letter
     $camel_case_string = preg_replace_callback(
       '/_([a-z])/',
@@ -137,7 +137,7 @@ class StringCaseHelper {
         return strtoupper($matches[1]);
       },
       $camel_case_string
-    );
+    ) ?? $camel_case_string;
     return $camel_case_string;
   }
 
@@ -158,17 +158,17 @@ class StringCaseHelper {
     }
 
     // Insert underscore before each uppercase (except at the start)
-    $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string);
+    $string = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $string) ?? $string;
     // Convert to lowercase
     $string = strtolower($string);
 
     // Handle double underscores
     if (!$allow_double_underscore) {
       // Replace double underscores with single
-      $string = preg_replace('/_+/', '_', $string);
+      $string = preg_replace('/_+/', '_', $string) ?? $string;
     } else {
       // Only replace 3+ underscores with double underscores
-      $string = preg_replace('/_{3,}/', '__', $string);
+      $string = preg_replace('/_{3,}/', '__', $string) ?? $string;
     }
 
     // Remove trailing underscores

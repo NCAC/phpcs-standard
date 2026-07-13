@@ -72,6 +72,7 @@ class NoAlternateControlStructureSniff implements Sniff {
    *
    * @return array<int, int> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     return [
       // Opening tokens that can use alternate syntax
@@ -105,6 +106,7 @@ class NoAlternateControlStructureSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the alternate structure token.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
     $token = $tokens[$stack_pointer];
@@ -117,67 +119,96 @@ class NoAlternateControlStructureSniff implements Sniff {
 
     // Handle simple opening tokens that might use alternate syntax (colon)
     if (\in_array($token['code'], [\T_FOREACH, \T_WHILE, \T_FOR, \T_SWITCH, \T_DECLARE], true)) {
-      // Look for a colon after this token (indicating alternate syntax)
-      $colon = $phpcs_file->findNext([T_COLON], $stack_pointer + 1, null, false, null, true);
-      if ($colon !== false) {
-        // Make sure this colon belongs to our structure and not something else (like ternary)
-        // We need to skip over parentheses content for structures like for() loops
-        $has_intervening_structure = false;
-        $paren_level = 0;
-        for ($i = $stack_pointer + 1; $i < $colon; $i++) {
-          if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS) {
-            $paren_level++;
-          } else if ($tokens[$i]['code'] === T_CLOSE_PARENTHESIS) {
-            $paren_level--;
-          } else if ($paren_level === 0 && \in_array($tokens[$i]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET], true)) {
-            $has_intervening_structure = true;
-            break;
-          }
-        }
-        if (!$has_intervening_structure) {
-          $phpcs_file->addError(
-            'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
-            $stack_pointer,
-            'NoAlternateControlStructure'
-          );
-        }
-      }
+      $this->checkOpeningAlternateSyntax($phpcs_file, $tokens, $stack_pointer);
       return;
     }
 
     // Handle closing tokens for simple structures
     if (\in_array($token['code'], [\T_ENDFOREACH, \T_ENDWHILE, \T_ENDFOR, \T_ENDSWITCH, \T_ENDDECLARE], true)) {
-      // Map closing tokens to their corresponding opening tokens
-      $structure_map = [
-        \T_ENDFOREACH => \T_FOREACH,
-        \T_ENDWHILE => \T_WHILE,
-        \T_ENDFOR => \T_FOR,
-        \T_ENDSWITCH => \T_SWITCH,
-        \T_ENDDECLARE => \T_DECLARE,
-      ];
-      // Find the corresponding opening token
-      $open_token_type = $structure_map[$token['code']];
-      $open_pointer = $token['scope_condition'] ?? null;
-      if ($open_pointer !== null && $tokens[$open_pointer]['code'] === $open_token_type) {
-        // Check if the opening structure uses colon syntax
-        $colon = $phpcs_file->findNext([T_COLON], $open_pointer + 1, $stack_pointer);
-        if ($colon !== false) {
-          // Report error for the opening token (detection only)
-          $phpcs_file->addError(
-            'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
-            $open_pointer,
-            'NoAlternateControlStructure'
-          );
-        }
-      }
-      // Handle the closing token (detection only)
-      $phpcs_file->addError(
-        'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
-        $stack_pointer,
-        'NoAlternateControlStructure'
-      );
+      $this->checkClosingAlternateSyntax($phpcs_file, $tokens, $stack_pointer, $token['code']);
+    }
+  }
+
+  /**
+   * Checks an opening control-structure token (foreach/while/for/switch/declare)
+   * for alternate colon syntax, skipping over any intervening structure (e.g. for() clauses).
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkOpeningAlternateSyntax(File $phpcs_file, array $tokens, int $stack_pointer): void {
+    // Look for a colon after this token (indicating alternate syntax)
+    $colon = $phpcs_file->findNext([T_COLON], $stack_pointer + 1, null, false, null, true);
+    if ($colon === false) {
       return;
     }
+    // Make sure this colon belongs to our structure and not something else (like ternary)
+    // We need to skip over parentheses content for structures like for() loops
+    if ($this->hasInterveningStructureBeforeColon($tokens, $stack_pointer + 1, $colon)) {
+      return;
+    }
+    $phpcs_file->addError(
+      'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
+      $stack_pointer,
+      'NoAlternateControlStructure'
+    );
+  }
+
+  /**
+   * Detects whether a semicolon or opening brace appears (outside parentheses) before the colon,
+   * which would mean the colon belongs to something else (e.g. a ternary) rather than our structure.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function hasInterveningStructureBeforeColon(array $tokens, int $start, int $colon): bool {
+    $paren_level = 0;
+    for ($i = $start; $i < $colon; $i++) {
+      if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS) {
+        $paren_level++;
+      } else if ($tokens[$i]['code'] === T_CLOSE_PARENTHESIS) {
+        $paren_level--;
+      } else if ($paren_level === 0 && \in_array($tokens[$i]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET], true)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks a closing control-structure token (endforeach/endwhile/endfor/endswitch/enddeclare)
+   * for alternate colon syntax, also reporting the matching opening token when applicable.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkClosingAlternateSyntax(File $phpcs_file, array $tokens, int $stack_pointer, int $closing_code): void {
+    // Map closing tokens to their corresponding opening tokens
+    $structure_map = [
+      \T_ENDFOREACH => \T_FOREACH,
+      \T_ENDWHILE => \T_WHILE,
+      \T_ENDFOR => \T_FOR,
+      \T_ENDSWITCH => \T_SWITCH,
+      \T_ENDDECLARE => \T_DECLARE,
+    ];
+    // Find the corresponding opening token
+    $open_token_type = $structure_map[$closing_code];
+    $open_pointer = $tokens[$stack_pointer]['scope_condition'] ?? null;
+    if ($open_pointer !== null && $tokens[$open_pointer]['code'] === $open_token_type) {
+      // Check if the opening structure uses colon syntax
+      $colon = $phpcs_file->findNext([T_COLON], $open_pointer + 1, $stack_pointer);
+      if ($colon !== false) {
+        // Report error for the opening token (detection only)
+        $phpcs_file->addError(
+          'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
+          $open_pointer,
+          'NoAlternateControlStructure'
+        );
+      }
+    }
+    // Handle the closing token (detection only)
+    $phpcs_file->addError(
+      'Alternate control structure syntax is forbidden: use curly braces {}. Use PHP-CS-Fixer for automatic correction.',
+      $stack_pointer,
+      'NoAlternateControlStructure'
+    );
   }
 
   /**
@@ -194,41 +225,12 @@ class NoAlternateControlStructureSniff implements Sniff {
   private function processIfChain(File $phpcs_file, int $endif_pointer): void {
     $tokens = $phpcs_file->getTokens();
 
-    // Find the matching T_IF by walking backwards through nested structures
-    $open_pointer = null;
-    $level = 0;
-    for ($i = $endif_pointer - 1; $i >= 0; $i--) {
-      if ($tokens[$i]['code'] === \T_ENDIF) {
-        $level++;
-      }
-      if ($tokens[$i]['code'] === \T_IF) {
-        if ($level === 0) {
-          $open_pointer = $i;
-          break;
-        } else {
-          $level--;
-        }
-      }
-    }
+    $open_pointer = $this->findMatchingIfPointer($tokens, $endif_pointer);
     if ($open_pointer === null) {
       return; // Could not find matching T_IF
     }
 
-    // Collect all if/elseif/else tokens in this chain
-    $chain_tokens = [];
-    for ($i = $open_pointer; $i < $endif_pointer; $i++) {
-      if (\in_array($tokens[$i]['code'], [\T_IF, \T_ELSEIF, \T_ELSE], true)) {
-        // Look for colon after this control structure token
-        $colon = $phpcs_file->findNext(T_COLON, $i + 1, $endif_pointer);
-        if ($colon !== false) {
-          $chain_tokens[] = [
-            'token' => $i,
-            'colon' => $colon,
-            'type' => $tokens[$i]['code']
-          ];
-        }
-      }
-    }
+    $chain_tokens = $this->collectAlternateChainTokens($phpcs_file, $tokens, $open_pointer, $endif_pointer);
 
     // Only process if we found alternate syntax tokens
     if (empty($chain_tokens)) {
@@ -250,6 +252,52 @@ class NoAlternateControlStructureSniff implements Sniff {
       $endif_pointer,
       'NoAlternateControlStructure'
     );
+  }
+
+  /**
+   * Finds the matching T_IF for a given T_ENDIF by walking backwards, tracking nested if/endif levels.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function findMatchingIfPointer(array $tokens, int $endif_pointer): ?int {
+    $level = 0;
+    for ($i = $endif_pointer - 1; $i >= 0; $i--) {
+      if ($tokens[$i]['code'] === \T_ENDIF) {
+        $level++;
+      }
+      if ($tokens[$i]['code'] === \T_IF) {
+        if ($level === 0) {
+          return $i;
+        }
+        $level--;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Collects if/elseif/else tokens within the chain that use alternate colon syntax.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   * @return array<int, array{token: int, colon: int, type: int|string}>
+   */
+  private function collectAlternateChainTokens(File $phpcs_file, array $tokens, int $open_pointer, int $endif_pointer): array {
+    $chain_tokens = [];
+    for ($i = $open_pointer; $i < $endif_pointer; $i++) {
+      if (!\in_array($tokens[$i]['code'], [\T_IF, \T_ELSEIF, \T_ELSE], true)) {
+        continue;
+      }
+      // Look for colon after this control structure token
+      $colon = $phpcs_file->findNext(T_COLON, $i + 1, $endif_pointer);
+      if ($colon !== false) {
+        $chain_tokens[] = [
+          'token' => $i,
+          'colon' => $colon,
+          'type' => $tokens[$i]['code']
+        ];
+      }
+    }
+    return $chain_tokens;
   }
 
 }

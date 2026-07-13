@@ -4,7 +4,7 @@ class BadClosureIndentation {
 
   public function closureInReturnStatement(): string {
     return join(' - ', array_map(function($x) {
-          return $x * 2;  // Should be 2 spaces, found 6
+      return $x * 2;  // Should be 2 spaces, found 6
     }, [1, 2, 3]));
   }
 
@@ -14,7 +14,7 @@ class BadClosureIndentation {
    */
   public function closureInVariableAssignment(array $items): array {
     $result = array_map(function($item) {
-        return $item->getValue();  // Should be 2 spaces, found 4
+      return $item->getValue();  // Should be 2 spaces, found 4
     }, $items);
     return $result;
   }

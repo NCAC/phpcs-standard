@@ -38,6 +38,7 @@ class OpeningBraceKAndRSniff implements Sniff {
    *
    * @return array<int, int> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     // Listen for class, interface, trait, and function declarations
     return [\T_CLASS, \T_INTERFACE, \T_TRAIT, \T_FUNCTION];
@@ -54,6 +55,7 @@ class OpeningBraceKAndRSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the declaration token in the stack.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
     // Step 1: Validate that the declaration has a proper opening brace.

@@ -55,9 +55,7 @@ $pascal_case_global = 'another';
 
 // Mixed invalid contexts
 class MixedInvalidExample {
-
   public $snakeCaseProp;
-
   private $pascalCaseProp;
 
   public function testMethod($camel_case_param, $pascal_param) {

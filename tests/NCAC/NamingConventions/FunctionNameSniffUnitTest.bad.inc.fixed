@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Test file with INVALID function names for FunctionNameSniff
  * This file tests violations of snake_case naming for global functions
@@ -31,19 +31,19 @@ function format_xmldata() {
 
 // Class methods should NOT trigger errors (different naming convention)
 class TestClass {
+    
+    // These camelCase methods should be ignored by FunctionNameSniff
+    public function getUserName() {
+      return 'user';
+    }
 
-  // These camelCase methods should be ignored by FunctionNameSniff
-  public function getUserName() {
-    return 'user';
-  }
+    private function calculateTotal() {
+      return 100;
+    }
 
-  private function calculateTotal() {
-    return 100;
-  }
-
-  protected function validateInput() {
-    return true;
-  }
+    protected function validateInput() {
+      return true;
+    }
 
 }
 
@@ -51,7 +51,7 @@ class TestClass {
 trait TestTrait {
 
   public function processData() {
-    return 'processed';
+      return 'processed';
   }
 
 }

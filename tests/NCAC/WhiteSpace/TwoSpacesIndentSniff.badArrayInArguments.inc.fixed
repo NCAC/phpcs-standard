@@ -20,18 +20,18 @@ $bad_array_1 = test_array_arguments([
 
 // Error 2: Array elements should be indented with 2 spaces, not 1
 $bad_array_2 = test_array_arguments([
- 'key1' => 'value1',
- 'key2' => 42,
+  'key1' => 'value1',
+  'key2' => 42,
 ]);
 
 // Error 3: Mixed indentation - inconsistent spacing
 $bad_array_3 = test_array_arguments([
   'key1' => 'value1',
-    'key2' => 42,
-   'key3' => [
-     'nested1' => 'value',
-      'nested2' => 'value',
-   ],
+  'key2' => 42,
+  'key3' => [
+    'nested1' => 'value',
+    'nested2' => 'value',
+  ],
 ]);
 
 // Error 4: No indentation for array elements

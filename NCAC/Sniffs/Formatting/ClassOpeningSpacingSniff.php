@@ -48,6 +48,7 @@ class ClassOpeningSpacingSniff implements Sniff {
    *
    * @return array<int, int> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     // Listen for class, trait, and interface declarations
     return [\T_CLASS, \T_TRAIT, \T_INTERFACE];
@@ -63,6 +64,7 @@ class ClassOpeningSpacingSniff implements Sniff {
    * @param  File $phpcs_file The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_ptr  The position of the T_CLASS/T_TRAIT/T_INTERFACE token in the stack.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_ptr) {
     $tokens = $phpcs_file->getTokens();
     $class_token = $tokens[$stack_ptr];
@@ -110,31 +112,49 @@ class ClassOpeningSpacingSniff implements Sniff {
       if (!$fix) {
         return;
       }
-      $phpcs_file->fixer->beginChangeset();
-
-      // Create the correct whitespace: newlines only (preserve existing indentation)
-      $correct_newlines = str_repeat("\n", $this->linesCount + 1);
-
-      if (!empty($whitespace_tokens)) {
-        // Find indentation of the first content line to preserve it
-        $first_whitespace_content = $tokens[$whitespace_tokens[0]]['content'];
-        $lines = explode("\n", $first_whitespace_content);
-        $last_line_indentation = end($lines); // Get indentation of the last line
-
-        // Replace the first whitespace token with correct content and preserve indentation
-        $replacement = $correct_newlines . $last_line_indentation;
-        $phpcs_file->fixer->replaceToken($whitespace_tokens[0], $replacement);
-
-        // Remove all other whitespace tokens
-        for ($i = 1; $i < \count($whitespace_tokens); $i++) {
-          $phpcs_file->fixer->replaceToken($whitespace_tokens[$i], '');
-        }
-      } else {
-        // Insert newlines when no whitespace exists after opening brace
-        $phpcs_file->fixer->addContent($open_class_token, $correct_newlines);
-      }
-      $phpcs_file->fixer->endChangeset();
+      $this->fixSpacing($phpcs_file, $tokens, $open_class_token, $whitespace_tokens);
     }
+  }
+
+  /**
+   * Rewrites the whitespace after the opening brace to exactly $linesCount blank lines,
+   * preserving the indentation of the first content line.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   * @param array<int, int> $whitespace_tokens
+   */
+  private function fixSpacing(File $phpcs_file, array $tokens, int $open_class_token, array $whitespace_tokens): void {
+    $phpcs_file->fixer->beginChangeset();
+
+    // Create the correct whitespace: newlines only (preserve existing indentation)
+    $correct_newlines = str_repeat("\n", $this->linesCount + 1);
+
+    if (!empty($whitespace_tokens)) {
+      // Combine all whitespace token contents to reliably determine the indentation
+      // of the first content line: PHPCS may split the whitespace run between the
+      // opening brace and the first content into several T_WHITESPACE tokens
+      // (e.g. a "\n" token followed by a separate indentation token), so relying
+      // on the first token alone would lose the indentation.
+      $combined_whitespace = '';
+      foreach ($whitespace_tokens as $whitespace_token) {
+        $combined_whitespace .= $tokens[$whitespace_token]['content'];
+      }
+      $lines = explode("\n", $combined_whitespace);
+      $last_line_indentation = end($lines); // Get indentation of the last line
+
+      // Replace the first whitespace token with correct content and preserve indentation
+      $replacement = $correct_newlines . $last_line_indentation;
+      $phpcs_file->fixer->replaceToken($whitespace_tokens[0], $replacement);
+
+      // Remove all other whitespace tokens
+      for ($i = 1; $i < \count($whitespace_tokens); $i++) {
+        $phpcs_file->fixer->replaceToken($whitespace_tokens[$i], '');
+      }
+    } else {
+      // Insert newlines when no whitespace exists after opening brace
+      $phpcs_file->fixer->addContent($open_class_token, $correct_newlines);
+    }
+    $phpcs_file->fixer->endChangeset();
   }
 
 }
