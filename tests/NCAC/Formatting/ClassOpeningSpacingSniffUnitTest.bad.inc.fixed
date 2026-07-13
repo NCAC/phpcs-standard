@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 class BadClassSpacing {
 
@@ -13,10 +13,11 @@ class BadClassSpacing {
    * This is another sample method.
    */
   public function methodTwo(): void {
-    // Some code here
+    // Some code here 
   }
 
 }
+
 
 class TooMuchClassSpacing {
 

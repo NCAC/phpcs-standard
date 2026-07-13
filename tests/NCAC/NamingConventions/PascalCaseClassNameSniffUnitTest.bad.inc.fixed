@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 // Invalid class names - should be PascalCase
 
@@ -8,7 +8,6 @@ class MyClassName {
   public function testMethod() {
     return true;
   }
-
 }
 
 // Line 14: camelCase class name (should start with uppercase)
@@ -53,6 +52,6 @@ trait HelperTrait {
 // Line 54: class with multiple underscores
 class VeryLongClassNameHere {
 
-  public const CONSTANT = 'value';
+  const CONSTANT = 'value';
 
 }

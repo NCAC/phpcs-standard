@@ -4,8 +4,8 @@
 $result = preg_replace_callback(
   '/pattern/',
   function ($matches) {
-return strtoupper($matches[1]);
-}, $input
+    return strtoupper($matches[1]);
+  }, $input
 );
 
 // BAD: Closing brace not aligned with function
@@ -14,7 +14,7 @@ $result = preg_replace_callback(
   function ($matches) {
     return strtoupper($matches[1]);
   }, $input
-  );
+);
 
 // BAD: Multiple statements without proper indentation
 $result = preg_replace_callback(
@@ -38,10 +38,10 @@ $mapped = array_map(
 $result = preg_replace_callback(
   '/_([a-z])/',
   function ($matches) {
-if (isset($matches[1])) {
-return strtoupper($matches[1]);
-}
-return '';
+    if (isset($matches[1])) {
+      return strtoupper($matches[1]);
+    }
+    return '';
   },
   $string
 );

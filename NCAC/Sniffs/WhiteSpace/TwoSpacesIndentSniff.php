@@ -111,6 +111,7 @@ class TwoSpacesIndentSniff implements Sniff {
    *
    * @return array<int, int> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     return [\T_WHITESPACE];
   }
@@ -130,6 +131,7 @@ class TwoSpacesIndentSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the current token in the stack.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer) {
     // Process only at the last token to ensure complete file analysis
     if ($stack_pointer !== \count($phpcs_file->getTokens()) - 1) {
@@ -174,138 +176,197 @@ class TwoSpacesIndentSniff implements Sniff {
   private function collectLineTokenCodes(File $phpcs_file): array {
     // Get all tokens from the file
     $tokens = $phpcs_file->getTokens();
-    $line_token_codes = [];
-
     $tokens_list = array_values($tokens);
     $tokens_count = \count($tokens_list);
+    $line_token_codes = [];
+
     // Iterate over all tokens to group them by line
     for ($pointer = 0; $pointer < $tokens_count; $pointer++) {
-      $token = $tokens_list[$pointer];
-      $line = $token['line'];
+      $line = $tokens_list[$pointer]['line'];
       // Detect new line start
       $is_new_line = ($pointer === 0) || ($tokens_list[$pointer - 1]['line'] !== $line);
       if (!$is_new_line) {
         continue;
       }
-      // Collect significant tokens for this line
-      $actual_indent = 0;
-      $line_tokens = [];
-      $first_non_ws_found = false;
-      $first_significant_token_ptr = null; // To track pointer to first token
-      for ($scan_pointer = $pointer; $scan_pointer < $tokens_count && $tokens_list[$scan_pointer]['line'] === $line; $scan_pointer++) {
-        $code = $tokens_list[$scan_pointer]['code'];
-
-        // replace content 'match' with T_MATCH
-        $token_content = $tokens_list[$scan_pointer]['content'] ?? '';
-        if (strtolower($token_content) === 'match') { // single remap for T_MATCH
-          $code = \T_MATCH;
-        }
-
-        // Count leading whitespace (excluding newlines)
-        if (!$first_non_ws_found && ($code === \T_WHITESPACE || $code === T_DOC_COMMENT_WHITESPACE)) {
-          $content = $tokens_list[$scan_pointer]['content'];
-          // Skip newlines - they're not indentation
-          if ($content !== "\n" && $content !== "\r\n" && $content !== "\r") {
-            $actual_indent += \strlen($content);
-          }
-          continue;
-        }
-        $first_non_ws_found = true;
-        // Save pointer to first significant token
-        if ($first_significant_token_ptr === null) {
-          $first_significant_token_ptr = $scan_pointer;
-        }
-        $line_tokens[] = $code;
-      }
-      // Remove trailing whitespace tokens for pattern matching
-      if (
-        !empty($line_tokens)
-        && (
-          $line_tokens[\count($line_tokens) - 1] === \T_WHITESPACE
-          || $line_tokens[\count($line_tokens) - 1] === T_DOC_COMMENT_WHITESPACE
-        )
-      ) {
-        array_pop($line_tokens);
-      }
-      // Check for special cases BEFORE filtering comments
-      $first_token_code_unfiltered = $line_tokens[0] ?? null;
-      // Special handling for single line comments (//, #, /* ... */) - check BEFORE filtering
-      if ($first_token_code_unfiltered === \T_COMMENT && $first_significant_token_ptr !== null) {
-        $first_token_content = $tokens_list[$first_significant_token_ptr]['content'] ?? '';
-        $trimmed_content = trim($first_token_content);
-        if (strpos($trimmed_content, '//') === 0 || strpos($trimmed_content, '#') === 0) {
-          $line_token_codes[$line] = [
-            'tokens' => ['SINGLE_LINE_COMMENT'],
-            'actual_indent' => $actual_indent,
-            'expected_indent' => null
-          ];
-          continue;
-        }
-        if (strpos($trimmed_content, '/*') === 0 && strpos($trimmed_content, '*/') !== false) {
-          $line_token_codes[$line] = [
-            'tokens' => ['SINGLE_LINE_COMMENT'],
-            'actual_indent' => $actual_indent,
-            'expected_indent' => null
-          ];
-          continue;
-        }
-      }
-      // Filter out all whitespace tokens and end-of-line comments for analysis
-      $line_tokens = array_filter($line_tokens, function ($code) {
-        return $code !== \T_WHITESPACE && $code !== T_DOC_COMMENT_WHITESPACE && $code !== \T_COMMENT;
-      });
-
-      // reset the keys after filtering
-      $line_tokens = array_values($line_tokens);
-
-      $first_token_code = $line_tokens[0] ?? null;
-      // Special handling for Heredoc/Nowdoc blocks: skip indentation
-      if ($this->isInsideHeredocOrNowdoc($line, $tokens_list, $pointer)) {
-        $line_token_codes[$line] = [
-          'tokens' => ['HEREDOC_BYPASS'],
-          'actual_indent' => $actual_indent,
-          'expected_indent' => null
-        ];
-        continue;
-      }
-      // Special handling for DocBlock start
-      if ($first_token_code === T_DOC_COMMENT_OPEN_TAG) {
-        $line_token_codes[$line] = [
-          'tokens' => ['START_DOC_BLOCK'],
-          'actual_indent' => $actual_indent,
-          'expected_indent' => null
-        ];
-        continue;
-      }
-      // Special handling for DocBlock continuation/end
-      if (
-        $first_token_code === T_DOC_COMMENT_STAR
-        || $first_token_code === T_DOC_COMMENT_CLOSE_TAG
-      ) {
-        $line_token_codes[$line] = [
-          'tokens' => ['DOC_BLOCK_LINE'],
-          'actual_indent' => $actual_indent,
-          'expected_indent' => null
-        ];
-        continue;
-      }
-      // Blank line handling: if no non-whitespace token found, mark sentinel for later fix (Prettier style => 0 indent)
-      if (!$first_non_ws_found) {
-        $line_token_codes[$line] = [
-          'tokens' => ['BLANK_LINE'],
-          'actual_indent' => $actual_indent,
-          'expected_indent' => null
-        ];
-        continue;
-      }
-      // Default: regular line, store token codes and indentation
-      $line_token_codes[$line] = [
-        'tokens' => $line_tokens,
-        'actual_indent' => $actual_indent,
-        'expected_indent' => null
-      ];
+      $line_token_codes[$line] = $this->buildLineTokenEntry($tokens_list, $tokens_count, $pointer, $line);
     }
     return $line_token_codes;
+  }
+
+  /**
+   * Builds the token-codes entry for a single line.
+   *
+   * @param array<int, array<string, mixed>> $tokens_list
+   * @return array{tokens: array<int, string|int>, actual_indent: int, expected_indent: int|null}
+   */
+  private function buildLineTokenEntry(array $tokens_list, int $tokens_count, int $pointer, int $line): array {
+    $scan = $this->scanLineTokens($tokens_list, $tokens_count, $pointer, $line);
+    $actual_indent = $scan['actual_indent'];
+    $line_tokens = $scan['line_tokens'];
+    $first_significant_token_ptr = $scan['first_significant_token_ptr'];
+    $first_non_ws_found = $scan['first_non_ws_found'];
+
+    // Check for special comment cases BEFORE filtering comments
+    $comment_entry = $this->detectCommentLineEntry($line_tokens, $first_significant_token_ptr, $tokens_list, $actual_indent);
+    if ($comment_entry !== null) {
+      return $comment_entry;
+    }
+
+    // Filter out all whitespace tokens and end-of-line comments for analysis
+    $filtered_tokens = array_values(array_filter($line_tokens, function ($code) {
+      return $code !== \T_WHITESPACE && $code !== T_DOC_COMMENT_WHITESPACE && $code !== \T_COMMENT;
+    }));
+
+    $special_entry = $this->detectSpecialLineEntry($line, $tokens_list, $pointer, $filtered_tokens, $actual_indent, $first_non_ws_found);
+    if ($special_entry !== null) {
+      return $special_entry;
+    }
+
+    // Default: regular line, store token codes and indentation
+    return [
+      'tokens' => $filtered_tokens,
+      'actual_indent' => $actual_indent,
+      'expected_indent' => null
+    ];
+  }
+
+  /**
+   * Scans the tokens of a single line, computing indentation and significant tokens.
+   *
+   * @param array<int, array<string, mixed>> $tokens_list
+   * @return array{actual_indent: int, line_tokens: array<int, string|int>, first_significant_token_ptr: int|null, first_non_ws_found: bool}
+   */
+  private function scanLineTokens(array $tokens_list, int $tokens_count, int $start_pointer, int $line): array {
+    $actual_indent = 0;
+    $line_tokens = [];
+    $first_non_ws_found = false;
+    $first_significant_token_ptr = null; // To track pointer to first token
+
+    for ($scan_pointer = $start_pointer; $scan_pointer < $tokens_count && $tokens_list[$scan_pointer]['line'] === $line; $scan_pointer++) {
+      $code = $this->normalizeTokenCode($tokens_list[$scan_pointer]);
+
+      // Count leading whitespace (excluding newlines)
+      if (!$first_non_ws_found && ($code === \T_WHITESPACE || $code === T_DOC_COMMENT_WHITESPACE)) {
+        $actual_indent += $this->leadingWhitespaceLength($tokens_list[$scan_pointer]['content']);
+        continue;
+      }
+      $first_non_ws_found = true;
+      // Save pointer to first significant token
+      if ($first_significant_token_ptr === null) {
+        $first_significant_token_ptr = $scan_pointer;
+      }
+      $line_tokens[] = $code;
+    }
+
+    return [
+      'actual_indent' => $actual_indent,
+      'line_tokens' => $this->stripTrailingWhitespaceToken($line_tokens),
+      'first_significant_token_ptr' => $first_significant_token_ptr,
+      'first_non_ws_found' => $first_non_ws_found,
+    ];
+  }
+
+  /**
+   * Remaps the 'match' keyword content to T_MATCH, leaving other token codes untouched.
+   *
+   * @param array<string, mixed> $token
+   */
+  private function normalizeTokenCode(array $token): int|string {
+    $content = $token['content'] ?? '';
+    if (strtolower($content) === 'match') { // single remap for T_MATCH
+      return \T_MATCH;
+    }
+    return $token['code'];
+  }
+
+  /**
+   * Returns the indentation length contributed by a whitespace token's content, excluding newlines.
+   */
+  private function leadingWhitespaceLength(string $content): int {
+    if ($content === "\n" || $content === "\r\n" || $content === "\r") {
+      return 0;
+    }
+    return \strlen($content);
+  }
+
+  /**
+   * Removes a trailing whitespace token, if present, for pattern matching.
+   *
+   * @param array<int, string|int> $line_tokens
+   * @return array<int, string|int>
+   */
+  private function stripTrailingWhitespaceToken(array $line_tokens): array {
+    if (empty($line_tokens)) {
+      return $line_tokens;
+    }
+    $last_token = $line_tokens[\count($line_tokens) - 1];
+    if ($last_token === \T_WHITESPACE || $last_token === T_DOC_COMMENT_WHITESPACE) {
+      array_pop($line_tokens);
+    }
+    return $line_tokens;
+  }
+
+  /**
+   * Detects single-line comment entries (//, #, or inline /* ... *\/), checked BEFORE filtering.
+   *
+   * @param array<int, string|int> $line_tokens Unfiltered tokens for the line.
+   * @param array<int, array<string, mixed>> $tokens_list
+   * @return array{tokens: array<int, string|int>, actual_indent: int, expected_indent: int|null}|null
+   */
+  private function detectCommentLineEntry(array $line_tokens, ?int $first_significant_token_ptr, array $tokens_list, int $actual_indent): ?array {
+    $first_token_code = $line_tokens[0] ?? null;
+    if ($first_token_code !== \T_COMMENT || $first_significant_token_ptr === null) {
+      return null;
+    }
+
+    $first_token_content = $tokens_list[$first_significant_token_ptr]['content'] ?? '';
+    $trimmed_content = trim($first_token_content);
+
+    $is_single_line_comment = strpos($trimmed_content, '//') === 0 || strpos($trimmed_content, '#') === 0;
+    $is_inline_block_comment = strpos($trimmed_content, '/*') === 0 && strpos($trimmed_content, '*/') !== false;
+
+    if (!$is_single_line_comment && !$is_inline_block_comment) {
+      return null;
+    }
+
+    return [
+      'tokens' => ['SINGLE_LINE_COMMENT'],
+      'actual_indent' => $actual_indent,
+      'expected_indent' => null
+    ];
+  }
+
+  /**
+   * Detects Heredoc/Nowdoc, DocBlock, and blank-line entries.
+   *
+   * @param array<int, array<string, mixed>> $tokens_list
+   * @param array<int, string|int> $line_tokens Filtered tokens for the line.
+   * @return array{tokens: array<int, string|int>, actual_indent: int, expected_indent: int|null}|null
+   */
+  private function detectSpecialLineEntry(int $line, array $tokens_list, int $pointer, array $line_tokens, int $actual_indent, bool $first_non_ws_found): ?array {
+    $first_token_code = $line_tokens[0] ?? null;
+
+    // Special handling for Heredoc/Nowdoc blocks: skip indentation
+    if ($this->isInsideHeredocOrNowdoc($line, $tokens_list, $pointer)) {
+      return ['tokens' => ['HEREDOC_BYPASS'], 'actual_indent' => $actual_indent, 'expected_indent' => null];
+    }
+
+    // Special handling for DocBlock start
+    if ($first_token_code === T_DOC_COMMENT_OPEN_TAG) {
+      return ['tokens' => ['START_DOC_BLOCK'], 'actual_indent' => $actual_indent, 'expected_indent' => null];
+    }
+
+    // Special handling for DocBlock continuation/end
+    if ($first_token_code === T_DOC_COMMENT_STAR || $first_token_code === T_DOC_COMMENT_CLOSE_TAG) {
+      return ['tokens' => ['DOC_BLOCK_LINE'], 'actual_indent' => $actual_indent, 'expected_indent' => null];
+    }
+
+    // Blank line handling: if no non-whitespace token found, mark sentinel for later fix (Prettier style => 0 indent)
+    if (!$first_non_ws_found) {
+      return ['tokens' => ['BLANK_LINE'], 'actual_indent' => $actual_indent, 'expected_indent' => null];
+    }
+
+    return null;
   }
 
   /**
@@ -456,27 +517,37 @@ class TwoSpacesIndentSniff implements Sniff {
     // Look backwards from current position to find Heredoc/Nowdoc markers
     for ($i = $pointer; $i >= 0; $i--) {
       $token = $tokens_list[$i];
-      // If we find a Heredoc/Nowdoc start on a previous line
+      // If we find a Heredoc/Nowdoc start on a previous line with a corresponding end marker,
+      // we're between start and end markers (including the end marker line itself).
+      // The end marker MUST be on its own line without indentation per PHP syntax.
       if (
         ($token['code'] === \T_START_HEREDOC || $token['code'] === T_START_NOWDOC)
         && $token['line'] < $line
+        && $this->hasHeredocEndMarkerAfter($tokens_list, $i + 1, $line)
       ) {
-        // Look forward to find the corresponding end marker
-        for ($j = $i + 1; $j < \count($tokens_list); $j++) {
-          $end_token = $tokens_list[$j];
-          if (
-            ($end_token['code'] === \T_END_HEREDOC || $end_token['code'] === T_END_NOWDOC)
-            && $end_token['line'] >= $line
-          ) {
-            // We're between start and end markers (including the end marker line itself)
-            // The end marker MUST be on its own line without indentation per PHP syntax
-            return true;
-          }
-        }
+        return true;
       }
       // If we reach a line before potential Heredoc start, stop searching
       if ($token['line'] < $line - 100) { // Reasonable limit for performance
         break;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Looks forward from $start for a Heredoc/Nowdoc end marker on or after $line.
+   *
+   * @param array<int, array<string, mixed>> $tokens_list
+   */
+  private function hasHeredocEndMarkerAfter(array $tokens_list, int $start, int $line): bool {
+    for ($j = $start; $j < \count($tokens_list); $j++) {
+      $end_token = $tokens_list[$j];
+      if (
+        ($end_token['code'] === \T_END_HEREDOC || $end_token['code'] === T_END_NOWDOC)
+        && $end_token['line'] >= $line
+      ) {
+        return true;
       }
     }
     return false;
@@ -509,10 +580,30 @@ class TwoSpacesIndentSniff implements Sniff {
     if ($count < 2) {
       return null;
     }
-    $top = array_pop($this->blockStack);
-    $parent = end($this->blockStack);
-    $this->blockStack[] = $top; // restore top
-    return $parent;
+    return $this->blockStack[$count - 2];
+  }
+
+  /**
+   * Pops transient contexts (CHAINED_BLOCK, TERNARY_OPERATOR) off the top of the stack.
+   *
+   * @return void
+   */
+  private function popTransientContexts(): void {
+    while (\in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
+      array_pop($this->blockStack);
+    }
+  }
+
+  /**
+   * Pops elements off the top of the stack while they match the given type.
+   *
+   * @param string $type
+   * @return void
+   */
+  private function popWhileStackTopIs(string $type): void {
+    while ($this->getStackTop() === $type) {
+      array_pop($this->blockStack);
+    }
   }
 
   /**
@@ -698,9 +789,7 @@ class TwoSpacesIndentSniff implements Sniff {
         $line_info['expected_indent'] = \count($this->blockStack) * self::SPACES;
         // If line ends with semicolon, also pop any remaining transient contexts
         if ($event_data['has_semicolon']) {
-          while (\in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
-            array_pop($this->blockStack);
-          }
+          $this->popTransientContexts();
         }
         return true;
 
@@ -718,9 +807,7 @@ class TwoSpacesIndentSniff implements Sniff {
           $this->popStackUntil(self::LIST_MULTILINE);
           $line_info['expected_indent'] = \count($this->blockStack) * self::SPACES;
           // Also pop any remaining transient contexts (TERNARY_OPERATOR, CHAINED_BLOCK)
-          while (\in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
-            array_pop($this->blockStack);
-          }
+          $this->popTransientContexts();
           return true;
         }
         // If no LIST_MULTILINE on stack, handle transient contexts
@@ -730,9 +817,7 @@ class TwoSpacesIndentSniff implements Sniff {
           // Calculate indentation at current level (before popping)
           $line_info['expected_indent'] = \count($this->blockStack) * self::SPACES;
           // Now pop transients: closing paren pops one, semicolon ends the statement
-          while (\in_array($this->getStackTop(), [self::CHAINED_BLOCK, self::TERNARY_OPERATOR])) {
-            array_pop($this->blockStack);
-          }
+          $this->popTransientContexts();
           return true;
         }
         // If no LIST_MULTILINE and no transients, treat as regular line
@@ -909,9 +994,7 @@ class TwoSpacesIndentSniff implements Sniff {
 
       case 'TERNARY_ELSE':
         // Pop all CHAINED_BLOCK contexts before handling ternary else
-        while ($this->getStackTop() === self::CHAINED_BLOCK) {
-          array_pop($this->blockStack);
-        }
+        $this->popWhileStackTopIs(self::CHAINED_BLOCK);
 
         // Calculate indentation at current level
         $line_info['expected_indent'] = \count($this->blockStack) * self::SPACES;
@@ -930,9 +1013,7 @@ class TwoSpacesIndentSniff implements Sniff {
 
         // If line ends with semicolon, pop ALL TERNARY_OPERATOR contexts
         if (($event_data['has_semicolon'] ?? false) && $this->getStackTop() === self::TERNARY_OPERATOR) {
-          while ($this->getStackTop() === self::TERNARY_OPERATOR) {
-            array_pop($this->blockStack);
-          }
+          $this->popWhileStackTopIs(self::TERNARY_OPERATOR);
           return true;
         }
 
@@ -941,9 +1022,7 @@ class TwoSpacesIndentSniff implements Sniff {
           ($event_data['has_comma'] ?? false)
           && \in_array(self::LIST_MULTILINE, $this->blockStack, true)
         ) {
-          while ($this->getStackTop() === self::TERNARY_OPERATOR) {
-            array_pop($this->blockStack);
-          }
+          $this->popWhileStackTopIs(self::TERNARY_OPERATOR);
           return true;
         }
 
@@ -966,6 +1045,32 @@ class TwoSpacesIndentSniff implements Sniff {
    * @return array{type: string, data: array<string, mixed>} Event type and associated data
    */
   private function detectEvent(array $line_tokens, int|string $first_token, int|string $last_token): array {
+    $event = $this->detectBlockEvent($line_tokens, $first_token, $last_token)
+    ?? $this->detectListEvent($line_tokens, $first_token, $last_token)
+    ?? $this->detectChainAndMatchEvent($line_tokens, $first_token, $last_token)
+    ?? $this->detectSwitchCaseEvent($first_token)
+    ?? $this->detectAssignmentAndTernaryEvent($first_token, $last_token);
+
+    if ($event !== null) {
+      return $event;
+    }
+
+    // Generic list opening (fallback for lines ending with list open tokens)
+    if (\in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)) {
+      return ['type' => 'GENERIC_LIST_OPEN', 'data' => []];
+    }
+
+    // Default: regular line
+    return ['type' => 'REGULAR', 'data' => []];
+  }
+
+  /**
+   * Detects block/closure opening and closing events.
+   *
+   * @param array<int, string|int> $line_tokens
+   * @return array{type: string, data: array<string, mixed>}|null
+   */
+  private function detectBlockEvent(array $line_tokens, int|string $first_token, int|string $last_token): ?array {
     // Block closure with immediate block opening (e.g., "} else {")
     if (
       $first_token === T_CLOSE_CURLY_BRACKET
@@ -1011,6 +1116,16 @@ class TwoSpacesIndentSniff implements Sniff {
       return ['type' => 'BLOCK_OPEN', 'data' => []];
     }
 
+    return null;
+  }
+
+  /**
+   * Detects list-opening and list-closing events.
+   *
+   * @param array<int, string|int> $line_tokens
+   * @return array{type: string, data: array<string, mixed>}|null
+   */
+  private function detectListEvent(array $line_tokens, int|string $first_token, int|string $last_token): ?array {
     // List opening
     if (
       !\in_array($first_token, self::LIST_MULTILINE_CLOSE_TOKENS)
@@ -1047,6 +1162,16 @@ class TwoSpacesIndentSniff implements Sniff {
       return ['type' => 'LIST_CLOSE_SEMICOLON', 'data' => []];
     }
 
+    return null;
+  }
+
+  /**
+   * Detects method-chaining and match-expression events.
+   *
+   * @param array<int, string|int> $line_tokens
+   * @return array{type: string, data: array<string, mixed>}|null
+   */
+  private function detectChainAndMatchEvent(array $line_tokens, int|string $first_token, int|string $last_token): ?array {
     // Method chaining start
     if (\in_array($first_token, [\T_OBJECT_OPERATOR, \T_NULLSAFE_OBJECT_OPERATOR])) {
       return ['type' => 'METHOD_CHAIN', 'data' => ['has_semicolon' => $last_token === T_SEMICOLON, 'has_comma' => $last_token === T_COMMA]];
@@ -1067,6 +1192,15 @@ class TwoSpacesIndentSniff implements Sniff {
       return ['type' => 'MATCH_CLOSE', 'data' => []];
     }
 
+    return null;
+  }
+
+  /**
+   * Detects switch/case opening and closing events.
+   *
+   * @return array{type: string, data: array<string, mixed>}|null
+   */
+  private function detectSwitchCaseEvent(int|string $first_token): ?array {
     // Switch block opening
     if ($first_token === \T_SWITCH) {
       return ['type' => 'SWITCH_OPEN', 'data' => []];
@@ -1090,6 +1224,15 @@ class TwoSpacesIndentSniff implements Sniff {
       return ['type' => 'SWITCH_CASE_CLOSE', 'data' => []];
     }
 
+    return null;
+  }
+
+  /**
+   * Detects assignment-multiline and ternary-operator events.
+   *
+   * @return array{type: string, data: array<string, mixed>}|null
+   */
+  private function detectAssignmentAndTernaryEvent(int|string $first_token, int|string $last_token): ?array {
     // Assignment multiline opening
     if ($last_token === T_EQUAL) {
       return ['type' => 'ASSIGNMENT_OPEN', 'data' => []];
@@ -1115,13 +1258,7 @@ class TwoSpacesIndentSniff implements Sniff {
       ]];
     }
 
-    // Generic list opening (fallback for lines ending with list open tokens)
-    if (\in_array($last_token, self::LIST_MULTILINE_OPEN_TOKENS)) {
-      return ['type' => 'GENERIC_LIST_OPEN', 'data' => []];
-    }
-
-    // Default: regular line
-    return ['type' => 'REGULAR', 'data' => []];
+    return null;
   }
 
 }

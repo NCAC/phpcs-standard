@@ -1,8 +1,8 @@
 <?php
-  /**
-   * BAD docblock
-   * description.
-   */
+/**
+ * BAD docblock
+ * description.
+ */
 function bar() {
   return 2;
 }

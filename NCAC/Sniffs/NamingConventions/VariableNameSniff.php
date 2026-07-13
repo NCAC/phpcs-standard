@@ -46,6 +46,7 @@ class VariableNameSniff implements Sniff {
    *
    * @return array<int|string> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     // Listen for all variable tokens
     return [\T_VARIABLE];
@@ -62,11 +63,10 @@ class VariableNameSniff implements Sniff {
    * @param  File $phpcs_file    The PHP_CodeSniffer file being analyzed.
    * @param  int  $stack_pointer The position of the T_VARIABLE token in the stack.
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer) {
     $tokens = $phpcs_file->getTokens();
-    $token = $tokens[$stack_pointer];
-    $var_name = ltrim($token['content'], '$');
-    $string_case_utils = StringCaseHelper::me();
+    $var_name = ltrim($tokens[$stack_pointer]['content'], '$');
 
     // Step 1: Skip PHP superglobals - they have standardized names.
     if ($this->isSuperglobal($var_name)) {
@@ -75,49 +75,19 @@ class VariableNameSniff implements Sniff {
 
     // Step 2: Function/closure parameters must use snake_case (Drupal convention).
     if ($this->isFunctionParameter($phpcs_file, $stack_pointer)) {
-      if (!$string_case_utils->isSnakeCase($var_name)) {
-        $fix = $phpcs_file->addFixableError(
-          "Parameter name '$var_name' must be in snake_case.",
-          $stack_pointer,
-          'ParamNotSnakeCase'
-        );
-        if ($fix) {
-          $fixed = $string_case_utils->toSnakeCase($var_name);
-          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
-        }
-      }
+      $this->enforceCase($phpcs_file, $stack_pointer, $var_name, 'snake', "Parameter name '$var_name' must be in snake_case.", 'ParamNotSnakeCase');
       return;
     }
 
     // Step 3: Class/trait properties must use camelCase (OOP convention).
     if ($this->isClassProperty($phpcs_file, $stack_pointer)) {
-      if (!$string_case_utils->isCamelCase($var_name)) {
-        $fix = $phpcs_file->addFixableError(
-          "Property name '$var_name' must be in camelCase.",
-          $stack_pointer,
-          'PropertyNotCamelCase'
-        );
-        if ($fix) {
-          $fixed = $string_case_utils->toCamelCase($var_name);
-          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
-        }
-      }
+      $this->enforceCase($phpcs_file, $stack_pointer, $var_name, 'camel', "Property name '$var_name' must be in camelCase.", 'PropertyNotCamelCase');
       return;
     }
 
     // Step 3.5: Static property access (self::$property, static::$property) must use camelCase.
     if ($this->isStaticPropertyAccess($phpcs_file, $stack_pointer)) {
-      if (!$string_case_utils->isCamelCase($var_name)) {
-        $fix = $phpcs_file->addFixableError(
-          "Static property access '$var_name' must be in camelCase.",
-          $stack_pointer,
-          'StaticPropertyNotCamelCase'
-        );
-        if ($fix) {
-          $fixed = $string_case_utils->toCamelCase($var_name);
-          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
-        }
-      }
+      $this->enforceCase($phpcs_file, $stack_pointer, $var_name, 'camel', "Static property access '$var_name' must be in camelCase.", 'StaticPropertyNotCamelCase');
       return;
     }
 
@@ -126,17 +96,7 @@ class VariableNameSniff implements Sniff {
       if (!isset($tokens[$stack_pointer]['line'])) {
         return;
       }
-      if (!$string_case_utils->isSnakeCase($var_name)) {
-        $fix = $phpcs_file->addFixableError(
-          "Dynamic property variable '$var_name' must be in snake_case.",
-          $stack_pointer,
-          'DynamicPropertyVarNotSnakeCase'
-        );
-        if ($fix) {
-          $fixed = $string_case_utils->toSnakeCase($var_name);
-          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
-        }
-      }
+      $this->enforceCase($phpcs_file, $stack_pointer, $var_name, 'snake', "Dynamic property variable '$var_name' must be in snake_case.", 'DynamicPropertyVarNotSnakeCase');
       return;
     }
 
@@ -144,20 +104,29 @@ class VariableNameSniff implements Sniff {
     $is_local_variable = $this->isLocalVariable($phpcs_file, $stack_pointer);
     $is_global_variable = $this->isGlobalVariable($phpcs_file, $stack_pointer);
     if ($is_local_variable || $is_global_variable) {
-      if (!$string_case_utils->isSnakeCase($var_name)) {
-        $fix = $phpcs_file->addFixableError(
-          "Variable name '$var_name' must be in snake_case.",
-          $stack_pointer,
-          'LocalOrGlobalNotSnakeCase'
-        );
-        if ($fix) {
-          $fixed = $string_case_utils->toSnakeCase($var_name);
-          $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
-        }
-      }
+      $this->enforceCase($phpcs_file, $stack_pointer, $var_name, 'snake', "Variable name '$var_name' must be in snake_case.", 'LocalOrGlobalNotSnakeCase');
       return;
     }
     // If no specific context is detected, skip processing
+  }
+
+  /**
+   * Reports and auto-fixes a variable name that does not match the given case convention.
+   *
+   * @param 'snake'|'camel' $case
+   */
+  private function enforceCase(File $phpcs_file, int $stack_pointer, string $var_name, string $case, string $message, string $error_code): void {
+    $string_case_utils = StringCaseHelper::me();
+    $is_valid = $case === 'snake' ? $string_case_utils->isSnakeCase($var_name) : $string_case_utils->isCamelCase($var_name);
+    if ($is_valid) {
+      return;
+    }
+    $fix = $phpcs_file->addFixableError($message, $stack_pointer, $error_code);
+    if (!$fix) {
+      return;
+    }
+    $fixed = $case === 'snake' ? $string_case_utils->toSnakeCase($var_name) : $string_case_utils->toCamelCase($var_name);
+    $phpcs_file->fixer->replaceToken($stack_pointer, '$' . $fixed);
   }
 
   /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="NCAC PHPCS Standard" default="check">
-    <target name="check" depends="composer,psalm,cs,cs-fix,tests,end2end,yamllint" description="Run all checks and tests"/>
+    <target name="check" depends="composer,psalm,cs,cs-fix,cognitive-complexity,tests,end2end,yamllint" description="Run all checks and tests"/>
 
     <target name="composer" description="Validate and install composer dependencies">
         <exec executable="composer" logoutput="true" passthru="true" checkreturn="true">
@@ -34,6 +34,14 @@
             <arg value="--output-format=console"/>
             <arg value="--show-info=false"/>
             <arg value="--no-cache"/>
+        </exec>
+    </target>
+
+    <!-- Cognitive Complexity - All sites -->
+    <target name="cognitive-complexity" description="Check cognitive complexity">
+        <exec executable="vendor/bin/cognitive-complexity" logoutput="true" passthru="true" checkreturn="true">
+            <arg value="check"/>
+            <arg value="NCAC/"/>
         </exec>
     </target>
 

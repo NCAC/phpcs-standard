@@ -372,6 +372,38 @@ abstract class SniffUnitTest extends TestCase {
         $this->fail("Unexpected warning found on line $line in $test_file");
       }
     }
+
+    $this->verifyFixedFile($phpcs_file, $test_file);
+  }
+
+  /**
+   * If a "<test_file>.fixed" fixture exists alongside the test file, runs the
+   * sniffs' auto-fixer against the file and asserts the result matches it exactly.
+   *
+   * This is what actually exercises the fixer branches (addFixableError() + fixer->*
+   * calls) in each sniff: without it, the fixer is never enabled during tests, so
+   * addFixableError() always returns false and no fix code ever runs.
+   *
+   * Skipped when this sniff (under its isolated test ruleset) has nothing fixable:
+   * detection-only sniffs never populate the fixer, so a ".fixed" fixture present
+   * here belongs to the e2e suite's full-pipeline workflow (php-cs-fixer + phpcbf
+   * with the full NCAC standard), not to this single-sniff comparison.
+   *
+   * @param LocalFile $phpcs_file The already-processed file being tested.
+   * @param string    $test_file  Path to the fixture file being tested.
+   */
+  protected function verifyFixedFile(LocalFile $phpcs_file, string $test_file): void {
+    $fixed_file = $test_file . '.fixed';
+    if (!is_file($fixed_file) || $phpcs_file->getFixableCount() === 0) {
+      return;
+    }
+    $phpcs_file->fixer->fixFile();
+    $expected_content = file_get_contents($fixed_file);
+    $this->assertSame(
+      $expected_content,
+      $phpcs_file->fixer->getContents(),
+      "Fixed version of $test_file does not match expected version in $fixed_file"
+    );
   }
 
 }

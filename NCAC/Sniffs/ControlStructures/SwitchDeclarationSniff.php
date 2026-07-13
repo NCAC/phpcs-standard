@@ -35,6 +35,7 @@ class SwitchDeclarationSniff implements Sniff {
    *
    * @return array<int|string> List of token codes this sniff listens to.
    */
+  #[\Override]
   public function register(): array {
     return [\T_SWITCH];
   }
@@ -54,6 +55,7 @@ class SwitchDeclarationSniff implements Sniff {
    *
    * @return void This method does not return a value but reports errors via addError().
    */
+  #[\Override]
   public function process(File $phpcs_file, int $stack_pointer): void {
     $tokens = $phpcs_file->getTokens();
 
@@ -88,86 +90,11 @@ class SwitchDeclarationSniff implements Sniff {
         $case_count++;
       }
 
-      // Rule 1: Enforce lowercase keywords.
-      if ($tokens[$next_case]['content'] !== strtolower($tokens[$next_case]['content'])) {
-        $expected = strtolower($tokens[$next_case]['content']);
-        $error = \sprintf("%s keyword must be lowercase; expected '%s' but found '%s'", $type, $expected, $tokens[$next_case]['content']);
-        $phpcs_file->addError($error, $next_case, $type . 'NotLower');
-      }
-
-      // Rule 2: No space before colon in case/default statements.
-      // Check if there's whitespace immediately before the colon token.
-      if (isset($tokens[$next_case]['scope_opener'])) {
-        $opener = $tokens[$next_case]['scope_opener'];
-        if ($tokens[$opener - 1]['type'] === 'T_WHITESPACE') {
-          $error = \sprintf('No space allowed before colon in %s statement', $type);
-          $phpcs_file->addError($error, $next_case, 'SpaceBeforeColon' . $type);
-        }
-      }
-
-      // Rule 3: CASE/DEFAULT blocks must not be empty.
-      // Scan the content between scope opener and the next case/default.
-      if (isset($tokens[$next_case]['scope_opener'])) {
-        $opener = $tokens[$next_case]['scope_opener'];
-        // Find the next case/default or the switch closer
-        $next_boundary = $phpcs_file->findNext(
-          [\T_CASE, \T_DEFAULT],
-          $opener + 1,
-          $switch['scope_closer']
-        );
-        if ($next_boundary === false) {
-          $next_boundary = $switch['scope_closer'];
-        }
-        $found_content = false;
-        // Loop through all tokens until the next case/default
-        for ($i = $opener + 1; $i < $next_boundary; $i++) {
-          // Nested switch statements count as content, but we skip their internals
-          if ($tokens[$i]['code'] === \T_SWITCH && isset($tokens[$i]['scope_closer'])) {
-            $found_content = true;
-            $i = $tokens[$i]['scope_closer'];
-            continue;
-          }
-          // Accept any meaningful content: non-empty tokens, comments, or control flow statements
-          if (
-            isset(Tokens::EMPTY_TOKENS[$tokens[$i]['code']]) === false
-            || $tokens[$i]['code'] === \T_COMMENT
-            || $tokens[$i]['code'] === \T_DOC_COMMENT
-            || \in_array($tokens[$i]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true)
-          ) {
-            $found_content = true;
-            break;
-          }
-        }
-        // Report errors for empty blocks with appropriate messages
-        if ($found_content === false) {
-          if ($type === 'Default') {
-            $phpcs_file->addError('Comment required for empty DEFAULT case', $next_case, 'EmptyDefault');
-          } else {
-            $phpcs_file->addError('Empty CASE statements are not allowed', $next_case, 'EmptyCase');
-          }
-        }
-      }
-
-      // Rule 4: No blank lines allowed before break statements.
-      // Check spacing between the last content and the break statement.
-      if (isset($tokens[$next_case]['scope_closer'])) {
-        $closer = $tokens[$next_case]['scope_closer'];
-        if ($tokens[$closer]['code'] === \T_BREAK) {
-          $prev = $phpcs_file->findPrevious(\T_WHITESPACE, ($closer - 1), $stack_pointer, true);
-          if ($tokens[$prev]['line'] !== ($tokens[$closer]['line'] - 1)) {
-            $phpcs_file->addError('Blank lines are not allowed before break statements', $closer, 'SpacingBeforeBreak');
-          }
-        }
-      }
-
-      // Rule 5: Mandatory break/return/throw/exit/goto statement at the end of each CASE and DEFAULT block.
-      // Every case and default must terminate with a break (no fall-through allowed).
-      if (isset($tokens[$next_case]['scope_closer'])) {
-        $closer = $tokens[$next_case]['scope_closer'];
-        if (\in_array($tokens[$closer]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true) === false) {
-          $phpcs_file->addError('Each CASE and DEFAULT must end with a break/exit/return/throw statement', $closer, 'MissingBreak');
-        }
-      }
+      $this->checkKeywordLowercase($phpcs_file, $tokens, $next_case, $type);
+      $this->checkSpaceBeforeColon($phpcs_file, $tokens, $next_case, $type);
+      $this->checkCaseNotEmpty($phpcs_file, $tokens, $next_case, $type, $switch['scope_closer']);
+      $this->checkNoBlankLineBeforeBreak($phpcs_file, $tokens, $next_case, $stack_pointer);
+      $this->checkTerminatingStatement($phpcs_file, $tokens, $next_case);
     }
 
     // Rule 6: Every SWITCH statement must contain a DEFAULT case.
@@ -180,6 +107,122 @@ class SwitchDeclarationSniff implements Sniff {
     // A switch with only a default case is considered invalid structure.
     if ($case_count === 0) {
       $phpcs_file->addError('SWITCH statements must contain at least one CASE statement', $stack_pointer, 'MissingCase');
+    }
+  }
+
+  /**
+   * Rule 1: Enforce lowercase keywords.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkKeywordLowercase(File $phpcs_file, array $tokens, int $next_case, string $type): void {
+    if ($tokens[$next_case]['content'] !== strtolower($tokens[$next_case]['content'])) {
+      $expected = strtolower($tokens[$next_case]['content']);
+      $error = \sprintf("%s keyword must be lowercase; expected '%s' but found '%s'", $type, $expected, $tokens[$next_case]['content']);
+      $phpcs_file->addError($error, $next_case, $type . 'NotLower');
+    }
+  }
+
+  /**
+   * Rule 2: No space before colon in case/default statements.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkSpaceBeforeColon(File $phpcs_file, array $tokens, int $next_case, string $type): void {
+    if (!isset($tokens[$next_case]['scope_opener'])) {
+      return;
+    }
+    $opener = $tokens[$next_case]['scope_opener'];
+    if ($tokens[$opener - 1]['type'] === 'T_WHITESPACE') {
+      $error = \sprintf('No space allowed before colon in %s statement', $type);
+      $phpcs_file->addError($error, $next_case, 'SpaceBeforeColon' . $type);
+    }
+  }
+
+  /**
+   * Rule 3: CASE/DEFAULT blocks must not be empty.
+   * Scans the content between the scope opener and the next case/default.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkCaseNotEmpty(File $phpcs_file, array $tokens, int $next_case, string $type, int $scope_closer): void {
+    if (!isset($tokens[$next_case]['scope_opener'])) {
+      return;
+    }
+    $opener = $tokens[$next_case]['scope_opener'];
+    // Find the next case/default or the switch closer
+    $next_boundary = $phpcs_file->findNext([\T_CASE, \T_DEFAULT], $opener + 1, $scope_closer);
+    if ($next_boundary === false) {
+      $next_boundary = $scope_closer;
+    }
+    if ($this->caseBlockHasContent($tokens, $opener + 1, $next_boundary)) {
+      return;
+    }
+    // Report errors for empty blocks with appropriate messages
+    if ($type === 'Default') {
+      $phpcs_file->addError('Comment required for empty DEFAULT case', $next_case, 'EmptyDefault');
+    } else {
+      $phpcs_file->addError('Empty CASE statements are not allowed', $next_case, 'EmptyCase');
+    }
+  }
+
+  /**
+   * Scans tokens in [start, end) for any meaningful content, skipping nested switch internals.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function caseBlockHasContent(array $tokens, int $start, int $end): bool {
+    for ($i = $start; $i < $end; $i++) {
+      // Nested switch statements count as content, but we skip their internals
+      if ($tokens[$i]['code'] === \T_SWITCH && isset($tokens[$i]['scope_closer'])) {
+        return true;
+      }
+      // Accept any meaningful content: non-empty tokens, comments, or control flow statements
+      if (
+        isset(Tokens::EMPTY_TOKENS[$tokens[$i]['code']]) === false
+        || $tokens[$i]['code'] === \T_COMMENT
+        || $tokens[$i]['code'] === \T_DOC_COMMENT
+        || \in_array($tokens[$i]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Rule 4: No blank lines allowed before break statements.
+   * Checks spacing between the last content and the break statement.
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkNoBlankLineBeforeBreak(File $phpcs_file, array $tokens, int $next_case, int $stack_pointer): void {
+    if (!isset($tokens[$next_case]['scope_closer'])) {
+      return;
+    }
+    $closer = $tokens[$next_case]['scope_closer'];
+    if ($tokens[$closer]['code'] !== \T_BREAK) {
+      return;
+    }
+    $prev = $phpcs_file->findPrevious(\T_WHITESPACE, ($closer - 1), $stack_pointer, true);
+    if ($tokens[$prev]['line'] !== ($tokens[$closer]['line'] - 1)) {
+      $phpcs_file->addError('Blank lines are not allowed before break statements', $closer, 'SpacingBeforeBreak');
+    }
+  }
+
+  /**
+   * Rule 5: Mandatory break/return/throw/exit statement at the end of each CASE and DEFAULT block.
+   * Every case and default must terminate with a break (no fall-through allowed).
+   *
+   * @param array<int, array<string, mixed>> $tokens
+   */
+  private function checkTerminatingStatement(File $phpcs_file, array $tokens, int $next_case): void {
+    if (!isset($tokens[$next_case]['scope_closer'])) {
+      return;
+    }
+    $closer = $tokens[$next_case]['scope_closer'];
+    if (\in_array($tokens[$closer]['code'], [\T_BREAK, \T_EXIT, \T_RETURN, \T_THROW], true) === false) {
+      $phpcs_file->addError('Each CASE and DEFAULT must end with a break/exit/return/throw statement', $closer, 'MissingBreak');
     }
   }
 
