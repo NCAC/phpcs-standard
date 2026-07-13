@@ -1,5 +1,23 @@
 # Changelog
 
+# [5.0.0](https://github.com/ncac/phpcs-standard/compare/v4.1.5...v5.0.0) (2026-07-13)
+
+
+### chore
+
+* fix composer install error (github ci) ([](https://github.com/ncac/phpcs-standard/commit/486b0496e2fde935ce65f9a733afcd75a33e723f))
+
+
+### feat
+
+* bump version php+ enhance codecov ([](https://github.com/ncac/phpcs-standard/commit/38fc28f569e73a5729b134b6e02770dc26b1557d))
+
+
+### BREAKING CHANGE
+
+* drop PHP 8.1 support, minimum supported PHP version is
+  now 8.2
+
 ## [4.1.5](https://github.com/ncac/phpcs-standard/compare/v4.1.4...v4.1.5) (2026-01-07)
 
 
