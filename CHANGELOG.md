@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.0.1](https://github.com/ncac/phpcs-standard/compare/v5.0.0...v5.0.1) (2026-09-22)
+
+
+### chore
+
+* delete unused documentation ([](https://github.com/ncac/phpcs-standard/commit/843e1d646e690e9c80e09a0b6f96d7ec53256502))
+* **deps:** bump actions/checkout from 4.4.0 to 7.0.1 ([](https://github.com/ncac/phpcs-standard/commit/c40585ade7a9f3661c54d55c60f78d02f9e944db))
+* **deps:** bump actions/setup-python from 4.9.1 to 7.0.0 ([](https://github.com/ncac/phpcs-standard/commit/5dac9cc2ca10c49aee52c722cf3da991c78145b5))
+* **deps:** bump codecov/codecov-action from 3.1.6 to 7.1.1 ([](https://github.com/ncac/phpcs-standard/commit/5e7fbd67aeaf574bd17f4ffa17076db656b82e01))
+* pin CI actions to SHA, add SECURITY.md and dependabot ([](https://github.com/ncac/phpcs-standard/commit/c1334fefe60e01a87742c9f7523e4e93edca5e7b))
+* update composer dependencies ([](https://github.com/ncac/phpcs-standard/commit/d7df55d4fc2da532536c9fe900e94cf0da43216d))
+
 # [5.0.0](https://github.com/ncac/phpcs-standard/compare/v4.1.5...v5.0.0) (2026-07-13)
 
 
