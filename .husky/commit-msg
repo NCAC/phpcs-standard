@@ -4,7 +4,7 @@
 # Commit message validation script
 # Message must start with feat:, chore:, fix:, refacto:, docs:, or release:
 
-commit_regex='^(feat|chore|fix|refacto|docs|release)(\(.+\))?: .{1,}'
+commit_regex='^(feat|chore|fix|refacto|docs|release|merge)(\(.+\))?: .{1,}'
 
 if ! grep -qE "$commit_regex" "$1"; then
     echo ""
