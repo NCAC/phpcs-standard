@@ -82,4 +82,7 @@ ENV PATH="/usr/local/bin:${PATH}"
 # start with the user root
 USER root
 
+# Install CodeGraph CLI (analyse de code statique pour PHP, JS, etc.)
+RUN curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
 ENV PATH="${APP_ROOT}/vendor/bin:/root/.local/bin:${PATH}"
