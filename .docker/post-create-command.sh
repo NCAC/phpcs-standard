@@ -10,8 +10,16 @@ git config --local core.ignorecase false
 # This is useful in environments like Docker where file permissions may differ
 git config --local core.filemode false
 
-# install  all the nodejs packages
-pnpm i
+# Verify the effective pnpm version against the project manifest.
+expected_pnpm_version=$(node -p "require('./package.json').packageManager.match(/^pnpm@([^+]+)/)[1]") || exit 1
+actual_pnpm_version=$(pnpm --version) || exit 1
+if [ "$actual_pnpm_version" != "$expected_pnpm_version" ]; then
+  echo "❌ Incorrect pnpm version : $actual_pnpm_version (expected : $expected_pnpm_version). Rebuild the DevContainer." >&2
+  exit 1
+fi
+
+# Install dependencies without modifying the lockfile; stop on failure.
+pnpm install --frozen-lockfile || exit 1
 
 # composer install and autoload
 composer i

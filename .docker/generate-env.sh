@@ -63,7 +63,7 @@ cat > "$ENV_FILE" << EOF
 
 # Application configuration
 APP_NAME=ncac-phpcs-standard
-PHP_VERSION=8.2.18
+PHP_VERSION=8.2.35
 APP_ROOT=/workspace
 
 # WSL2 and XDebug configuration
