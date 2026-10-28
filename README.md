@@ -7,483 +7,258 @@
 [![codecov](https://codecov.io/gh/ncac/phpcs-standard/branch/main/graph/badge.svg)](https://codecov.io/gh/ncac/phpcs-standard)
 [![License](https://img.shields.io/github/license/ncac/phpcs-standard)](https://github.com/ncac/phpcs-standard/blob/main/LICENSE)
 
-> **An opinionated PHP coding standard focused on type safety and consistency**
->
-> NCAC is a comprehensive PHP_CodeSniffer standard that enforces strict typing, consistent naming conventions, and 2-space indentation. Built on top of proven standards like Slevomat, it adds custom rules designed for modern PHP development practices.
+**An opinionated PHP coding standard, and the command that applies it.**
 
-## 🎯 Key Features
+This package ships two things:
 
-### **Strict Type Safety**
+1. **`NCAC`**, a [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) standard: explicit types everywhere, 2-space indentation, K&R braces, and naming that depends on context (`snake_case` variables and functions, `camelCase` methods and properties, `PascalCase` classes).
+2. **`ncac-format`**, a command that brings existing code to that standard in two passes (PHP-CS-Fixer, then PHPCBF) and then tells you exactly what is left to fix by hand.
 
-Enforces explicit type declarations for all parameters, return values, and properties to catch errors early and improve code clarity.
+The standard says what compliant code looks like. `ncac-format` gets your code there.
+
+```bash
+composer require --dev ncac/phpcs-standard
+
+vendor/bin/ncac-format src/            # fix, then report what is left
+vendor/bin/ncac-format --dry-run src/  # preview the changes, write nothing
+vendor/bin/ncac-format --check         # validate only, for CI and git hooks
+```
+
+## Contents
+
+- [`ncac-format`](#ncac-format)
+- [The NCAC standard](#the-ncac-standard)
+- [Configuration](#configuration)
+- [Drupal projects](#drupal-projects)
+- [Requirements](#requirements)
+- [Development](#development)
+
+## `ncac-format`
+
+### Why two passes
+
+PHPCBF fixes code token by token, one sniff after the other, on a shared token stream. That is fine for local fixes (indentation, spacing, renaming) but unsafe for structural rewrites: turning `if (...): ... endif;` into braces, removing unused imports or adding `declare(strict_types=1)` can be undone or broken by the sniffs that run next. This is why some NCAC sniffs, such as `NoAlternateControlStructure`, only *detect* problems.
+
+PHP-CS-Fixer is built for structural rewrites. So `ncac-format` runs:
+
+```
+                 pass 1                    pass 2                validation
+your code ──▶ PHP-CS-Fixer ──▶ PHPCBF (your PHPCS config) ──▶ PHPCS ──▶ exit code
+              structural         NCAC rules: indentation,       what is left
+              rewrites           naming, class spacing, ...     to fix by hand
+```
+
+PHPCS is the reference: code is compliant when PHPCS reports nothing. PHP-CS-Fixer is only a means to get there.
+
+### Modes
+
+| Command | Writes files | Runs | Use it for |
+|---|---|---|---|
+| `ncac-format [<path>...]` | yes | Fixer, PHPCBF, PHPCS | everyday formatting |
+| `ncac-format --dry-run [<path>...]` | no | Fixer and PHPCBF as diffs | reviewing what would change |
+| `ncac-format --check [<path>...]` | no | PHPCS | CI, git hooks |
+
+Paths are relative to the current directory. Several paths can be given, and the default is the current directory. A path that does not exist is an error.
+
+### Configuration lookup
+
+`ncac-format` looks for configuration files in the project root, which is the closest directory containing a `composer.json`, starting from the current directory.
+
+| Pass | First file found, in this order | Without one |
+|---|---|---|
+| PHPCBF and PHPCS | `.phpcs.xml`, `phpcs.xml`, `.phpcs.xml.dist`, `phpcs.xml.dist` (PHP_CodeSniffer's own order) | the `NCAC` standard, with `vendor/` and `node_modules/` ignored |
+| PHP-CS-Fixer | `.php-cs-fixer.php`, `.php-cs-fixer.dist.php` | the [configuration shipped with this package](.php-cs-fixer.dist.php) |
+
+Your configuration always wins: sniff properties, exclusions and file extensions from your `phpcs.xml` apply to both PHPCBF and PHPCS. PHP-CS-Fixer runs with `--path-mode=intersection`, so the paths you pass narrow your Finder instead of replacing it, and its exclusions still apply.
+
+### Exit codes
+
+| Code | Fix and `--check` | `--dry-run` |
+|---|---|---|
+| `0` | compliant | nothing would change |
+| `1` | violations remain and need a manual fix | at least one pass would change a file |
+| `2` | invalid usage (unknown option, conflicting modes, missing path) | same |
+| `3` | a tool is missing or failed; the run stops at the failing step | same |
+
+See the [`ncac-format` reference](docs/NCAC_FORMAT_COMMAND.md) for Composer scripts, CI, git hooks, editor tasks and known limitations.
+
+## The NCAC standard
+
+### Explicit types
+
+Parameters, return values and properties must be typed (Slevomat `TypeHints` rules).
 
 ```php
-// ❌ Avoided: ambiguous types
+// ❌
 function process($data) {
-    return $data->value;
+  return $data->value;
 }
 
-// ✅ Required: explicit types
+// ✅
 function process(DataObject $data): string {
   return $data->value;
 }
 ```
 
-### **2-Space Indentation with Smart Array Handling**
+### Naming depends on context
 
-Uses 2-space indentation with context-aware formatting for arrays and function arguments.
+| Element | Convention | Example |
+|---|---|---|
+| Classes, interfaces, traits | `PascalCase` | `UserRepository` |
+| Methods | `camelCase` | `findUser()` |
+| Properties | `camelCase` | `$this->connectionString` |
+| Functions | `snake_case` | `mymodule_helper()` |
+| Parameters and local variables | `snake_case` | `$user_id`, `$query_result` |
+| Constants | `UPPER_CASE` | `CACHE_TTL` |
 
-```php
-// ✅ Function arguments formatting
-$result = my_function([
-  'clean' => 'readable',
-  'consistent' => 'maintainable'
-]);
+### Layout
 
-// ✅ Nested arrays maintain hierarchy
-$config = [
-  'database' => [
-    'host' => 'localhost',
-    'port' => 3306
-  ]
-];
-```
-
-### **Consistent Naming Conventions**
-
-Enforces context-appropriate naming: `snake_case` for variables and functions, `camelCase` for class properties and methods, `PascalCase` for classes.
+2-space indentation, K&R braces, one blank line after a class opening brace and before its closing brace, one blank line between members, and class members ordered by kind and visibility.
 
 ```php
-// ✅ Consistent naming across contexts
 class UserRepository {
 
-  private string $connectionString;  // camelCase property
+  public const CACHE_TTL = 3600;
 
-  public function findUser(int $user_id): User {  // snake_case parameter
-    $query_result = $this->executeQuery($user_id);  // snake_case variable
-    return $this->mapToUser($query_result);  // camelCase method
+  private string $connectionString;
+
+  public function findUser(int $user_id): ?User {
+    $query_result = $this->executeQuery($user_id);
+    if ($query_result !== null) {
+      return $this->mapToUser($query_result);
+    }
+    return null;
   }
 
 }
 ```
 
-## 🏗️ What Makes NCAC Different?
+### Rules
 
-This is an **opinionated** standard that makes specific choices about code formatting and structure. While these choices work well for many teams, they may not suit every project or preference.
+The `NCAC` standard combines 11 custom sniffs with selected [Slevomat](https://github.com/slevomat/coding-standard), Generic and Squiz rules ([ruleset](NCAC/ruleset.xml), [rules reference](docs/rules-reference.md)).
 
-### **Built on Proven Foundations**
+| Custom sniff | Enforces | Auto-fix |
+|---|---|---|
+| `NCAC.WhiteSpace.TwoSpacesIndent` | 2-space indentation | yes |
+| `NCAC.WhiteSpace.DeclarationSpacing` | one space after `function`, `class`, `interface`, `trait`, `enum` | yes |
+| `NCAC.Formatting.OpeningBraceKAndR` | opening brace on the declaration line | yes |
+| `NCAC.Formatting.ClassOpeningSpacing` | blank lines after a class opening brace | yes |
+| `NCAC.Formatting.ClassClosingSpacing` | blank lines before a class closing brace | yes |
+| `NCAC.Formatting.NoAlternateControlStructure` | no `if: ... endif;` syntax | no (pass 1 fixes it) |
+| `NCAC.ControlStructures.SwitchDeclaration` | `switch` structure: `default` required, every block ends with `break` | no |
+| `NCAC.NamingConventions.PascalCaseClassName` | `PascalCase` classes, interfaces, traits | yes |
+| `NCAC.NamingConventions.MethodName` | `camelCase` methods | yes |
+| `NCAC.NamingConventions.FunctionName` | `snake_case` functions | yes |
+| `NCAC.NamingConventions.VariableName` | contextual variable naming (see above) | yes |
 
-- Extends **Slevomat Coding Standard** for type safety and structural rules
-- Adds **7 custom sniffs** for specific formatting requirements
-- Requires **PHP 8.0+** for modern type safety features (union types, named arguments, etc.)
-- Designed for **auto-fixing** to minimize manual formatting work
+## Configuration
 
-> **Note:** For PHP 7.4 support, use version `^1.2.0`. See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) for migration details.
-
-### **Opinionated Choices**
-
-- **2-space indentation** instead of the more common 4-space
-- **Strict type hints** required everywhere (may be challenging for legacy code)
-- **Specific naming conventions** that mix snake_case and camelCase based on context
-- **Minimal class spacing** for compact, readable code structure
-
-### **When to Consider NCAC**
-
-✅ **Good fit for:**
-
-- New projects starting fresh
-- Teams that prefer strict typing and consistent formatting
-- Projects that can adopt 2-space indentation
-- Codebases that can enforce type hints everywhere
-
-⚠️ **Consider carefully for:**
-
-- Large legacy codebases (strict typing requirements)
-- Teams strongly preferring 4-space indentation
-- Projects with existing PSR-12 compliance requirements
-- Mixed coding style preferences within the team
-
-## 📊 Quality Assurance
-
-### Continuous Integration (PHP 8.0 - 8.2)
-
-[![Psalm Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=psalm)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
-[![PHPCS Analysis](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpcs)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
-[![PHPUnit Tests](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml/badge.svg?branch=main&job=phpunit)](https://github.com/ncac/phpcs-standard/actions/workflows/ci.yml)
-
-## ⚡ Quick Start
-
-### Requirements
-
-- **PHP 8.0+** (for PHP 7.4 support, use version `^1.2.0`)
-- Composer
-
-### Installation
-
-```bash
-composer require --dev ncac/phpcs-standard
-```
-
-### Basic Usage
-
-#### Quick Start: One-Line Command
-
-The easiest way to apply the full NCAC formatting workflow:
-
-```bash
-# Using the dedicated command (recommended)
-vendor/bin/ncac-format src/
-
-# Preview changes without applying them
-vendor/bin/ncac-format --dry-run src/
-
-# Format all files in current directory
-vendor/bin/ncac-format
-
-# Alternative: Using Composer script
-composer format src/
-
-# Alternative: Using bash script directly
-bash vendor/ncac/phpcs-standard/scripts/ncac-fix.sh src/
-```
-
-This automatically runs the complete 3-step formatting workflow for you (PHP-CS-Fixer → PHPCBF → PHPCS validation).
-
-> 💡 **Pro Tip:** Add a script to your project's `composer.json` for easy access:
-> ```json
-> {
->   "scripts": {
->     "format": "vendor/bin/ncac-format",
->     "format:dry": "vendor/bin/ncac-format --dry-run"
->   }
-> }
-> ```
-> Then run: `composer format` or `composer format:dry`
-
-#### Manual: Full Workflow (Advanced)
-
-If you prefer running each step manually:
-
-```bash
-# Step 1: Apply PHP-CS-Fixer for complex transformations
-vendor/bin/php-cs-fixer fix src/ --config=vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php
-
-# Step 2: Apply PHPCBF for NCAC-specific corrections
-vendor/bin/phpcbf --standard=NCAC src/
-
-# Step 3: Check remaining violations
-vendor/bin/phpcs --standard=NCAC src/
-```
-
-> **Why this workflow?** PHP-CS-Fixer handles ~95% of complex formatting (alternate syntax, spacing), while PHPCBF handles NCAC-specific rules. This combination achieves the best conformity to the standard.
-
-#### Alternative: PHPCS/PHPCBF Only
-
-If you prefer to use only PHPCS tools (without PHP-CS-Fixer):
-
-```bash
-# Check your code
-vendor/bin/phpcs --standard=NCAC src/
-
-# Auto-fix issues (may not fix all violations)
-vendor/bin/phpcbf --standard=NCAC src/
-```
-
-> **Note:** Using PHPCBF alone may leave some violations unfixed (~60% auto-fix rate vs ~95% with the full workflow). See [docs/WORKFLOW_STRATEGY.md](docs/WORKFLOW_STRATEGY.md) for details.
-
-### Project Configuration
-
-Create a `phpcs.xml` in your project root:
+Create a `phpcs.xml` in your project root. `ncac-format`, `phpcs` and `phpcbf` all pick it up.
 
 ```xml
 <?xml version="1.0"?>
-<ruleset name="YourProject">
-    <description>Your project coding standard</description>
-    <rule ref="NCAC"/>
+<ruleset name="My project">
+  <file>src</file>
+  <file>tests</file>
 
-    <!-- Your source directories -->
-    <file>src</file>
-    <file>tests</file>
-
-    <!-- Optional: Exclude specific rules if needed -->
-    <rule ref="NCAC">
-        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
-    </rule>
+  <rule ref="NCAC">
+    <!-- Relax a rule during a migration -->
+    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
+  </rule>
 </ruleset>
 ```
 
-## 📚 Documentation
+Configurable sniff properties:
 
-- **📖 [Complete Rules Reference](docs/rules-reference.md)** - Detailed examples for all 21 rules
-- **⚙️ [Workflow Strategy](docs/WORKFLOW_STRATEGY.md)** - PHP-CS-Fixer + PHPCBF integration and migration plan
-- **🔄 [Code Quality Workflow](docs/CODE_QUALITY_WORKFLOW.md)** - Auto-fixing and CI/CD integration
-- **🛠️ [Development Setup Guide](docs/dev-container-setup.md)** - VS Code Dev Container setup
-- **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+| Sniff | Property | Default | Effect |
+|---|---|---|---|
+| `NCAC.NamingConventions.FunctionName` | `allowDoubleUnderscore` | `false` | allows `__` in function names (Drupal hooks) |
+| `NCAC.NamingConventions.FunctionName` | `allowLeadingUnderscore` | `false` | allows a leading `_` (Drupal internal functions) |
+| `NCAC.Formatting.ClassOpeningSpacing` | `linesCount` | `1` | blank lines after a class opening brace |
+| `NCAC.Formatting.ClassClosingSpacing` | `linesCount` | `1` | blank lines before a class closing brace |
 
-## 🎨 Code Examples
-
-### Before (Inconsistent formatting)
-
-```php
-class userRepository
-{
-
-    function findUser($userId)
-    {
-        $queryResult = $this->executeQuery($userId);
-        if ($queryResult) {
-            return $queryResult;
-        }
-        return null;
-    }
-
-    private $connectionString;
-    const CACHE_TTL = 3600;
-
-
-}
-```
-
-### After (NCAC compliant)
-
-```php
-class UserRepository {
-
-    private string $connectionString;
-
-    public const CACHE_TTL = 3600;
-
-    public function findUser(int $user_id): ?User {
-      $query_result = $this->executeQuery($user_id);
-      if ($query_result !== null) {
-        return $this->mapToUser($query_result);
-      }
-      return null;
-    }
-
-}
-```
-
-## 🔧 Advanced Configuration
-
-### Custom Rulesets
-
-Disable specific rules for legacy codebases:
+The Slevomat rules keep their own properties, for example:
 
 ```xml
-<!-- Gradually adopt NCAC -->
-<rule ref="NCAC">
-    <!-- Disable strict typing for migration period -->
-    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
-    <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
-</rule>
-```
-
-Customize Slevomat spacing rules (built-in configurability):
-
-```xml
-<!-- Adjust Slevomat spacing to your team preferences -->
-<rule ref="SlevomatCodingStandard.Classes.MethodSpacing">
-    <properties>
-        <property name="minLinesCountBeforeWithComment" value="1"/>
-        <property name="maxLinesCountBeforeWithComment" value="1"/>
-    </properties>
-</rule>
-
 <rule ref="SlevomatCodingStandard.Classes.PropertySpacing">
-    <properties>
-        <property name="minLinesCountBeforeWithComment" value="1"/>
-        <property name="maxLinesCountBeforeWithComment" value="1"/>
-    </properties>
+  <properties>
+    <property name="minLinesCountBeforeWithComment" value="1"/>
+    <property name="maxLinesCountBeforeWithComment" value="1"/>
+  </properties>
 </rule>
 ```
 
-### Drupal Compatibility
+To customize PHP-CS-Fixer, create a `.php-cs-fixer.php` that starts from the shipped configuration (see [Drupal projects](#drupal-projects) for an example).
 
-Enable support for Drupal hook naming conventions:
+## Drupal projects
+
+Drupal hook names contain `__` (`mymodule_preprocess_node__article`) and internal functions start with `_`. With the default NCAC rules, PHPCBF would rename them and break the hooks. A Drupal project needs both configuration files below; `ncac-format` then applies them to both passes.
+
+`phpcs.xml`:
 
 ```xml
-<!-- Enable Drupal hook support -->
-<rule ref="NCAC.NamingConventions.FunctionName">
+<?xml version="1.0"?>
+<ruleset name="Drupal project">
+  <arg name="extensions" value="php,module,inc,install,theme,profile,engine"/>
+
+  <exclude-pattern>web/core/*</exclude-pattern>
+  <exclude-pattern>web/modules/contrib/*</exclude-pattern>
+  <exclude-pattern>web/themes/contrib/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+
+  <rule ref="NCAC"/>
+
+  <rule ref="NCAC.NamingConventions.FunctionName">
     <properties>
-        <!-- Allow double underscores for Drupal hooks -->
-        <property name="allowDoubleUnderscore" value="1"/>
-        <!-- Allow leading underscores for internal functions -->
-        <property name="allowLeadingUnderscore" value="1"/>
+      <property name="allowDoubleUnderscore" value="true"/>
+      <property name="allowLeadingUnderscore" value="true"/>
     </properties>
-</rule>
+  </rule>
+</ruleset>
 ```
 
-**Why this is needed:** Drupal uses double underscores (`__`) in hook function names to target specific template suggestions. For example:
+`.php-cs-fixer.php`, so that PHP-CS-Fixer also handles Drupal file extensions and skips core and contrib code:
 
 ```php
-// ✅ Valid Drupal preprocess hook (with allowDoubleUnderscore enabled)
-function mymodule_preprocess_node__homepage(array &$variables): void {
-  // Targets node--homepage.html.twig template
-}
+<?php declare(strict_types=1);
 
-// ✅ Valid Drupal theme suggestions hook
-function mymodule_theme_suggestions_paragraph__alter(array &$suggestions): void {
-  $suggestions[] = 'paragraph__custom';
-}
+/** @var PhpCsFixer\Config $config */
+$config = require __DIR__ . '/vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php';
 
-// ✅ Valid internal helper function (with allowLeadingUnderscore enabled)
-function _mymodule_internal_helper(string $data): string {
-  return strtoupper($data);
-}
+$config->getFinder()
+  ->name(['*.module', '*.inc', '*.install', '*.theme', '*.profile', '*.engine'])
+  ->exclude(['web/core', 'web/modules/contrib', 'web/themes/contrib', 'web/sites']);
+
+return $config;
 ```
 
-**Without these options enabled**, PHPCBF would incorrectly transform:
-
-- `mymodule_preprocess_node__homepage` → `mymodule_preprocess_node_homepage` ❌ (breaks Drupal hooks!)
-- `_internal_helper` → `internal_helper` ❌ (loses private function convention)
-
-**Configuration options:**
-
-- **`allowDoubleUnderscore`** (default: `false`): When enabled, allows `__` in function names for Drupal preprocess hooks and theme suggestions
-- **`allowLeadingUnderscore`** (default: `false`): When enabled, allows `_` prefix for marking internal/private functions
-
-> **Note:** NCAC custom sniffs (like `NCAC.Formatting.ClassClosingSpacing`, `NCAC.WhiteSpace.TwoSpacesIndent`) are not yet configurable. This is planned for future releases.
-
-## 🛠️ Development & Contributing
-
-### Development Setup
-
-#### VS Code Dev Container (Recommended)
-
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/ncac/phpcs-standard.git
-   cd phpcs-standard
-   ```
-
-2. **Generate environment** (before opening in VS Code):
-
-   ```bash
-   .docker/generate-env.sh
-   ```
-
-3. **Open in VS Code**: The Dev Container will automatically configure everything.
-
-#### Manual Setup
+Then, from anywhere in the project:
 
 ```bash
-# Install dependencies
+vendor/bin/ncac-format web/modules/custom/mymodule
+```
+
+## Requirements
+
+- PHP 8.2 or later (CI runs 8.2, 8.3 and 8.4)
+- PHP_CodeSniffer 4, PHP-CS-Fixer 3 and Slevomat Coding Standard 8, installed as dependencies
+
+Older PHP versions: use `^4.1` for PHP 8.1 and `^1.2` for PHP 7.4. See the [changelog](CHANGELOG.md).
+
+## Development
+
+```bash
 composer install
-pnpm install
-
-# Run full quality checks
+composer test        # PHPUnit
+composer e2e-test    # end-to-end workflow tests
 vendor/bin/phing check
-
-# Run specific checks
-vendor/bin/psalm              # Static analysis
-vendor/bin/phpunit            # Unit tests
-vendor/bin/phpcs --standard=NCAC NCAC/  # Self-check
 ```
 
-## 🔧 Tool Strategy: PHPCS vs PHP-CS-Fixer
+See [CONTRIBUTING.md](CONTRIBUTING.md). Design decisions are recorded in [docs/adr](docs/adr/).
 
-NCAC uses a **strategic separation** between detection and correction to avoid conflicts and ensure reliable results:
+NCAC builds on [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer), [Slevomat Coding Standard](https://github.com/slevomat/coding-standard) and [PHP-CS-Fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer).
 
-### Current Implementation (v1.0)
+## License
 
-```bash
-# Detection and simple fixes
-vendor/bin/phpcs --standard=NCAC src/ --fix
-
-# Some complex rules are detection-only (see below)
-vendor/bin/phpcs --standard=NCAC src/
-```
-
-### Why Some Rules Are Detection-Only
-
-Certain rules like **NoAlternateControlStructureSniff** intentionally provide **no automatic fixes** due to PHP_CodeSniffer's token processing limitations:
-
-- **Token conflicts**: Sequential sniffs can overwrite each other's modifications
-- **Invalid syntax**: Complex transformations can generate broken PHP code
-- **Execution order**: Later sniffs (like indentation) may undo earlier fixes
-
-**Example issue:**
-```php
-// Original: if ($x): ... endif;
-// After sniff A: if ($x) { ... }  // Fixed
-// After sniff B: if ($x) { ...    // Broken (missing closing brace)
-```
-
-### Planned Evolution (v4.x)
-
-```bash
-# 1. Complex transformations via PHP-CS-Fixer
-php-cs-fixer fix --config=.ncac-cs-fixer.php src/
-
-# 2. Simple fixes + validation via PHPCS  
-vendor/bin/phpcs --standard=NCAC src/ --fix
-
-# 3. Final validation
-vendor/bin/phpcs --standard=NCAC src/
-```
-
-> **📖 Learn more:** See [docs/PHPCS_VS_PHPCSFIXER_STRATEGY.md](docs/PHPCS_VS_PHPCSFIXER_STRATEGY.md) for technical details.
-
-### Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for:
-
-- 🐛 **Bug reports** with reproducible examples
-- ✨ **Feature requests** with clear use cases
-- 🔧 **Pull requests** with comprehensive tests
-- 📖 **Documentation** improvements
-
-## 🏆 Acknowledgments
-
-NCAC is built upon two excellent foundational projects:
-
-- **[PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)** by Squiz Labs - provides the tokenization engine and auto-fixing capabilities
-- **[Slevomat Coding Standard](https://github.com/slevomat/coding-standard)** - provides many of the type safety and structural rules
-
-NCAC adds **7 custom sniffs** for specific formatting and naming requirements:
-
-- 2-space indentation with context-aware array handling
-- Mixed naming conventions (snake_case variables, camelCase properties, PascalCase classes)
-- Minimal class spacing and structure rules
-- Modern PHP pattern enforcement
-
-> **License Compliance:** NCAC operates under the MIT license and respects all incorporated project licenses. See [LICENSE](LICENSE) for details.
-
-## 🚀 Requirements & Compatibility
-
-- **PHP:** 7.4, 8.0, 8.1, 8.2, 8.3
-- **PHP_CodeSniffer:** 3.7.0 or higher
-- **Composer:** 2.0 or higher
-
-## ✨ Features At a Glance
-
-- ✅ **21 comprehensive rules** covering all aspects of PHP code quality
-- ✅ **Auto-fixable formatting** for seamless workflow integration
-- ✅ **Type safety enforcement** with mandatory type hints
-- ✅ **Modern PHP support** including enums and typed properties
-- ✅ **IDE integration** for VS Code, PhpStorm, and others
-- ✅ **Performance optimized** for large codebases
-- ✅ **Extensive test coverage** ensuring reliability
-- ✅ **Rich documentation** with practical examples
-
-## 📞 Support & Community
-
-- 📚 **[Documentation Hub](docs/)** - Comprehensive guides and references
-- 🐛 **[Issue Tracker](https://github.com/ncac/phpcs-standard/issues)** - Bug reports and feature requests
-- 💬 **[Discussions](https://github.com/ncac/phpcs-standard/discussions)** - Community Q&A and ideas
-- 📊 **[Releases](https://github.com/ncac/phpcs-standard/releases)** - Version history and changelogs
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Get started:**
-
-```bash
-composer require --dev ncac/phpcs-standard
-vendor/bin/phpcs --standard=NCAC src/
-```
+MIT, see [LICENSE](LICENSE).

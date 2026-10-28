@@ -27,6 +27,10 @@ final class FormatCommandTest extends TestCase {
     $this->assertSame(['php-cs-fixer', 'phpcbf', 'phpcs'], $runner->tools());
   }
 
+  public function testFixerFindingsDoNotDecideTheResult(): void {
+    $this->assertSame(ExitCode::SUCCESS, $this->format(['src'], new ScriptedRunner([8 | 4, 1, 0])));
+  }
+
   public function testFixReportsRemainingViolations(): void {
     $this->assertSame(ExitCode::VIOLATIONS, $this->format(['src'], new ScriptedRunner([0, 2, 2])));
   }
