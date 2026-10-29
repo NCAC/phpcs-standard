@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\Formatting;
 
@@ -21,7 +21,6 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'NoAlternateControlStructureSniffUnitTest.good.inc':
         return [];
 
@@ -44,7 +43,7 @@ class NoAlternateControlStructureSniffUnitTest extends SniffUnitTest {
       default:
         return [];
     }
-  } 
+  }
 
   /**
    * Returns the lines where warnings should occur for each fixture file.

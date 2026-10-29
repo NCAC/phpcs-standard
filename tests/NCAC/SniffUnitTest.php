@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Abstract base class for all sniff unit tests.
  *
@@ -17,7 +17,6 @@ use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
 use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Ruleset;
-use PHP_CodeSniffer\Util\Common;
 use PHP_CodeSniffer\Util\Tokens;
 use PHPUnit\Framework\TestCase;
 
@@ -53,15 +52,15 @@ abstract class SniffUnitTest extends TestCase {
    * PHPUnit setUp. Initializes paths and required constants.
    */
   public function setUp(): void {
-    $this->rootDir  = __DIR__ . '/../../';
+    $this->rootDir = __DIR__ . '/../../';
     $this->testsDir = __DIR__ . '/';
     // Required to pull in all the defines from the tokens file.
     $tokens = new Tokens();
-    if (!defined('PHP_CODESNIFFER_VERBOSITY')) {
-      define('PHP_CODESNIFFER_VERBOSITY', 0);
+    if (!\defined('PHP_CODESNIFFER_VERBOSITY')) {
+      \define('PHP_CODESNIFFER_VERBOSITY', 0);
     }
-    if (!defined('PHP_CODESNIFFER_CBF')) {
-      define('PHP_CODESNIFFER_CBF', 0);
+    if (!\defined('PHP_CODESNIFFER_CBF')) {
+      \define('PHP_CODESNIFFER_CBF', 0);
     }
   }
 
@@ -74,22 +73,22 @@ abstract class SniffUnitTest extends TestCase {
    */
   public function generateFailureMessages(LocalFile $file): array {
     $test_file = $file->getFilename();
-    $found_errors      = $file->getErrors();
-    $found_warnings    = $file->getWarnings();
-    $expected_errors   = $this->getErrorList(basename($test_file));
+    $found_errors = $file->getErrors();
+    $found_warnings = $file->getWarnings();
+    $expected_errors = $this->getErrorList(basename($test_file));
     $expected_warnings = $this->getWarningList(basename($test_file));
-    $all_problems     = [];
+    $all_problems = [];
     $failure_messages = [];
-    $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES']   = [];
+    $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES'] = [];
     $GLOBALS['PHP_CODESNIFFER_FIXABLE_CODES'] = [];
     foreach ($found_errors as $line => $line_errors) {
       foreach ($line_errors as $column => $errors) {
         if (!isset($all_problems[$line])) {
           $all_problems[$line] = [
-            'expected_errors'   => 0,
+            'expected_errors' => 0,
             'expected_warnings' => 0,
-            'found_errors'      => [],
-            'found_warnings'    => [],
+            'found_errors' => [],
+            'found_warnings' => [],
           ];
         }
         $found_errors_temp = [];
@@ -100,10 +99,10 @@ abstract class SniffUnitTest extends TestCase {
         foreach ($errors as $found_error) {
           $error_temp[] = $found_error['message'] . ' (' . $found_error['source'] . ')';
           $source = $found_error['source'];
-          if (!in_array($source, $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES'])) {
+          if (!\in_array($source, $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES'])) {
             $GLOBALS['PHP_CODESNIFFER_SNIFF_CODES'][] = $source;
           }
-          if ($found_error['fixable'] === true && !in_array($source, $GLOBALS['PHP_CODESNIFFER_FIXABLE_CODES'])) {
+          if ($found_error['fixable'] === true && !\in_array($source, $GLOBALS['PHP_CODESNIFFER_FIXABLE_CODES'])) {
             $GLOBALS['PHP_CODESNIFFER_FIXABLE_CODES'][] = $source;
           }
         }
@@ -119,10 +118,10 @@ abstract class SniffUnitTest extends TestCase {
     foreach ($expected_errors as $line => $num_errors) {
       if (!isset($all_problems[$line])) {
         $all_problems[$line] = [
-          'expected_errors'   => 0,
+          'expected_errors' => 0,
           'expected_warnings' => 0,
-          'found_errors'      => [],
-          'found_warnings'    => [],
+          'found_errors' => [],
+          'found_warnings' => [],
         ];
       }
       $all_problems[$line]['expected_errors'] = $num_errors;
@@ -131,10 +130,10 @@ abstract class SniffUnitTest extends TestCase {
       foreach ($line_warnings as $column => $warnings) {
         if (!isset($all_problems[$line])) {
           $all_problems[$line] = [
-            'expected_errors'   => 0,
+            'expected_errors' => 0,
             'expected_warnings' => 0,
-            'found_errors'      => [],
-            'found_warnings'    => [],
+            'found_errors' => [],
+            'found_warnings' => [],
           ];
         }
         $found_warnings_temp = [];
@@ -157,36 +156,36 @@ abstract class SniffUnitTest extends TestCase {
     foreach ($expected_warnings as $line => $num_warnings) {
       if (!isset($all_problems[$line])) {
         $all_problems[$line] = [
-          'expected_errors'   => 0,
+          'expected_errors' => 0,
           'expected_warnings' => 0,
-          'found_errors'      => [],
-          'found_warnings'    => [],
+          'found_errors' => [],
+          'found_warnings' => [],
         ];
       }
       $all_problems[$line]['expected_warnings'] = $num_warnings;
     }
     ksort($all_problems);
     foreach ($all_problems as $line => $problems) {
-      $num_errors        = count($problems['found_errors']);
-      $num_warnings      = count($problems['found_warnings']);
-      $expected_errors   = $problems['expected_errors'];
+      $num_errors = \count($problems['found_errors']);
+      $num_warnings = \count($problems['found_warnings']);
+      $expected_errors = $problems['expected_errors'];
       $expected_warnings = $problems['expected_warnings'];
-      $errors      = '';
+      $errors = '';
       $found_string = '';
       if ($expected_errors !== $num_errors || $expected_warnings !== $num_warnings) {
-        $line_message     = "[LINE $line]";
+        $line_message = "[LINE $line]";
         $expected_message = 'Expected ';
-        $found_message    = 'in ' . basename($test_file) . ' but found ';
+        $found_message = 'in ' . basename($test_file) . ' but found ';
         if ($expected_errors !== $num_errors) {
           $expected_message .= "$expected_errors error(s)";
-          $found_message    .= "$num_errors error(s)";
+          $found_message .= "$num_errors error(s)";
           if ($num_errors !== 0) {
             $found_string .= 'error(s)';
-            $errors      .= implode(PHP_EOL . ' -> ', $problems['found_errors']);
+            $errors .= implode(\PHP_EOL . ' -> ', $problems['found_errors']);
           }
           if ($expected_warnings !== $num_warnings) {
             $expected_message .= ' and ';
-            $found_message    .= ' and ';
+            $found_message .= ' and ';
             if ($num_warnings !== 0 && $found_string !== '') {
               $found_string .= ' and ';
             }
@@ -194,18 +193,18 @@ abstract class SniffUnitTest extends TestCase {
         }
         if ($expected_warnings !== $num_warnings) {
           $expected_message .= "$expected_warnings warning(s)";
-          $found_message    .= "$num_warnings warning(s)";
+          $found_message .= "$num_warnings warning(s)";
           if ($num_warnings !== 0) {
             $found_string .= 'warning(s)';
             if (!empty($errors)) {
-              $errors .= PHP_EOL . ' -> ';
+              $errors .= \PHP_EOL . ' -> ';
             }
-            $errors .= implode(PHP_EOL . ' -> ', $problems['found_warnings']);
+            $errors .= implode(\PHP_EOL . ' -> ', $problems['found_warnings']);
           }
         }
         $full_message = "$line_message $expected_message $found_message.";
         if ($errors !== '') {
-          $full_message .= " The $found_string found were:" . PHP_EOL . " -> $errors";
+          $full_message .= " The $found_string found were:" . \PHP_EOL . " -> $errors";
         }
         $failure_messages[] = $full_message;
       }
@@ -220,7 +219,6 @@ abstract class SniffUnitTest extends TestCase {
    * @param Config $config   The config data for the run.
    */
   public function setCliValues(string $filename, Config $config): void {
-    return;
   }
 
   /**
@@ -230,7 +228,7 @@ abstract class SniffUnitTest extends TestCase {
    */
   public function fixtureProvider(): array {
     $class = new \ReflectionClass($this);
-    $dir = dirname($class->getFileName());
+    $dir = \dirname($class->getFileName());
     $sniff_name = $class->getShortName();
     $base = $dir . '/' . preg_replace('/UnitTest$/', '', $sniff_name);
     $files = glob($base . '*.inc');
@@ -249,7 +247,7 @@ abstract class SniffUnitTest extends TestCase {
    */
   public function testFixture(string $fixture_file): void {
     $class = new \ReflectionClass($this);
-    $dir = dirname($class->getFileName());
+    $dir = \dirname($class->getFileName());
     $test_file = $dir . '/' . $fixture_file;
     $errors = $this->getErrorList($fixture_file);
     $warnings = $this->getWarningList($fixture_file);
@@ -286,11 +284,11 @@ abstract class SniffUnitTest extends TestCase {
    */
   protected function getTestFiles(string $test_file_base): array {
     $test_files = [];
-    $dir = substr($test_file_base, 0, strrpos($test_file_base, DIRECTORY_SEPARATOR));
-    $di  = new \DirectoryIterator($dir);
+    $dir = substr($test_file_base, 0, strrpos($test_file_base, \DIRECTORY_SEPARATOR));
+    $di = new \DirectoryIterator($dir);
     foreach ($di as $file) {
       $path = $file->getPathname();
-      if (substr($path, 0, strlen($test_file_base)) === $test_file_base) {
+      if (substr($path, 0, \strlen($test_file_base)) === $test_file_base) {
         if ($path !== $test_file_base . 'php' && substr($path, -5) !== 'fixed') {
           $test_files[] = $path;
         }
@@ -362,13 +360,13 @@ abstract class SniffUnitTest extends TestCase {
     }
     // Check for unexpected errors
     foreach (array_keys($found_errors) as $line) {
-      if (!array_key_exists($line, $expected_errors)) {
+      if (!\array_key_exists($line, $expected_errors)) {
         $this->fail("Unexpected error found on line $line in $test_file");
       }
     }
     // Check for unexpected warnings
     foreach (array_keys($found_warnings) as $line) {
-      if (!array_key_exists($line, $expected_warnings)) {
+      if (!\array_key_exists($line, $expected_warnings)) {
         $this->fail("Unexpected warning found on line $line in $test_file");
       }
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\NCAC;
 
@@ -11,10 +11,6 @@ use PHPUnit\Framework\TestCase;
 class StringCaseHelperCompleteCoverageTest extends TestCase {
 
   private StringCaseHelper $helper;
-
-  protected function setUp(): void {
-    $this->helper = new StringCaseHelper();
-  }
 
   /**
    * Test to cover all branches of repeatsUppercaseChars()
@@ -88,4 +84,9 @@ class StringCaseHelperCompleteCoverageTest extends TestCase {
     $this->assertTrue($this->helper->isSnakeCase('test_123_abc'));
     $this->assertFalse($this->helper->isSnakeCase('test_123_ABC'));
   }
+
+  protected function setUp(): void {
+    $this->helper = new StringCaseHelper();
+  }
+
 }

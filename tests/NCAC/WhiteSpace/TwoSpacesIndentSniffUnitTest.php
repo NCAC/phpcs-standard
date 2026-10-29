@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\WhiteSpace;
 
@@ -19,14 +19,11 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'TwoSpacesIndentSniff.test':
         return [];
 
-
       case 'TwoSpacesIndentSniff.goodDocBlock.inc':
         return [];
-
 
       case 'TwoSpacesIndentSniff.badDocBlock.inc':
         return [
@@ -36,7 +33,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           5 => 1
         ];
 
-
       case 'TwoSpacesIndentSniff.badFunction.inc':
         return [
           4 => 1,
@@ -44,7 +40,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           6 => 1,
           7 => 1
         ];
-
 
       case 'TwoSpacesIndentSniff.badClass.inc':
         return [
@@ -54,7 +49,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           13 => 1,
           14 => 1
         ];
-
 
       case 'TwoSpacesIndentSniff.goodClass.inc':
         return [];
@@ -102,7 +96,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           22 => 1 // Bad indentation: nested ternary expression not indented by +2 spaces
         ];
 
-
       case 'TwoSpacesIndentSniff.goodTernaryExpression.inc':
         return [];
 
@@ -112,7 +105,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           6 => 1,
           7 => 1
         ];
-
 
       case 'TwoSpacesIndentSniff.badMultilineCondition.inc':
         return [
@@ -128,7 +120,6 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
           24 => 1, // Bad indentation: third condition line not indented by +2 spaces
         ];
 
-
       case 'TwoSpacesIndentSniff.goodMultilineConditions.inc':
         return [];
 
@@ -141,7 +132,7 @@ class TwoSpacesIndentSniffUnitTest extends SniffUnitTest {
       case 'TwoSpacesIndentSniff.badArrayInArguments.inc':
         return [
           16 => 1,  // Error 1: 'key1' => 'value1' - 4 spaces instead of 2
-          17 => 1,  // Error 1: 'key2' => 42 - 4 spaces instead of 2  
+          17 => 1,  // Error 1: 'key2' => 42 - 4 spaces instead of 2
           18 => 1,  // Error 1: 'key3' => [1, 2, 3] - 4 spaces instead of 2
           23 => 1,  // Error 2: 'key1' => 'value1' - 1 space instead of 2
           24 => 1,  // Error 2: 'key2' => 42 - 1 space instead of 2

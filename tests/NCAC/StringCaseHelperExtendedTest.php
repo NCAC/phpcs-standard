@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\NCAC;
 
@@ -11,10 +11,6 @@ use PHPUnit\Framework\TestCase;
 class StringCaseHelperExtendedTest extends TestCase {
 
   private StringCaseHelper $helper;
-
-  protected function setUp(): void {
-    $this->helper = new StringCaseHelper();
-  }
 
   /**
    * Test edge cases to improve coverage.
@@ -83,4 +79,9 @@ class StringCaseHelperExtendedTest extends TestCase {
     // Explicit test to ensure all branches are tested
     $this->assertTrue(true); // Minimal assertion to validate the test
   }
+
+  protected function setUp(): void {
+    $this->helper = new StringCaseHelper();
+  }
+
 }

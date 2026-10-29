@@ -13,6 +13,7 @@ use NCAC\Tests\SniffUnitTest;
  * @license MIT
  */
 class OpeningBraceKAndRSniffUnitTest extends SniffUnitTest {
+
   /**
    * @dataProvider fixtureProvider
    * @testdox Fixture with $fixture_file

@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test class opening/closing spacing detection.
- * 
+ *
  * This test specifically covers the regression bug where classes with
  * implements clauses and comments after the opening brace were incorrectly
  * flagged as having invalid spacing.
@@ -13,14 +13,15 @@ namespace NCAC\E2ETests;
 class ClassSpacingTest extends E2ETest {
 
   public function getName(): string {
-    return "Class Spacing Test";
+    return 'Class Spacing Test';
   }
 
   public function run(): void {
     // Test 1: Class with implements and comment (regression test)
-    $this->step("Testing class with implements and comment after brace...");
+    $this->step('Testing class with implements and comment after brace...');
 
-    $content = '<?php
+    $content = <<<'CODE'
+<?php
 
 namespace Test;
 
@@ -38,10 +39,11 @@ class GoodClass implements TestInterface {
   }
 
 }
-';
+
+CODE;
 
     $file = $this->runner->createTestFile('class-spacing-implements.php', $content);
-    $this->success("Test file created");
+    $this->success('Test file created');
 
     $result = $this->runner->runPhpcs($file);
 
@@ -56,15 +58,16 @@ class GoodClass implements TestInterface {
 
     $this->runner->assertFalse(
       $has_spacing_error,
-      "Class with implements and comment should NOT trigger spacing error"
+      'Class with implements and comment should NOT trigger spacing error'
     );
 
-    $this->success("No false positive spacing errors detected");
+    $this->success('No false positive spacing errors detected');
 
     // Test 2: Class without implements (baseline test)
-    $this->step("Testing simple class with comment after brace...");
+    $this->step('Testing simple class with comment after brace...');
 
-    $content2 = '<?php
+    $content2 = <<<'CODE'
+<?php
 
 namespace Test;
 
@@ -74,7 +77,8 @@ class SimpleClass {
   private $value = 1;
 
 }
-';
+
+CODE;
 
     $file2 = $this->runner->createTestFile('class-spacing-simple.php', $content2);
     $result2 = $this->runner->runPhpcs($file2);
@@ -89,11 +93,11 @@ class SimpleClass {
 
     $this->runner->assertFalse(
       $has_spacing_error2,
-      "Simple class with comment should NOT trigger spacing error"
+      'Simple class with comment should NOT trigger spacing error'
     );
 
-    $this->success("Simple class spacing check passed");    // Test 3: Class with INCORRECT spacing (should detect error)
-    $this->step("Testing class with INCORRECT spacing...");
+    $this->success('Simple class spacing check passed');    // Test 3: Class with INCORRECT spacing (should detect error)
+    $this->step('Testing class with INCORRECT spacing...');
 
     // Use explicit \n to ensure cross-platform consistency
     $content3 = "<?php\n\nnamespace Test;\n\nclass BadClass {\n  private \$value = 1;\n}\n";
@@ -112,19 +116,19 @@ class SimpleClass {
 
     $this->runner->assertTrue(
       $has_spacing_error3,
-      "Class without blank line should trigger spacing error"
+      'Class without blank line should trigger spacing error'
     );
 
-    $this->success("Correctly detected missing blank line");
+    $this->success('Correctly detected missing blank line');
 
     // Test 4: Verify PHPCBF can fix the spacing issue
-    $this->step("Testing auto-fix for spacing issue...");
+    $this->step('Testing auto-fix for spacing issue...');
 
     $result4 = $this->runner->runPhpcbf($file3);
 
     $this->runner->assertTrue(
       $result4['exit_code'] === 0 || strpos($result4['output'], 'FIXED') !== false,
-      "PHPCBF should successfully fix spacing issues"
+      'PHPCBF should successfully fix spacing issues'
     );
 
     // Verify the fix worked
@@ -140,9 +144,10 @@ class SimpleClass {
 
     $this->runner->assertFalse(
       $has_spacing_error5,
-      "After PHPCBF fix, spacing error should be resolved"
+      'After PHPCBF fix, spacing error should be resolved'
     );
 
-    $this->success("PHPCBF successfully fixed spacing issue");
+    $this->success('PHPCBF successfully fixed spacing issue');
   }
+
 }

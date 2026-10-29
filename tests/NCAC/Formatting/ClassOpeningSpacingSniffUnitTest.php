@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\Formatting;
 
@@ -33,16 +33,6 @@ class ClassOpeningSpacingSniffUnitTest extends SniffUnitTest {
   }
 
   /**
-   * Returns the PHPCS standard (ruleset) to use for this test.
-   * Uses a minimal ruleset that only enables ClassOpeningSpacing.
-   *
-   * @return string
-   */
-  protected function getStandard(): string {
-    return __DIR__ . '/ruleset.formatting.classOpeningSpacing.xml';
-  }
-
-  /**
    * Returns the lines where warnings should occur for each fixture file.
    *
    * @param string $test_file The name of the file being tested.
@@ -62,4 +52,14 @@ class ClassOpeningSpacingSniffUnitTest extends SniffUnitTest {
   public function testFixture(string $fixture_file): void {
     parent::testFixture($fixture_file);
   }
+
+  /**
+   * Returns the PHPCS standard (ruleset) to use for this test.
+   * Uses a minimal ruleset that only enables ClassOpeningSpacing.
+   *
+   */
+  protected function getStandard(): string {
+    return __DIR__ . '/ruleset.formatting.classOpeningSpacing.xml';
+  }
+
 }

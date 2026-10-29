@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\WhiteSpace;
 
@@ -28,7 +28,6 @@ class DeclarationSpacingSniffUnitTest extends SniffUnitTest {
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
-
       case 'DeclarationSpacingSniffUnitTest.good.inc':
         return [];
 
@@ -64,7 +63,7 @@ class DeclarationSpacingSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the path to the ruleset XML file for this test.
-   * 
+   *
    * @return string Path to the ruleset file.
    */
   protected function getStandard(): string {

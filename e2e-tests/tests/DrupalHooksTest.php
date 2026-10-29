@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * E2E test for Drupal hook naming conventions.
- * 
+ *
  * This test validates that the FunctionNameSniff correctly handles Drupal
  * preprocess hooks and other functions with double underscores when the
  * allowDoubleUnderscore option is enabled.
@@ -13,14 +13,15 @@ namespace NCAC\E2ETests;
 class DrupalHooksTest extends E2ETest {
 
   public function getName(): string {
-    return "Drupal Hooks Naming Test";
+    return 'Drupal Hooks Naming Test';
   }
 
   public function run(): void {
     // Test 1: Drupal hooks should fail without the option
-    $this->step("Testing Drupal hooks WITHOUT allowDoubleUnderscore...");
+    $this->step('Testing Drupal hooks WITHOUT allowDoubleUnderscore...');
 
-    $drupal_content = '<?php
+    $drupal_content = <<<'CODE'
+<?php
 
 function mymodule_preprocess_node__homepage(array &$variables): void {
   $variables["data"] = "value";
@@ -29,7 +30,8 @@ function mymodule_preprocess_node__homepage(array &$variables): void {
 function _internal_helper(string $data): string {
   return $data;
 }
-';
+
+CODE;
 
     $file1 = $this->runner->createTestFile('drupal-hooks-no-option.php', $drupal_content);
     $result1 = $this->runner->runPhpcs($file1, ['sniffs' => 'NCAC.NamingConventions.FunctionName']);
@@ -59,20 +61,21 @@ function _internal_helper(string $data): string {
 
     $this->runner->assertTrue(
       $has_double_underscore_error,
-      "Without allowDoubleUnderscore, double underscore hooks should trigger error"
+      'Without allowDoubleUnderscore, double underscore hooks should trigger error'
     );
 
     $this->runner->assertTrue(
       $has_leading_underscore_error,
-      "Without allowLeadingUnderscore, leading underscore functions should trigger error"
+      'Without allowLeadingUnderscore, leading underscore functions should trigger error'
     );
 
-    $this->success("Correctly detected invalid naming without Drupal options");
+    $this->success('Correctly detected invalid naming without Drupal options');
 
     // Test 2: Create custom ruleset with Drupal options
-    $this->step("Creating Drupal-compatible ruleset...");
+    $this->step('Creating Drupal-compatible ruleset...');
 
-    $ruleset_content = '<?xml version="1.0"?>
+    $ruleset_content = <<<'CODE'
+<?xml version="1.0"?>
 <ruleset name="Drupal Test">
   <rule ref="NCAC">
     <exclude name="NCAC.Formatting.OpeningBraceKAndR"/>
@@ -84,17 +87,18 @@ function _internal_helper(string $data): string {
       <property name="allowLeadingUnderscore" value="1"/>
     </properties>
   </rule>
-</ruleset>';
+</ruleset>
+CODE;
 
     // Create ruleset in tmp directory
-    $tmp_dir = dirname($this->runner->createTestFile('dummy.txt', 'test'));
+    $tmp_dir = \dirname($this->runner->createTestFile('dummy.txt', 'test'));
     $ruleset_file = $tmp_dir . '/drupal-ruleset.xml';
     file_put_contents($ruleset_file, $ruleset_content);
 
-    $this->success("Drupal ruleset created");
+    $this->success('Drupal ruleset created');
 
     // Test 3: Drupal hooks should pass with options enabled
-    $this->step("Testing Drupal hooks WITH allowDoubleUnderscore...");
+    $this->step('Testing Drupal hooks WITH allowDoubleUnderscore...');
 
     $file3 = $this->runner->createTestFile('drupal-hooks-with-option.php', $drupal_content);
 
@@ -115,15 +119,16 @@ function _internal_helper(string $data): string {
 
     $this->runner->assertFalse(
       $has_errors,
-      "With Drupal options enabled, hooks should NOT trigger errors"
+      'With Drupal options enabled, hooks should NOT trigger errors'
     );
 
-    $this->success("Drupal hooks correctly accepted with options enabled");
+    $this->success('Drupal hooks correctly accepted with options enabled');
 
     // Test 4: PHPCBF should preserve double underscores
-    $this->step("Testing PHPCBF preservation of double underscores...");
+    $this->step('Testing PHPCBF preservation of double underscores...');
 
-    $mixed_content = '<?php
+    $mixed_content = <<<'CODE'
+<?php
 
 // Should be fixed
 function calculateTotalPrice() {
@@ -138,7 +143,8 @@ function mymodule_preprocess_node__homepage(array &$variables): void {
 function _internal_helper() {
   return "data";
 }
-';
+
+CODE;
 
     $file4 = $this->runner->createTestFile('drupal-phpcbf-test.php', $mixed_content);
     $original_content = file_get_contents($file4);
@@ -154,21 +160,22 @@ function _internal_helper() {
     // Check that calculateTotalPrice was fixed
     $this->runner->assertTrue(
       strpos($fixed_content, 'calculate_total_price') !== false,
-      "PHPCBF should fix camelCase function"
+      'PHPCBF should fix camelCase function'
     );
 
     // Check that double underscores were preserved
     $this->runner->assertTrue(
       strpos($fixed_content, 'mymodule_preprocess_node__homepage') !== false,
-      "PHPCBF should preserve double underscores in Drupal hooks"
+      'PHPCBF should preserve double underscores in Drupal hooks'
     );
 
     // Check that leading underscore was preserved
     $this->runner->assertTrue(
       strpos($fixed_content, '_internal_helper') !== false,
-      "PHPCBF should preserve leading underscores"
+      'PHPCBF should preserve leading underscores'
     );
 
-    $this->success("PHPCBF correctly preserved Drupal hooks while fixing other issues");
+    $this->success('PHPCBF correctly preserved Drupal hooks while fixing other issues');
   }
+
 }

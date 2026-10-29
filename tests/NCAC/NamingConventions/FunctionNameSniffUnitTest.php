@@ -23,7 +23,6 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Current test file being processed.
-   * @var string
    */
   private string $currentTestFile = '';
 
@@ -52,11 +51,11 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
       case 'FunctionNameSniffUnitTest.bad.inc':
         return [
           // Global functions with incorrect naming
-          8   => 1, // camelCase function
-          13   => 1, // PascalCase function
-          18   => 1, // mixedCase function
-          23  => 1, // function with numbers
-          28  => 1, // function with abbreviation
+          8 => 1, // camelCase function
+          13 => 1, // PascalCase function
+          18 => 1, // mixedCase function
+          23 => 1, // function with numbers
+          28 => 1, // function with abbreviation
           // Class methods should be ignored (no errors)
           // Lines 20-25 contain class methods - should not trigger errors
         ];
@@ -68,19 +67,19 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
       case 'FunctionNameSniffUnitTest.drupal-disabled.inc':
         // Double underscores and leading underscores should be rejected when options are disabled
         return [
-          9   => 1, // mymodule_preprocess_node__homepage (has __)
-          13  => 1, // theme_preprocess_paragraph__chapitres (has __)
-          18  => 1, // _mymodule_internal_helper (has leading _)
-          22  => 1, // _another_private_function (has leading _)
+          9 => 1, // mymodule_preprocess_node__homepage (has __)
+          13 => 1, // theme_preprocess_paragraph__chapitres (has __)
+          18 => 1, // _mymodule_internal_helper (has leading _)
+          22 => 1, // _another_private_function (has leading _)
         ];
 
       case 'FunctionNameSniffUnitTest.drupal-fix.inc':
         // Test PHPCBF fixes with Drupal options enabled (preserves __ and _)
         return [
-          10  => 1, // calculateTotalPrice (should fix to calculate_total_price)
-          15  => 1, // GetUserData (should fix to get_user_data)
-          30  => 1, // _calculatePrice (should fix to _calculate_price, preserve _)
-          35  => 1, // mymodule_preprocessNode__customPage (should fix to mymodule_preprocess_node__custom_page, preserve __)
+          10 => 1, // calculateTotalPrice (should fix to calculate_total_price)
+          15 => 1, // GetUserData (should fix to get_user_data)
+          30 => 1, // _calculatePrice (should fix to _calculate_price, preserve _)
+          35 => 1, // mymodule_preprocessNode__customPage (should fix to mymodule_preprocess_node__custom_page, preserve __)
         ];
 
       default:
@@ -100,7 +99,7 @@ class FunctionNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the path to the ruleset XML file for this test.
-   * 
+   *
    * @return string Path to the ruleset file.
    */
   protected function getStandard(): string {
