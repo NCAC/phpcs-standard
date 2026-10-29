@@ -36,6 +36,7 @@ $finder = (new Finder())
     'coverage-xml',
     'coverage-detailed',
     'coverage-report',
+    'e2e-tests/tmp',
   ])
   ->name('*.php')
   ->ignoreDotFiles(true)
