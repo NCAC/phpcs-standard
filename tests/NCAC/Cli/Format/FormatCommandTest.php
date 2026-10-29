@@ -76,6 +76,16 @@ final class FormatCommandTest extends TestCase {
     $this->assertStringContainsString('Usage:', (string) stream_get_contents($this->output));
   }
 
+  public function testHeaderNamesTheProjectConfiguration(): void {
+    $this->directory->write('.phpcs.xml');
+    $this->directory->write('.php-cs-fixer.php');
+    $this->assertSame(ExitCode::SUCCESS, $this->format(['--check', 'src'], new ScriptedRunner([0])));
+    rewind($this->output);
+    $header = (string) stream_get_contents($this->output);
+    $this->assertStringContainsString('PHPCS config : .phpcs.xml (project)', $header);
+    $this->assertStringContainsString('Fixer config : .php-cs-fixer.php (project)', $header);
+  }
+
   public function testMissingToolIsAtoolFailure(): void {
     unlink($this->directory->path . '/vendor/bin/phpcs');
     $package_directory = $this->directory->mkdir('package');
