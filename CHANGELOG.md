@@ -1,5 +1,57 @@
 # Changelog
 
+# [5.1.0](https://github.com/ncac/phpcs-standard/compare/v5.0.1...v5.1.0) (2026-10-29)
+
+`ncac-format` now uses the configuration of the project it runs in and has a documented, scriptable behaviour. The NCAC standard itself (rules and Sniffs) is unchanged, and the minimum PHP version is still 8.2.
+
+
+### Features
+
+* `ncac-format --check`: validate only with PHPCS and write nothing, for CI and git hooks.
+* `ncac-format [--dry-run | --check] [--] [<path>...]`: several paths per invocation, and `--` to end the options.
+* Documented exit codes: `0` compliant (`--dry-run`: nothing to change), `1` violations remain (`--dry-run`: at least one pass would change a file), `2` invalid usage, `3` a tool is missing or failed.
+* Lookup of the project configuration from the project root (the closest directory with a `composer.json`): PHPCS `.phpcs.xml`, `phpcs.xml`, `.phpcs.xml.dist`, `phpcs.xml.dist`, otherwise the `NCAC` standard; PHP-CS-Fixer `.php-cs-fixer.php`, `.php-cs-fixer.dist.php`, otherwise the configuration shipped with this package. The command prints which configuration it uses.
+* The contract is documented in `docs/NCAC_FORMAT_COMMAND.md` and `docs/adr/0001-ncac-format-contract.md`.
+
+
+### Behavior changes
+
+* A project PHPCS configuration is now honoured. PHPCS used to always run with `--standard=NCAC`; if the project has a `.phpcs.xml` or `phpcs.xml` (or a `.dist` variant), `ncac-format` now uses it. Add `<rule ref="NCAC"/>` to it to keep the NCAC rules, or remove the file to get the previous behaviour.
+* A missing or failing tool now exits with code `3` instead of `1`. Scripts that tested for `1` to detect it must be updated: `1` now only means that violations remain.
+* A tool that cannot be started at all (for example a non-executable binary on PHP 8.3+) is reported as a tool failure (code `3`) instead of crashing with an uncaught exception.
+
+
+### Deprecations
+
+* `scripts/ncac-fix.sh` now prints a warning and forwards its arguments to `ncac-format`. It will be removed in the next major version: use `vendor/bin/ncac-format`.
+
+
+### chore
+
+* apply the NCAC standard to the test suites ([](https://github.com/ncac/phpcs-standard/commit/b5cb12bd8a8269c046a61b7a88f107c59cb0d127))
+* cover Console and the project configuration header ([](https://github.com/ncac/phpcs-standard/commit/258e329b702f87b154e9a1def6d5ffe590f93997))
+* cover function&name in DeclarationSpacingSniff ([](https://github.com/ncac/phpcs-standard/commit/01960f419406ec31bba9190f5af96d393a08fad9))
+* **deps:** bump actions/setup-python from 7.0.0 to 7.1.0 ([](https://github.com/ncac/phpcs-standard/commit/7c003d25e0eb1d381e61a316484b132225d481f4))
+* **deps:** bump shivammathur/setup-php from 2.37.2 to 2.40.0 ([](https://github.com/ncac/phpcs-standard/commit/de560793355c02b3b044c78e88ac5557745cbab6))
+* install codeGraph in Dev Container ([](https://github.com/ncac/phpcs-standard/commit/a065f244ef9803c25e242461e0790a0fc9078ace))
+* keep test fixtures out of ncac-format ([](https://github.com/ncac/phpcs-standard/commit/715252e1150ee338cfdc0ae4607cdba56fe5890e))
+* last version of PHP 8.2, node.js 24.x and pnpm 10.x ([](https://github.com/ncac/phpcs-standard/commit/ef4b6b96409e58037d982a81b31cec6fd74c8d08))
+* test ProcOpenRunner against the PHP binary ([](https://github.com/ncac/phpcs-standard/commit/5c0bee0246b7fadbdfe756c62e25095cf07b4d25))
+
+
+### docs
+
+* put ncac-format forward in the README and document its contract ([](https://github.com/ncac/phpcs-standard/commit/4be77c73a6de87f3c9f04786ad0e2d0cded89565))
+
+
+### fix
+
+* add the Override attribute and strict_types flagged by the NCAC standard ([](https://github.com/ncac/phpcs-standard/commit/52190896646833a09032c6847b624853eae1173f))
+* keep bin/ out of the PHPCS formatting pass ([](https://github.com/ncac/phpcs-standard/commit/3cc7784f26d87fa7901a7b9550563931a3ce9017))
+* make the ProcOpenRunner missing executable test PHP-version independent ([](https://github.com/ncac/phpcs-standard/commit/b123f9f55f8725e0ef79abd95b6f3db558f92ec2))
+* **ncac-format:** honour project configuration and make the command scriptable ([](https://github.com/ncac/phpcs-standard/commit/34f9b9a824a50b6df43e759ec1432e14709ac428))
+* report a runner that cannot start a tool as a tool failure ([](https://github.com/ncac/phpcs-standard/commit/e5fdea28e21d8c6618362ec131d1c382e57d7def))
+
 ## [5.0.1](https://github.com/ncac/phpcs-standard/compare/v5.0.0...v5.0.1) (2026-09-22)
 
 
