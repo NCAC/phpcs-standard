@@ -44,6 +44,7 @@ class DeclarationSpacingSniffUnitTest extends SniffUnitTest {
           42 => 1,  // abstract method with 3 spaces
           50 => 1,  // final class with 5 spaces
           52 => 1,  // final method with 2 spaces
+          58 => 1,  // function returning by reference, without space before the ampersand
         ];
 
       default:
