@@ -8,6 +8,7 @@ use NCAC\Cli\Format\FormatCommand;
 use NCAC\Cli\Format\ProcessRunner;
 use NCAC\Cli\Format\Tool;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * Exit code contract of the command, with a scripted process runner.
@@ -39,6 +40,24 @@ final class FormatCommandTest extends TestCase {
     $runner = new ScriptedRunner([16]);
     $this->assertSame(ExitCode::TOOL_FAILURE, $this->format(['src'], $runner));
     $this->assertSame(['php-cs-fixer'], $runner->tools());
+  }
+
+  public function testRunnerFailingToStartStopsTheWorkflow(): void {
+    $runner = new class implements ProcessRunner {
+
+      public int $calls = 0;
+
+      #[\Override]
+      public function run(array $command, string $working_directory): int {
+        $this->calls++;
+        throw new RuntimeException('Unable to start: ' . implode(' ', $command));
+      }
+
+    };
+    $this->assertSame(ExitCode::TOOL_FAILURE, $this->format(['src'], $runner));
+    $this->assertSame(1, $runner->calls);
+    rewind($this->output);
+    $this->assertStringContainsString('Remaining steps skipped.', (string) stream_get_contents($this->output));
   }
 
   public function testDryRunReportsPendingChanges(): void {
@@ -111,7 +130,7 @@ final class FormatCommandTest extends TestCase {
   /**
    * @param list<string> $arguments
    */
-  private function format(array $arguments, ScriptedRunner $runner, ?string $working_directory = null): int {
+  private function format(array $arguments, ProcessRunner $runner, ?string $working_directory = null): int {
     $console = new Console($this->output, $this->output, false);
     $command = new FormatCommand($this->directory->path . '/package', [], $runner, $console);
     return $command->run($arguments, $working_directory ?? $this->directory->path);

@@ -2,6 +2,8 @@
 
 namespace NCAC\Cli\Format;
 
+use RuntimeException;
+
 /**
  * The ncac-format command: formats PHP code to the NCAC standard in two passes
  * (PHP-CS-Fixer, then PHPCBF) and validates the result with PHPCS.
@@ -122,7 +124,13 @@ TXT;
     $outcomes = [];
     foreach ($steps as $step) {
       $this->console->step($step->title . ' - ' . $step->tool->label());
-      $exit_code = $this->runner->run($step->command, $working_directory);
+      try {
+        $exit_code = $this->runner->run($step->command, $working_directory);
+      } catch (RuntimeException $exception) {
+        $this->console->line();
+        $this->console->error($exception->getMessage() . '. Remaining steps skipped.');
+        return ExitCode::TOOL_FAILURE;
+      }
       $outcome = $step->classify($exit_code);
       if ($outcome === Outcome::Failure) {
         $this->console->line();
