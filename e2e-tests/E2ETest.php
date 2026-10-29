@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Base class for E2E tests.
@@ -48,4 +48,5 @@ abstract class E2ETest {
   protected function info(string $message): void {
     echo "    ℹ {$message}\n";
   }
+
 }

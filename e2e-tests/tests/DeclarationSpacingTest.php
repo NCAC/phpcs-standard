@@ -12,7 +12,7 @@ namespace NCAC\E2ETests;
 class DeclarationSpacingTest extends E2ETest {
 
   public function getName(): string {
-    return "Declaration Spacing Test";
+    return 'Declaration Spacing Test';
   }
 
   public function run(): void {
@@ -28,7 +28,7 @@ class DeclarationSpacingTest extends E2ETest {
    * Test that multiple spaces are detected in function declarations.
    */
   private function testDetectsMultipleSpacesInFunctions(): void {
-    $this->step("Testing multiple spaces in function declarations...");
+    $this->step('Testing multiple spaces in function declarations...');
 
     $code = <<<'PHP'
 <?php
@@ -60,22 +60,22 @@ PHP;
 
     $this->runner->assertTrue(
       $found_function_3_spaces,
-      "Should detect 3 spaces after FUNCTION keyword"
+      'Should detect 3 spaces after FUNCTION keyword'
     );
 
     $this->runner->assertTrue(
       $found_function_2_spaces,
-      "Should detect 2 spaces after FUNCTION keyword"
+      'Should detect 2 spaces after FUNCTION keyword'
     );
 
-    $this->success("Correctly detected multiple spaces in function declarations");
+    $this->success('Correctly detected multiple spaces in function declarations');
   }
 
   /**
    * Test that multiple spaces are detected in class declarations.
    */
   private function testDetectsMultipleSpacesInClasses(): void {
-    $this->step("Testing multiple spaces in class declarations...");
+    $this->step('Testing multiple spaces in class declarations...');
 
     $code = <<<'PHP'
 <?php
@@ -107,22 +107,22 @@ PHP;
 
     $this->runner->assertTrue(
       $found_class_error,
-      "Should detect 4 spaces after CLASS keyword"
+      'Should detect 4 spaces after CLASS keyword'
     );
 
     $this->runner->assertTrue(
       $found_method_error,
-      "Should detect 4 spaces after FUNCTION keyword"
+      'Should detect 4 spaces after FUNCTION keyword'
     );
 
-    $this->success("Correctly detected multiple spaces in class declarations");
+    $this->success('Correctly detected multiple spaces in class declarations');
   }
 
   /**
    * Test that multiple spaces are detected in interface declarations.
    */
   private function testDetectsMultipleSpacesInInterfaces(): void {
-    $this->step("Testing multiple spaces in interface declarations...");
+    $this->step('Testing multiple spaces in interface declarations...');
 
     $code = <<<'PHP'
 <?php
@@ -148,17 +148,17 @@ PHP;
 
     $this->runner->assertTrue(
       $found_interface_error,
-      "Should detect 3 spaces after INTERFACE keyword"
+      'Should detect 3 spaces after INTERFACE keyword'
     );
 
-    $this->success("Correctly detected multiple spaces in interface declarations");
+    $this->success('Correctly detected multiple spaces in interface declarations');
   }
 
   /**
    * Test that multiple spaces are detected in trait declarations.
    */
   private function testDetectsMultipleSpacesInTraits(): void {
-    $this->step("Testing multiple spaces in trait declarations...");
+    $this->step('Testing multiple spaces in trait declarations...');
 
     $code = <<<'PHP'
 <?php
@@ -186,17 +186,17 @@ PHP;
 
     $this->runner->assertTrue(
       $found_trait_error,
-      "Should detect 2 spaces after TRAIT keyword"
+      'Should detect 2 spaces after TRAIT keyword'
     );
 
-    $this->success("Correctly detected multiple spaces in trait declarations");
+    $this->success('Correctly detected multiple spaces in trait declarations');
   }
 
   /**
    * Test that PHPCBF fixes multiple spaces correctly.
    */
   private function testFixesMultipleSpaces(): void {
-    $this->step("Testing PHPCBF fixes multiple spaces...");
+    $this->step('Testing PHPCBF fixes multiple spaces...');
 
     $code = <<<'PHP'
 <?php
@@ -237,17 +237,17 @@ PHP;
     $this->runner->assertEquals(
       $expected_fixed,
       $fixed_content,
-      "PHPCBF should fix all spacing issues"
+      'PHPCBF should fix all spacing issues'
     );
 
-    $this->success("PHPCBF correctly fixed all spacing issues");
+    $this->success('PHPCBF correctly fixed all spacing issues');
   }
 
   /**
    * Test that single spaces are not flagged as errors.
    */
   private function testAcceptsSingleSpaces(): void {
-    $this->step("Testing single spaces are accepted...");
+    $this->step('Testing single spaces are accepted...');
 
     $code = <<<'PHP'
 <?php
@@ -293,9 +293,10 @@ PHP;
 
     $this->runner->assertFalse(
       $found_spacing_error,
-      "Should not find spacing errors in correctly formatted code"
+      'Should not find spacing errors in correctly formatted code'
     );
 
-    $this->success("Correctly accepted single spaces");
+    $this->success('Correctly accepted single spaces');
   }
+
 }

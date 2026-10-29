@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests;
 
@@ -22,6 +22,8 @@ class SniffRegistrationTest extends TestCase {
 
   /**
    * Fournit tous les Sniffs NCAC pour les tests.
+   *
+   * @return array<string, list<class-string>>
    */
   public static function sniffProvider(): array {
     return [
@@ -52,8 +54,8 @@ class SniffRegistrationTest extends TestCase {
       // Tous les tokens doivent être des entiers ou des constantes valides
       foreach ($tokens as $token) {
         $this->assertTrue(
-          is_int($token) || (is_string($token) && $this->isValidToken($token)),
-          "Token should be an integer or valid constant, got: " . var_export($token, true)
+          \is_int($token) || (\is_string($token) && $this->isValidToken($token)),
+          'Token should be an integer or valid constant, got: ' . var_export($token, true)
         );
       }
     } catch (\Error $e) {
@@ -70,14 +72,14 @@ class SniffRegistrationTest extends TestCase {
    */
   private function isValidToken(string $token): bool {
     // Constantes PHP standard T_*
-    if (defined($token)) {
+    if (\defined($token)) {
       return true;
     }
 
     // Constantes personnalisées dans les sniffs (ex: TwoSpacesIndentSniff::CHAINED_BLOCK)
     if (strpos($token, '::') !== false) {
       [$class, $constant] = explode('::', $token, 2);
-      if (class_exists($class) && defined("$class::$constant")) {
+      if (class_exists($class) && \defined("$class::$constant")) {
         return true;
       }
     }

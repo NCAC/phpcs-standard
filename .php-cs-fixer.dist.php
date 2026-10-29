@@ -8,6 +8,7 @@
  *
  * Usage:
  *   php-cs-fixer fix --config=vendor/ncac/phpcs-standard/.php-cs-fixer.dist.php
+ *   (run from the project root: files are looked up from the current directory)
  *
  * Or copy this file to your project root as .php-cs-fixer.php and customize as needed.
  *
@@ -21,8 +22,12 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
+// The Finder starts at the current working directory, not at __DIR__: when
+// this file is used from vendor/ncac/phpcs-standard, __DIR__ is the package
+// directory and the project's files would never be found. ncac-format runs
+// PHP-CS-Fixer from the project root.
 $finder = (new Finder())
-  ->in(__DIR__)
+  ->in((string) getcwd())
   ->exclude([
     'vendor',
     'node_modules',
@@ -31,6 +36,7 @@ $finder = (new Finder())
     'coverage-xml',
     'coverage-detailed',
     'coverage-report',
+    'e2e-tests/tmp',
   ])
   ->name('*.php')
   ->ignoreDotFiles(true)

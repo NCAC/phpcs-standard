@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test basic violation detection.
@@ -9,13 +9,13 @@ namespace NCAC\E2ETests;
 class BasicViolationsTest extends E2ETest {
 
   public function getName(): string {
-    return "Basic Violations Detection Test";
+    return 'Basic Violations Detection Test';
   }
 
   public function run(): void {
-    $this->step("Creating a file with intentional violations...");
-    
-    $content = '<?php
+    $this->step('Creating a file with intentional violations...');
+    $content = <<<'CODE'
+<?php
 // Test file with multiple violations
 namespace Test;
 
@@ -25,21 +25,17 @@ $bad_indentation = "test";
         return $bad_indentation;
 }
 }
-';
-    
+
+CODE;
     $file = $this->runner->createTestFile('basic-violations.php', $content);
-    $this->success("Test file created");
-    
-    $this->step("Running PHPCS to detect violations...");
-    
+    $this->success('Test file created');
+    $this->step('Running PHPCS to detect violations...');
     $result = $this->runner->runPhpcs($file);
-    
     // Should find errors
     $this->runner->assertTrue(
       $result['exit_code'] > 0,
-      "Expected PHPCS to find violations (exit code should be > 0)"
+      'Expected PHPCS to find violations (exit code should be > 0)'
     );
-    
     // Count errors
     $error_count = 0;
     foreach ($result['lines'] as $line) {
@@ -47,24 +43,20 @@ $bad_indentation = "test";
         $error_count++;
       }
     }
-    
     $this->runner->assertTrue(
       $error_count > 0,
-      "Expected to find at least one violation"
+      'Expected to find at least one violation'
     );
-    
     $this->success("Detected {$error_count} violation lines");
-    
     // Check specific violations
-    $this->step("Verifying specific violations are detected...");
-    
+    $this->step('Verifying specific violations are detected...');
     // Should detect indentation issues
     $this->runner->assertContains(
       'indented incorrectly',
       $result['output'],
-      "Should detect indentation issues"
+      'Should detect indentation issues'
     );
-    
-    $this->success("All expected violations detected");
+    $this->success('All expected violations detected');
   }
+
 }

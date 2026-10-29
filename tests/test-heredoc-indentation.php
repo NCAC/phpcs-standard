@@ -24,23 +24,23 @@ Examples:
 
 HELP;
 
-    echo $message;
+  echo $message;
 }
 
 function test_nowdoc_indentation(): void {
   // This NOWDOC should not trigger indentation errors
-    $text = <<<'EOT'
+  $text = <<<'EOT'
 This is a NOWDOC string.
 No variable interpolation here.
 The closing marker must be at column 0.
 EOT;
 
-    echo $text;
+  echo $text;
 }
 
   // Test nested in control structure
 if (true) {
-    $help = <<<HEREDOC
+  $help = <<<HEREDOC
 Some help text
 With multiple lines
 Must close at column 0

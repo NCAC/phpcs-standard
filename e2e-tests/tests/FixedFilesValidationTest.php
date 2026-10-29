@@ -17,18 +17,16 @@ namespace NCAC\E2ETests;
 class FixedFilesValidationTest extends E2ETest {
 
   public function getName(): string {
-    return "Fixed Files Validation Test";
+    return 'Fixed Files Validation Test';
   }
 
   public function run(): void {
     // TEMPORARILY DISABLED: .fixed file tests are unreliable in PHPCS-only strategy
     // The mixed use of isolated rulesets vs full NCAC standard causes inconsistent results
     // These tests will be replaced with PHP-CS-Fixer validation in the future
-    
-    $this->step("⚠️  Fixed files validation temporarily disabled");
-    $this->step("Reason: PHPCS vs PHP-CS-Fixer strategy transition");
-    $this->step("Future: Will be replaced with PHP-CS-Fixer tests");
-    
+    $this->step('⚠️  Fixed files validation temporarily disabled');
+    $this->step('Reason: PHPCS vs PHP-CS-Fixer strategy transition');
+    $this->step('Future: Will be replaced with PHP-CS-Fixer tests');
     // Skip the test but don't fail
     // $this->testAllFixedFiles();
   }
@@ -37,16 +35,16 @@ class FixedFilesValidationTest extends E2ETest {
    * Tests all .fixed files in the project.
    */
   private function testAllFixedFiles(): void {
-    $this->step("Searching for all .bad.inc files...");
+    $this->step('Searching for all .bad.inc files...');
 
     $fixtures = $this->discoverFixtures();
 
     if (empty($fixtures)) {
-      $this->step("No .bad.inc files found");
+      $this->step('No .bad.inc files found');
       return;
     }
 
-    $this->success("Found " . count($fixtures) . " files to test");
+    $this->success('Found ' . \count($fixtures) . ' files to test');
 
     foreach ($fixtures as $fixture) {
       $this->testSingleFixture($fixture);
@@ -55,7 +53,7 @@ class FixedFilesValidationTest extends E2ETest {
 
   /**
    * Discovers all .bad.inc files with their corresponding .fixed files.
-   * 
+   *
    * Excludes sniffs that are detection-only in the PHPCS vs PHP-CS-Fixer strategy.
    *
    * @return array<array{bad: string, fixed: string, ruleset: string, name: string}>
@@ -87,7 +85,7 @@ class FixedFilesValidationTest extends E2ETest {
         $base_name = $matches[1];
 
         // Skip detection-only sniffs
-        if (in_array($base_name, $detection_only_sniffs)) {
+        if (\in_array($base_name, $detection_only_sniffs)) {
           continue;
         }
 
@@ -113,10 +111,10 @@ class FixedFilesValidationTest extends E2ETest {
 
   /**
    * Finds the appropriate ruleset for a fixture file.
-   * 
+   *
    * By default, uses the complete NCAC standard because .fixed files
    * should reflect the result of the complete standard, not an isolated sniff.
-   * 
+   *
    * Exceptions: certain sniffs may have special rulesets for specific cases
    * (e.g. Drupal, specific tests).
    */
@@ -135,7 +133,7 @@ class FixedFilesValidationTest extends E2ETest {
       $sniff_name = $matches[1];
 
       if (isset($special_cases[$sniff_name])) {
-        $dir = dirname($bad_file);
+        $dir = \dirname($bad_file);
         $ruleset_pattern = $special_cases[$sniff_name];
 
         // Search for a ruleset containing the specific pattern
@@ -157,6 +155,8 @@ class FixedFilesValidationTest extends E2ETest {
 
   /**
    * Tests an individual fixture.
+   *
+   * @param array{bad: string, fixed: string, ruleset: string, name: string} $fixture
    */
   private function testSingleFixture(array $fixture): void {
     $name = $fixture['name'];
@@ -174,7 +174,6 @@ class FixedFilesValidationTest extends E2ETest {
 
     // Clear any potential PHPCS cache that might cause test interference
     $this->runner->clearPhpcsCache();
-    
     // Execute PHPCBF
     $phpcbf_options = [];
     if ($ruleset !== 'NCAC') {
@@ -203,7 +202,7 @@ class FixedFilesValidationTest extends E2ETest {
       $expected_lines = explode("\n", $expected_content);
       $actual_lines = explode("\n", $actual_content);
 
-      $max_lines = max(count($expected_lines), count($actual_lines));
+      $max_lines = max(\count($expected_lines), \count($actual_lines));
       $diff_count = 0;
 
       for ($i = 0; $i < $max_lines && $diff_count < 5; $i++) {
@@ -213,8 +212,8 @@ class FixedFilesValidationTest extends E2ETest {
         if ($expected_line !== $actual_line) {
           $line_num = $i + 1;
           echo "    Line $line_num:\n";
-          echo "      Expected: " . var_export($expected_line, true) . "\n";
-          echo "      Actual:   " . var_export($actual_line, true) . "\n";
+          echo '      Expected: ' . var_export($expected_line, true) . "\n";
+          echo '      Actual:   ' . var_export($actual_line, true) . "\n";
           $diff_count++;
         }
       }

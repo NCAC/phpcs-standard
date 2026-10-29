@@ -54,3 +54,8 @@ final class     FinalClass {
   }
 
 }
+
+function&by_reference(): array {
+  $values = [];
+  return $values;
+}

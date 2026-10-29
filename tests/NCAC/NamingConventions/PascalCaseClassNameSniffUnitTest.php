@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Tests\NamingConventions;
 
@@ -22,6 +22,8 @@ class PascalCaseClassNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the lines where errors should occur for each fixture file.
+   *
+   * @return array<int, int>
    */
   public function getErrorList(string $test_file): array {
     switch ($test_file) {
@@ -31,7 +33,7 @@ class PascalCaseClassNameSniffUnitTest extends SniffUnitTest {
       case 'PascalCaseClassNameSniffUnitTest.bad.inc':
         return [
           6 => 1,   // class my_class_name
-          14 => 1,  // class camelCaseClassName  
+          14 => 1,  // class camelCaseClassName
           23 => 1,  // class lowercase
           30 => 1,  // class Mixed_case_Name
           37 => 1,  // interface user_interface
@@ -46,6 +48,8 @@ class PascalCaseClassNameSniffUnitTest extends SniffUnitTest {
 
   /**
    * Returns the lines where warnings should occur for each fixture file.
+   *
+   * @return array<int, int>
    */
   public function getWarningList(string $test_file): array {
     return [];
@@ -57,4 +61,5 @@ class PascalCaseClassNameSniffUnitTest extends SniffUnitTest {
   protected function getStandard(): string {
     return __DIR__ . '/ruleset.namingConventions.pascalCaseClassName.xml';
   }
+
 }

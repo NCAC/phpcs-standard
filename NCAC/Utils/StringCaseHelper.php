@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace NCAC\Utils;
 
@@ -43,7 +43,7 @@ class StringCaseHelper {
       !ctype_upper($string[0])
       && !$this->repeatsUppercaseChars($string)
       && $this->hasUpperChars($string)
-      && !ctype_upper(substr($string, strlen($string) - 1))
+      && !ctype_upper(substr($string, \strlen($string) - 1))
     );
   }
 
@@ -57,7 +57,7 @@ class StringCaseHelper {
       ctype_upper($string[0])
       && !$this->repeatsUppercaseChars($string)
       && $this->hasLowerChars($string)
-      && !ctype_upper(substr($string, strlen($string) - 1))
+      && !ctype_upper(substr($string, \strlen($string) - 1))
     );
   }
 

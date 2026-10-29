@@ -22,6 +22,7 @@
 !CONTRIBUTING.md
 !SECURITY.md
 !.php-cs-fixer.dist.php
+!.phpcs.xml
 !var/
 var/cache/
 !KNOWN-ISSUES.md

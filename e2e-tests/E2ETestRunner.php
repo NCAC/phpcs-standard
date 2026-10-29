@@ -41,8 +41,14 @@ class E2ETestRunner {
 
   private int $failed = 0;
 
+  /**
+   * @var list<string>
+   */
   private array $testFiles = [];
 
+  /**
+   * @var array<string, array<string, int|float|string>>
+   */
   private array $results = [];
 
   public function __construct(string $working_dir) {

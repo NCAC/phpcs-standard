@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test naming convention detection.
@@ -9,13 +9,13 @@ namespace NCAC\E2ETests;
 class NamingConventionsTest extends E2ETest {
 
   public function getName(): string {
-    return "Naming Conventions Test";
+    return 'Naming Conventions Test';
   }
 
   public function run(): void {
-    $this->step("Testing correct naming conventions...");
-    
-    $good_content = '<?php
+    $this->step('Testing correct naming conventions...');
+    $good_content = <<<'CODE'
+<?php
 
 namespace Test;
 
@@ -31,21 +31,23 @@ class GoodClassName {
 function good_function_name() {
   return true;
 }
-';
+
+CODE;
     
     $good_file = $this->runner->createTestFile('good-naming.php', $good_content);
     $good_result = $this->runner->runPhpcs($good_file);
     
     if ($good_result['exit_code'] !== 0) {
-      $this->info("Unexpected violations found:");
+      $this->info('Unexpected violations found:');
       $this->info($good_result['output']);
-      throw new \Exception("Should not find naming errors in correctly named code");
+      throw new \Exception('Should not find naming errors in correctly named code');
     }
-    $this->success("Correct naming conventions pass");
+    $this->success('Correct naming conventions pass');
     
-    $this->step("Testing incorrect naming conventions...");
+    $this->step('Testing incorrect naming conventions...');
     
-    $bad_content = '<?php
+    $bad_content = <<<'CODE'
+<?php
 namespace Test;
 
 class bad_class_name {
@@ -58,26 +60,23 @@ class bad_class_name {
 function BadFunctionName() {
   return true;
 }
-';
-    
+
+CODE;
     $bad_file = $this->runner->createTestFile('bad-naming.php', $bad_content);
     $bad_result = $this->runner->runPhpcs($bad_file);
-    
     $this->runner->assertTrue(
       $bad_result['exit_code'] > 0,
-      "Should find naming convention errors"
+      'Should find naming convention errors'
     );
-    
     // Count violations
-    $error_lines = array_filter($bad_result['lines'], function($line) {
+    $error_lines = array_filter($bad_result['lines'], function ($line) {
       return strpos($line, 'ERROR') !== false || strpos($line, 'WARNING') !== false;
     });
-    
     $this->runner->assertTrue(
-      count($error_lines) >= 2,
-      "Should find multiple naming violations"
+      \count($error_lines) >= 2,
+      'Should find multiple naming violations'
     );
-    
-    $this->success("Naming convention violations detected (" . count($error_lines) . " violations)");
+    $this->success('Naming convention violations detected (' . \count($error_lines) . ' violations)');
   }
+
 }
