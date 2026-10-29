@@ -15,6 +15,7 @@ final class ProcOpenRunner implements ProcessRunner {
   /**
    * @param list<string> $command
    */
+  #[\Override]
   public function run(array $command, string $working_directory): int {
     $pipes = [];
     $process = proc_open($command, [0 => \STDIN, 1 => \STDOUT, 2 => \STDERR], $pipes, $working_directory);
